@@ -1,8 +1,7 @@
-
 #include "catch.hpp"
-#include "compare_hit.h"
-#include "hit_serialization.h"
 #include "make_hit.h"
+#include "../compare_hit.h"
+#include "../hit_serialization.h"
 
 #include "lardataobj/RecoBase/Hit.h"
 

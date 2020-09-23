@@ -1,4 +1,4 @@
-#include "../../code/catch.hpp"
+#include "catch.hpp"
 #include "../rawdigit_serialization.h"
 #include "larcoreobj/SimpleTypesAndConstants/RawTypes.h"
 

@@ -29,6 +29,10 @@ link_directories($ENV{ROOTSYS}/lib $ENV{BOOST_LIB} $ENV{ARTDAQ_CORE_LIB} $ENV{CE
 $ENV{LARCOREOBJ_LIB})
 #$ENV{ROOT_LIB}) 
 
+add_executable(test_hit test_hit.cc main.cc)
+target_link_libraries(test_hit Core cetlib_except cetlib larcoreobj_SummaryData lardataobj_RecoBase hepnos Boost::serialization)
+add_test(test_hit test_hit)
+
 add_executable(test_artdaq_fragment test_artdaq_fragment.cc main.cc)
 target_link_libraries(test_artdaq_fragment cetlib_except cetlib Boost::serialization artdaq-core_Core
 artdaq-core_Data)

@@ -1,4 +1,4 @@
-#include "../../code/catch.hpp"
+#include "catch.hpp"
 
 #include "../artdaq_fragment_serialization.h"
 #include "artdaq-core/Data/Fragment.hh"
