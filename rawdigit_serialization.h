@@ -23,8 +23,8 @@ using ADCvector_t = std::vector<short>;
   operator==(const RawDigit& a, const RawDigit& b) {
     if (a.Channel() != b.Channel()) return false;
     if (a.Samples() != b.Samples()) return false;
-    //if (a.GetPedestal() != b.GetPedestal()) return false;
-    //if (a.GetSigma() != b.GetSigma()) return false;
+    if (a.GetPedestal() != b.GetPedestal()) return false;
+    if (a.GetSigma() != b.GetSigma()) return false;
     if (a.Compression() != b.Compression()) return false;
     if (a.ADCs() != b.ADCs()) return false;
     
@@ -67,8 +67,10 @@ namespace boost {
       ar << c;
       auto s = digi.Samples();
       ar << s;
-    //  ar << digi.GetPedestal(); 
-    //  ar << digi.GetSigma();
+      auto p = digi.GetPedestal(); 
+      ar << p;
+      auto sig = digi.GetSigma();
+      ar << sig;
       auto comp= digi.Compression();
       ar << comp;
       raw::ADCvector_t const adcs = digi.ADCs();
@@ -80,19 +82,20 @@ namespace boost {
     load(Archive& ar, raw::RawDigit & digi, const unsigned int)
     {
      
-      raw::ADCvector_t fADC; 
-      raw::ChannelID_t     fChannel;
-      ULong64_t       fSamples; 
-     // float           fPedestal;    
-    //  float           fSigma;   
-      raw::Compress_t      fCompression; 
-      ar >> fChannel;
-      ar >> fSamples;
-     // ar >> fPedestal;
-    //  ar >> fSigma;
-      ar >> fCompression;
-      ar >> fADC;
-      raw::RawDigit rd(fChannel, fSamples, fADC, fCompression);
+      raw::ADCvector_t ADC; 
+      raw::ChannelID_t channel;
+      ULong64_t        samples; 
+      float            pedestal;    
+      float            sigma;   
+      raw::Compress_t  compression; 
+      ar >> channel;
+      ar >> samples;
+      ar >> pedestal;
+      ar >> sigma;
+      ar >> compression;
+      ar >> ADC;
+      raw::RawDigit rd(channel, samples, ADC, compression);
+      rd.SetPedestal(pedestal, sigma);
       digi = rd;
     }
   }
