@@ -1,6 +1,20 @@
-cmake_minimum_required(VERSION 3.9)
-project(icaruswf CXX)
-enable_testing()
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+project(icaruswf LANGUAGES CXX)
 
+enable_testing()
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+find_package(art REQUIRED)
+find_package(lardataobj REQUIRED)
+find_package(larcoreobj REQUIRED)
+find_package(TBB REQUIRED)
+find_package(Boost REQUIRED)
+find_package(ROOT REQUIRED)
+
+add_library(MergeDataProds_module MergeDataProds_module.cc)
+target_link_libraries(MergeDataProds_module PRIVATE Boost::system)
+target_include_directories(MergeDataProds_module PRIVATE $ENV{TBB_INC} $ENV{ROOT_INC})
 add_subdirectory(test)
 
