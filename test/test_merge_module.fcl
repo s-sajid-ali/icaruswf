@@ -1,0 +1,8 @@
+process_name : merge
+
+physics : {
+  analyzers : {
+      myana : {module_type: MergeDataProds}
+  }
+ end_path : [myana]
+ }
