@@ -1,3 +1,22 @@
+# Using spack environment with icarus code and hepnos to build new code on csresearch00.fnal.gov
+
+1. clone the repository: git clone git@github.com:HEPonHPC/icaruswf.git
+
+2. export ICARUSWF_SRC=<path to cloned repository>
+
+3. make a build directory for out of source build and cd into it. 
+
+4. setup spack: source /scratch/ssehrish/icarusgoo/spack_demo_1/spack/v0.16.1.fermi/NULL/share/spack/setup-env.sh
+
+5. activate spack environment: spack env activate icaruswf-dev-001
+
+6. update ROOT_INCLUDE_PATH, export ROOT_INCLUDE_PATH=/scratch/ssehrish/icarusgoo/spack_demo_1/gcc/8.2.0/linux-scientific7-x86_64-gcc-4.8.5-ignea66laaxfx7kxn4r34giiyxltd6n3/include/c++/8.2.0:${ROOT_INCLUDE_PATH}
+
+7. set up the environment variables: source ${ICARUSWF_SRC}/envvariable.sh 
+
+8. run cmake in the build directory: cmake -DCMAKE_CXX_COMPILER=$(which g++) ${ICARUSWF_SRC}  
+
+
 # Spack build instructions for ICARUS Code
 
 export spack_area=`pwd`/spack_demo_1
