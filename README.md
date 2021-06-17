@@ -16,6 +16,9 @@
 
 8. run cmake in the build directory: cmake -DCMAKE_CXX_COMPILER=$(which g++) ${ICARUSWF_SRC}  
 
+9. update the CET_PLUGIN_PATH: export CET_PLUGIN_PATH=${PWD}:${CET_PLUGIN_PATH}
+
+10. run the job: art -c ${ICARUSWF_SRC}test/test_merge_module.fcl -s <icarus art/root file> -n 2
 
 # Spack build instructions for ICARUS Code
 
