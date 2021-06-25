@@ -1,0 +1,8 @@
+process_name : hepnosstore
+
+physics : {
+  analyzers : {
+      myana : {module_type: HepnosLoadData}
+  }
+ end_path : [myana]
+ }
