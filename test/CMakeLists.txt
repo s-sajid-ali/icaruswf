@@ -46,3 +46,7 @@ add_test(test_rawdigit test_rawdigit)
 add_executable(test_wire test_wire.cc main.cc)
 target_link_libraries(test_wire Core cetlib_except cetlib larcoreobj_SummaryData lardataobj_RecoBase hepnos Boost::serialization)
 add_test(test_wire test_wire)
+
+add_executable(test_spacepoint test_spacepoint.cc main.cc)
+target_link_libraries(test_spacepoint Core cetlib_except cetlib larcoreobj_SummaryData lardataobj_RecoBase hepnos Boost::serialization)
+add_test(test_spacepoint test_spacepoint)
