@@ -18,6 +18,7 @@
 
 #include "hit_serialization.h"
 #include "rawdigit_serialization.h"
+#include "spacepoint_serialization.h"
 #include "wire_serialization.h"
 
 #include <boost/serialization/utility.hpp>
@@ -76,6 +77,7 @@ namespace {
     explicit HepnosStoreData(Parameters const& p, art::ProcessingFrame const&)
       : SharedAnalyzer{p}
     {
+      async<art::InEvent>();
       auto connection_file = "client.yaml";
       auto ds_name = "icarus";
       datastore_ = hepnos::DataStore::connect(connection_file);
@@ -109,6 +111,10 @@ namespace {
       storeassns<recob::Hit, recob::Wire>(datastore_, hit_id_2, w_id_1, h_e, a_e, "icarushit");
       storeassns<recob::Hit, recob::Wire>(datastore_, hit_id_3, w_id_1, h_e, a_e, "gaushit");
      
+      storedata<std::vector<recob::SpacePoint>>(h_e, a_e, "pandoraGaus");
+      storedata<std::vector<recob::SpacePoint>>(h_e, a_e, "pandoraICARUS");
+      storedata<std::vector<recob::SpacePoint>>(h_e, a_e, "pandoraKalmanTrackICARUS");
+      storedata<std::vector<recob::SpacePoint>>(h_e, a_e, "pandoraKalmanTrackGaus");
     }
 
   };

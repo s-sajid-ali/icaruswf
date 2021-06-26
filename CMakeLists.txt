@@ -18,8 +18,8 @@ add_library(MergeDataProds_module SHARED MergeDataProds_module.cc)
 target_link_libraries(MergeDataProds_module PRIVATE Boost::system)
 target_include_directories(MergeDataProds_module PRIVATE $ENV{TBB_INC} $ENV{ROOT_INC} $ENV{ART_INC})
 
-add_library(HepnosLoadData_module SHARED HepnosLoadData_module.cc)
-target_link_libraries(HepnosLoadData_module PRIVATE Boost::system hepnos Boost::serialization)
-target_include_directories(HepnosLoadData_module PRIVATE $ENV{TBB_INC} $ENV{ROOT_INC} $ENV{ART_INC} $ENV{HEPNOS_INC})
+add_library(HepnosStoreData_module SHARED HepnosStoreData_module.cc)
+target_link_libraries(HepnosStoreData_module PRIVATE Boost::system hepnos Boost::serialization)
+target_include_directories(HepnosStoreData_module PRIVATE $ENV{TBB_INC} $ENV{ROOT_INC} $ENV{ART_INC} $ENV{HEPNOS_INC})
 add_subdirectory(test)
 
