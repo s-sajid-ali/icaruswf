@@ -1,0 +1,8 @@
+process_name : hepnosinputsource
+
+source : 
+{
+  module_type: HepnosInput
+  fileNames: ['icarus']
+}
+

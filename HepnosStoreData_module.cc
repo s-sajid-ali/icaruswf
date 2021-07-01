@@ -38,7 +38,16 @@ storedata(hepnos::Event& h_e,
 {
   art::InputTag const tag(modulelabel, "", instancename);
   auto const h = a_e.getValidHandle<T>(tag);
-  return h_e.store(tag, *h);
+  auto d = *h;
+  std::cout << modulelabel << ", " << d.size() << "\n";
+  auto g = h_e.store(tag, d);
+ /* T recs;
+  T recs1;
+  h_e.load(modulelabel, recs);
+  h_e.load(tag, recs1);
+  std::cout << modulelabel << ", " << recs.size() << ", " << recs1.size() << "\n";
+  */
+  return g;
 } 
 
 template<typename A, typename B>
@@ -60,7 +69,7 @@ storeassns(hepnos::DataStore datastore,
     //std::cout << a.first.key() << "," << a.second.key() << "\n";
     auto const A_ptr = datastore.makePtr<A>(A_id, a.first.key());
     auto const B_ptr = datastore.makePtr<B>(B_id, a.second.key());
-    h_assns.push_back(make_pair(A_ptr, B_ptr)); 
+    h_assns.push_back(std::make_pair(A_ptr, B_ptr)); 
   }
     h_e.store(assns_tag, h_assns); 
 }
@@ -105,6 +114,9 @@ namespace {
       
       auto hit_id_1 = storedata<std::vector<recob::Hit>>(h_e, a_e, "gaushitall");
       auto hit_id_2 = storedata<std::vector<recob::Hit>>(h_e, a_e, "gaushit");
+      std::vector<recob::Hit> hits;
+      h_e.load("gaushit", hits);
+      std::cout << hits.size() << "\n";
       auto hit_id_3 = storedata<std::vector<recob::Hit>>(h_e, a_e, "icarushit");
       
       storeassns<recob::Hit, recob::Wire>(datastore_, hit_id_1, w_id_1, h_e, a_e, "gaushitall");
