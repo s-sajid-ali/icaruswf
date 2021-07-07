@@ -41,12 +41,6 @@ storedata(hepnos::Event& h_e,
   auto d = *h;
   std::cout << modulelabel << ", " << d.size() << "\n";
   auto g = h_e.store(tag, d);
- /* T recs;
-  T recs1;
-  h_e.load(modulelabel, recs);
-  h_e.load(tag, recs1);
-  std::cout << modulelabel << ", " << recs.size() << ", " << recs1.size() << "\n";
-  */
   return g;
 } 
 
@@ -60,7 +54,7 @@ storeassns(hepnos::DataStore datastore,
            const char * modulelabel, 
            const char *instancename="") 
 {
-  art::InputTag const assns_tag(modulelabel, "", instancename);
+  art::InputTag const assns_tag(modulelabel, instancename, "");
   auto const & a_assns = *a_e.getValidHandle<art::Assns<A, B>>(assns_tag);
   hepnos::Assns<A, B> h_assns;
   h_assns.reserve(a_assns.size());
@@ -76,7 +70,7 @@ storeassns(hepnos::DataStore datastore,
 
 
 namespace {
-  class HepnosStoreData : public art::SharedAnalyzer {
+  class HepnosStoreData : public art::SharedAnalyzer { public:
   public:
     struct Config {
     };

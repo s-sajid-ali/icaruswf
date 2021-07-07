@@ -67,9 +67,7 @@ namespace boost {
       lar::sparse_vector<float> rois;
       ar >> channel;
       ar >> view;
-      std::cout << "read channel and view\n"; 
       ar >> rois;
-      std::cout << "read rois\n"; 
       recob::Wire w(rois, channel, view);
       wire = w;
     }
