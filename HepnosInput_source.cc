@@ -25,10 +25,10 @@
 #include "larcoreobj/SimpleTypesAndConstants/RawTypes.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
 
-#include "lardataobj/RawData/RawDigit.h"
+//#include "lardataobj/RawData/RawDigit.h"
 //#include "lardataobj/RecoBase/Hit.h"
-#include "lardataobj/RecoBase/SpacePoint.h"
-#include "lardataobj/RecoBase/Wire.h"
+//#include "lardataobj/RecoBase/SpacePoint.h"
+//#include "lardataobj/RecoBase/Wire.h"
 
 #define private public
 #include "hepnos.hpp"
@@ -63,25 +63,6 @@ namespace hepnos {
      return {};
   }
   
-  template <typename A, typename B>
-  std::unique_ptr<art::Assns<A, B>>
-  read_assns(hepnos::Event& event, 
-            art::EventPrincipal*& outE, 
-            art::ProductID const& a_pid, 
-            art::ProductID const& b_pid, 
-            std::string const& module_label)
-  {
-     art::InputTag const tag(module_label, "", "");
-     std::vector<std::pair<hepnos::Ptr<A>, hepnos::Ptr<B>>> assns;
-     event.load(tag, assns);
-     art::Assns<A, B> art_assns;
-     for (auto const& [a, b]: assns) {
-       art_assns.addSingle(art::Ptr<A>(a_pid, a.m_index, outE->productGetter(a_pid)), 
-                           art::Ptr<B>(b_pid, b.m_index, outE->productGetter(b_pid)));
-     }
-     return std::make_unique<art::Assns<A, B>>(art_assns);
-  }
-  
   template <typename T>
   art::ProductID
   create_productID(std::vector<T> const& t, 
@@ -94,7 +75,30 @@ namespace hepnos {
                                         instance_name, 
                                         art::Globals::instance()->processName());
      return art::ProductID{product_name};      
-  } 
+  }
+ 
+  template <typename A, typename B>
+  std::unique_ptr<art::Assns<A, B>>
+  read_assns(hepnos::Event& event, 
+            art::EventPrincipal*& outE, 
+            std::vector<A> const& a_col, 
+            std::vector<B> const& b_col, 
+            std::string const& a_module_label,
+            std::string const& b_module_label)
+  {
+     art::InputTag const tag(a_module_label, "", "");
+     std::vector<std::pair<hepnos::Ptr<A>, hepnos::Ptr<B>>> assns;
+     event.load(tag, assns);
+     auto const a_pid = create_productID<A>(a_col, a_module_label, "");
+     auto const b_pid = create_productID<B>(b_col, b_module_label, "");
+     art::Assns<A, B> art_assns;
+     for (auto const& [a, b]: assns) {
+       art_assns.addSingle(art::Ptr<A>(a_pid, a.m_index, outE->productGetter(a_pid)), 
+                           art::Ptr<B>(b_pid, b.m_index, outE->productGetter(b_pid)));
+     }
+     return std::make_unique<art::Assns<A, B>>(art_assns);
+  }
+  
 
   // Funtion in hepnos namespace to read in all the data products and association
   // collection needed in this workflow. We are working with data products of 
@@ -105,33 +109,66 @@ namespace hepnos {
           bool strict, 
           art::EventPrincipal*& outE) 
   {
-      auto hits = hepnos::read_product<recob::Hit>(event, "gaushit", strict);
-      if (hits) art::put_product_in_principal(std::move(hits), *outE, "gaushit");
-
-      auto wires = hepnos::read_product<recob::Wire>(event, "recowireraw", strict);
-      art::ProductID w_id;
-      if (wires) {
-        art::put_product_in_principal(std::move(wires), *outE, "recowireraw");
-        w_id = create_productID<recob::Wire>(*wires, "recowireraw", "");
-      }
-      if (hits && wires) {
-        auto const h_id = create_productID<recob::Hit>(*hits, "gaushit", "");
-        auto assns = hepnos::read_assns<recob::Hit, recob::Wire>(event, outE, h_id, w_id, "recowireraw");
-        art::put_product_in_principal(std::move(assns), *outE, "gaushit");
-      }
 
       auto rawdigits = hepnos::read_product<raw::RawDigit>(event, "rawdigitfilter", strict);
       if (rawdigits) art::put_product_in_principal(std::move(rawdigits), *outE, "rawdigitfilter");
-
-     /* if (rawdigits && wires) {
-        auto const r_id = create_productID<recob::Hit>(*hits, "rawdigitfilter", "");
-        auto assns = hepnos::read_assns<raw::RawDigit, recob::Wire>(event, outE, r_id, w_id, "recowireraw");
-        art::put_product_in_principal(std::move(assns),
-                                      *outE,
-                                      "recowireraw"); 
+      
+      auto wires = hepnos::read_product<recob::Wire>(event, "recowireraw", strict);
+      if (wires) {
+        art::put_product_in_principal(std::move(wires), *outE, "recowireraw");
       }
-*/
+
+      if (rawdigits && wires) {
+        auto assns = hepnos::read_assns<raw::RawDigit, recob::Wire>(event, outE, *rawdigits, *wires, "rawdigitfilter", "recowireraw");
+        art::put_product_in_principal(std::move(assns), *outE, "recowireraw"); 
+      }
        
+      auto wires_dcon = hepnos::read_product<recob::Wire>(event, "dcon1droi", strict);
+      if (wires_dcon) {
+        art::put_product_in_principal(std::move(wires_dcon), *outE, "dcon1droi");
+      }
+
+      if (rawdigits && wires_dcon) {
+        auto assns = hepnos::read_assns<raw::RawDigit, recob::Wire>(event, outE, *rawdigits, *wires_dcon, "rawdigitfilter","dcon1droi");
+        art::put_product_in_principal(std::move(assns), *outE, "dcon1droi"); 
+      }
+      
+      auto hits = hepnos::read_product<recob::Hit>(event, "gaushitall", strict);
+      if (hits) art::put_product_in_principal(std::move(hits), *outE, "gaushitall");
+      
+      if (hits && wires) {
+        auto assns = hepnos::read_assns<recob::Hit, recob::Wire>(event, outE, *hits, *wires, "gaushitall","recowireraw");
+        art::put_product_in_principal(std::move(assns), *outE, "gaushitall");
+      }
+
+      auto gaushits = hepnos::read_product<recob::Hit>(event, "gaushit", strict);
+      if (gaushits) art::put_product_in_principal(std::move(gaushits), *outE, "gaushit");
+      
+      if (gaushits && wires) {
+        auto assns = hepnos::read_assns<recob::Hit, recob::Wire>(event, outE, *gaushits, *wires, "gaushit","recowireraw");
+        art::put_product_in_principal(std::move(assns), *outE, "gaushit");
+      }
+
+      auto icarushits = hepnos::read_product<recob::Hit>(event, "icarushit", strict);
+      if (icarushits) art::put_product_in_principal(std::move(icarushits), *outE, "icarushit");
+      
+      if (icarushits && wires) {
+        auto assns = hepnos::read_assns<recob::Hit, recob::Wire>(event, outE, *icarushits, *wires, "icarushit","recowireraw");
+        art::put_product_in_principal(std::move(assns), *outE, "icarushit");
+      }
+
+      auto spacepoints_1 = hepnos::read_product<recob::SpacePoint>(event, "pandoraGaus", strict);
+      if (spacepoints_1) art::put_product_in_principal(std::move(spacepoints_1), *outE, "pandoraGaus");
+
+      auto spacepoints_2 = hepnos::read_product<recob::SpacePoint>(event, "pandoraICARUS", strict);
+      if (spacepoints_2) art::put_product_in_principal(std::move(spacepoints_2), *outE, "pandoraICARUS");
+
+      auto spacepoints_3 = hepnos::read_product<recob::SpacePoint>(event, "pandoraKalmanTrackICARUS", strict);
+      if (spacepoints_3) art::put_product_in_principal(std::move(spacepoints_3), *outE, "pandoraKalmanTrackICARUS");
+
+      auto spacepoints_4 = hepnos::read_product<recob::SpacePoint>(event, "pandoraKalmanTrackGaus", strict);
+      if (spacepoints_4) art::put_product_in_principal(std::move(spacepoints_4), *outE, "pandoraKalmanTrackGaus");
+
   return true;
   }
 }
@@ -143,9 +180,21 @@ namespace hepnossource {
                       art::ProductRegistryHelper& rh, 
                       art::SourceHelper const& pm) : pm_(pm)
     {
-      rh.reconstitutes<std::vector<recob::Hit>, art::InEvent>("gaushit");
+      rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("rawdigitfilter");
       rh.reconstitutes<std::vector<recob::Wire>, art::InEvent>("recowireraw");
+      rh.reconstitutes<std::vector<recob::Wire>, art::InEvent>("decon1droi");
+      rh.reconstitutes<art::Assns<raw::RawDigit, recob::Wire>, art::InEvent>("recowireraw");
+      rh.reconstitutes<art::Assns<raw::RawDigit, recob::Wire>, art::InEvent>("decon1droi");
+      rh.reconstitutes<std::vector<recob::Hit>, art::InEvent>("gaushitall");
+      rh.reconstitutes<std::vector<recob::Hit>, art::InEvent>("gaushit");
+      rh.reconstitutes<std::vector<recob::Hit>, art::InEvent>("icarushit");
+      rh.reconstitutes<art::Assns<recob::Hit, recob::Wire>, art::InEvent>("gaushitall");
+      rh.reconstitutes<art::Assns<recob::Hit, recob::Wire>, art::InEvent>("icarushit");
       rh.reconstitutes<art::Assns<recob::Hit, recob::Wire>, art::InEvent>("gaushit");
+      rh.reconstitutes<std::vector<recob::SpacePoint>, art::InEvent>("pandoraGaus");
+      rh.reconstitutes<std::vector<recob::SpacePoint>, art::InEvent>("pandoraICARUS");
+      rh.reconstitutes<std::vector<recob::SpacePoint>, art::InEvent>("pandoaKalmanTrackICARUS");
+      rh.reconstitutes<std::vector<recob::SpacePoint>, art::InEvent>("pandoraKalmanTrackGaus");
     }
 
     bool readNext(art::RunPrincipal* const& inR,
