@@ -108,9 +108,6 @@ namespace {
       
       auto hit_id_1 = storedata<std::vector<recob::Hit>>(h_e, a_e, "gaushitall");
       auto hit_id_2 = storedata<std::vector<recob::Hit>>(h_e, a_e, "gaushit");
-      std::vector<recob::Hit> hits;
-      h_e.load("gaushit", hits);
-      std::cout << hits.size() << "\n";
       auto hit_id_3 = storedata<std::vector<recob::Hit>>(h_e, a_e, "icarushit");
       
       storeassns<recob::Hit, recob::Wire>(datastore_, hit_id_1, w_id_1, h_e, a_e, "gaushitall");

@@ -45,18 +45,41 @@ using namespace std;
 namespace hepnos { 
   template <typename A, typename B>
   using Assns =std::vector<std::pair<hepnos::Ptr<A>, hepnos::Ptr<B>>>; 
-}
-
-namespace hepnossource{
+  
   template <typename T>
   std::unique_ptr<std::vector<T>> 
-  loaddata(hepnos::Event& event, 
-           std::string const& module_label) 
+  read_product(hepnos::Event& event,
+              std::string const& module_label,
+              bool strict) 
   {
      art::InputTag const tag(module_label, "", "");
      std::vector<T> products;
-     event.load(tag, products);
-     return std::make_unique<std::vector<T>>(products);
+     auto ret = event.load(tag, products);
+     if (ret) return std::make_unique<std::vector<T>>(products);
+     if (strict) 
+     { 
+        throw art::Exception(art::errors::ProductNotFound) <<  "Product not read for label: "<< module_label << ", " << art::TypeID{products}.friendlyClassName() << "\n"; 
+     }
+     return {};
+  }
+  
+  template <typename A, typename B>
+  std::unique_ptr<art::Assns<A, B>>
+  read_assns(hepnos::Event& event, 
+            art::EventPrincipal*& outE, 
+            art::ProductID const& a_pid, 
+            art::ProductID const& b_pid, 
+            std::string const& module_label)
+  {
+     art::InputTag const tag(module_label, "", "");
+     std::vector<std::pair<hepnos::Ptr<A>, hepnos::Ptr<B>>> assns;
+     event.load(tag, assns);
+     art::Assns<A, B> art_assns;
+     for (auto const& [a, b]: assns) {
+       art_assns.addSingle(art::Ptr<A>(a_pid, a.m_index, outE->productGetter(a_pid)), 
+                           art::Ptr<B>(b_pid, b.m_index, outE->productGetter(b_pid)));
+     }
+     return std::make_unique<art::Assns<A, B>>(art_assns);
   }
   
   template <typename T>
@@ -72,36 +95,50 @@ namespace hepnossource{
                                         art::Globals::instance()->processName());
      return art::ProductID{product_name};      
   } 
- 
-  template <typename A, typename B>
-  std::unique_ptr<art::Assns<A, B>>
-  loadassns(hepnos::Event& event, 
-            art::EventPrincipal*& outE, 
-            std::vector<A> const& a_col, 
-            std::vector<B> const& b_col, 
-            std::string const& a_module_label, 
-            std::string const& b_module_label)
-  {
-     art::InputTag const tag(a_module_label, "", "");
-     std::vector<std::pair<hepnos::Ptr<A>, hepnos::Ptr<B>>> assns;
-     event.load(tag, assns);
-     art::Assns<A, B> art_assns;
-     auto const a_pid = create_productID<A>(a_col, a_module_label, "");
-     auto const b_pid = create_productID<B>(b_col, b_module_label, "");
-     for (auto const& [a, b]: assns) {
-       art_assns.addSingle(art::Ptr<A>(a_pid, a.m_index, outE->productGetter(a_pid)), 
-                           art::Ptr<B>(b_pid, b.m_index, outE->productGetter(b_pid)));
-     }
-     return std::make_unique<art::Assns<A, B>>(art_assns);
-  }
 
+  // Funtion in hepnos namespace to read in all the data products and association
+  // collection needed in this workflow. We are working with data products of 
+  // known types here, and hence we have a sequence of similar steps to read 
+  // in each product one by one. We may want to factorize this code a little better. 
+  bool
+  read_all(hepnos::Event& event, 
+          bool strict, 
+          art::EventPrincipal*& outE) 
+  {
+      auto hits = hepnos::read_product<recob::Hit>(event, "gaushit", strict);
+      if (hits) art::put_product_in_principal(std::move(hits), *outE, "gaushit");
+
+      auto wires = hepnos::read_product<recob::Wire>(event, "recowireraw", strict);
+      art::ProductID w_id;
+      if (wires) {
+        art::put_product_in_principal(std::move(wires), *outE, "recowireraw");
+        w_id = create_productID<recob::Wire>(*wires, "recowireraw", "");
+      }
+      if (hits && wires) {
+        auto const h_id = create_productID<recob::Hit>(*hits, "gaushit", "");
+        auto assns = hepnos::read_assns<recob::Hit, recob::Wire>(event, outE, h_id, w_id, "recowireraw");
+        art::put_product_in_principal(std::move(assns), *outE, "gaushit");
+      }
+
+      auto rawdigits = hepnos::read_product<raw::RawDigit>(event, "rawdigitfilter", strict);
+      if (rawdigits) art::put_product_in_principal(std::move(rawdigits), *outE, "rawdigitfilter");
+
+     /* if (rawdigits && wires) {
+        auto const r_id = create_productID<recob::Hit>(*hits, "rawdigitfilter", "");
+        auto assns = hepnos::read_assns<raw::RawDigit, recob::Wire>(event, outE, r_id, w_id, "recowireraw");
+        art::put_product_in_principal(std::move(assns),
+                                      *outE,
+                                      "recowireraw"); 
+      }
+*/
+       
+  return true;
+  }
+}
+
+namespace hepnossource {
   class HepnosInputSource {
   public:
-    //struct Config {
-    //};
-  
-    //using Parameters = fhicl::Table<Config>;
-  
     HepnosInputSource(fhicl::ParameterSet const& p, 
                       art::ProductRegistryHelper& rh, 
                       art::SourceHelper const& pm) : pm_(pm)
@@ -163,14 +200,10 @@ namespace hepnossource{
       }
       outE = pm_.makeEventPrincipal(r, sr, ev_->number(), ts, false);
       
-      auto hits = loaddata<recob::Hit>(*ev_, "gaushit");
-      auto wires = loaddata<recob::Wire>(*ev_, "recowireraw");
-      auto assns = loadassns<recob::Hit, recob::Wire>(*ev_, outE, *hits, *wires, "gaushit", "recowireraw");
-      art::put_product_in_principal(std::move(hits), *outE, "gaushit");
-      art::put_product_in_principal(std::move(wires), *outE, "recowireraw");
-      art::put_product_in_principal(std::move(assns), *outE, "gaushit");
+      auto const strict = true; 
+      auto status = hepnos::read_all(*ev_, strict, outE);     
       ++ev_;
-      return true;
+      return status;
     }
 }
 
