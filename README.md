@@ -14,6 +14,34 @@ git clone --depth 1 --branch v0.16.2 https://github.com/spack/spack.git
 source spack/share/spack/setup-env.sh
 ```
 
+3. Create the environment and add the required packages
+
+```
+spack env create hepnos_env_001    # you may need a bigger number
+spack env activate hepnos_env_001  # use the same number as above
+wget https://raw.githubusercontent.com/HEPonHPC/hepnos_eventselection/master/docker/hepnos/spack.yaml
+mv spack.yaml ${SPACK_ENV}
+```
+
+4. Concretize the environment.
+
+```
+spack concretize
+```
+
+*TODO* Fix this; the command failed.
+The error was:
+
+```
+hepnos_goo$ spack concretize
+==> Warning: Failed to initialize repository: '/hepnos/mochi-spack-packages'.
+  No repo.yaml found in '/hepnos/mochi-spack-packages'
+  To remove the bad repository, run this command:
+      spack repo rm /hepnos/mochi-spack-packages
+==> Error: Package 'hepnos' not found.
+```
+
+
 
 # Using spack environment with icarus code and hepnos to build new code on csresearch00.fnal.gov
 
