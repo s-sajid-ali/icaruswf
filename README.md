@@ -1,3 +1,20 @@
+# Create a spack environment containing `hepnos` on csresearch00.fnal.gov
+
+We are building the spack environment in `/work1/fwk/hepnos_goo`, so that the resulting environment can be used on other *csresearch* machines.
+
+1. Get spack installed
+
+```
+cd /work1/fwk/hepnos_goo
+git clone https://github.com/spack/spack.git
+```
+
+2. Set up spack
+```
+source spack/share/spack/setup-env.sh
+```
+
+
 # Using spack environment with icarus code and hepnos to build new code on csresearch00.fnal.gov
 
 1. clone the repository: git clone git@github.com:HEPonHPC/icaruswf.git
