@@ -6,7 +6,7 @@ We are building the spack environment in `/work1/fwk/hepnos_goo`, so that the re
 
 ```
 cd /work1/fwk/hepnos_goo
-git clone https://github.com/spack/spack.git
+git clone --depth 1 --branch v0.16.2 https://github.com/spack/spack.git
 ```
 
 2. Set up spack
