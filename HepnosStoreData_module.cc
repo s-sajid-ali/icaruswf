@@ -2,6 +2,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/SharedAnalyzer.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Framework/Principal/Event.h"
 #include "canvas/Persistency/Common/Assns.h"
 
 #include "fhiclcpp/types/Atom.h"
@@ -81,9 +82,9 @@ namespace {
       : SharedAnalyzer{p}
     {
       async<art::InEvent>();
-      auto connection_file = "client.yaml";
+      auto connection_file = "connection.json";
       auto ds_name = "icarus";
-      datastore_ = hepnos::DataStore::connect(connection_file);
+      datastore_ = hepnos::DataStore::connect("ofi+tcp", connection_file);
       hepnos::DataSet current = datastore_.root();
       current = current.createDataSet(ds_name); 
       auto r = current.createRun(1000); 
@@ -111,8 +112,8 @@ namespace {
       auto hit_id_3 = storedata<std::vector<recob::Hit>>(h_e, a_e, "icarushit");
       
       storeassns<recob::Hit, recob::Wire>(datastore_, hit_id_1, w_id_1, h_e, a_e, "gaushitall");
-      storeassns<recob::Hit, recob::Wire>(datastore_, hit_id_2, w_id_1, h_e, a_e, "icarushit");
-      storeassns<recob::Hit, recob::Wire>(datastore_, hit_id_3, w_id_1, h_e, a_e, "gaushit");
+      storeassns<recob::Hit, recob::Wire>(datastore_, hit_id_2, w_id_1, h_e, a_e, "gaushit");
+      storeassns<recob::Hit, recob::Wire>(datastore_, hit_id_3, w_id_1, h_e, a_e, "icarushit");
      
       storedata<std::vector<recob::SpacePoint>>(h_e, a_e, "pandoraGaus");
       storedata<std::vector<recob::SpacePoint>>(h_e, a_e, "pandoraICARUS");

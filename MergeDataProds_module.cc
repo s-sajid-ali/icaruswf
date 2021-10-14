@@ -1,7 +1,9 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/SharedAnalyzer.h"
-#include "art/Framework/Principal/fwd.h"
+//#include "art/Framework/Principal/fwd.h"
+#include "art/Framework/Principal/Event.h"
+#include "canvas/Persistency/Common/Assns.h"
 #include "fhiclcpp/types/Atom.h"
 
 #include "larcoreobj/SimpleTypesAndConstants/RawTypes.h"

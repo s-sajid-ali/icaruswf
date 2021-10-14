@@ -3,6 +3,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/SharedAnalyzer.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/IO/Sources/Source.h"
 #include "art/Framework/Core/InputSourceMacros.h"
 #include "canvas/Persistency/Common/Assns.h"
@@ -111,51 +112,39 @@ namespace hepnos {
   {
 
       auto rawdigits = hepnos::read_product<raw::RawDigit>(event, "rawdigitfilter", strict);
-      if (rawdigits) art::put_product_in_principal(std::move(rawdigits), *outE, "rawdigitfilter");
-      
       auto wires = hepnos::read_product<recob::Wire>(event, "recowireraw", strict);
-      if (wires) {
-        art::put_product_in_principal(std::move(wires), *outE, "recowireraw");
-      }
-
+      auto wires_dcon = hepnos::read_product<recob::Wire>(event, "decon1droi", strict);
+      auto hits = hepnos::read_product<recob::Hit>(event, "gaushitall", strict);
+      auto gaushits = hepnos::read_product<recob::Hit>(event, "gaushit", strict);
+      auto icarushits = hepnos::read_product<recob::Hit>(event, "icarushit", strict);
+      
       if (rawdigits && wires) {
         auto assns = hepnos::read_assns<raw::RawDigit, recob::Wire>(event, outE, *rawdigits, *wires, "rawdigitfilter", "recowireraw");
         art::put_product_in_principal(std::move(assns), *outE, "recowireraw"); 
       }
-       
-      auto wires_dcon = hepnos::read_product<recob::Wire>(event, "dcon1droi", strict);
-      if (wires_dcon) {
-        art::put_product_in_principal(std::move(wires_dcon), *outE, "dcon1droi");
-      }
-
       if (rawdigits && wires_dcon) {
-        auto assns = hepnos::read_assns<raw::RawDigit, recob::Wire>(event, outE, *rawdigits, *wires_dcon, "rawdigitfilter","dcon1droi");
-        art::put_product_in_principal(std::move(assns), *outE, "dcon1droi"); 
+        auto assns = hepnos::read_assns<raw::RawDigit, recob::Wire>(event, outE, *rawdigits, *wires_dcon, "rawdigitfilter","decon1droi");
+        art::put_product_in_principal(std::move(assns), *outE, "decon1droi"); 
       }
-      
-      auto hits = hepnos::read_product<recob::Hit>(event, "gaushitall", strict);
-      if (hits) art::put_product_in_principal(std::move(hits), *outE, "gaushitall");
-      
       if (hits && wires) {
         auto assns = hepnos::read_assns<recob::Hit, recob::Wire>(event, outE, *hits, *wires, "gaushitall","recowireraw");
         art::put_product_in_principal(std::move(assns), *outE, "gaushitall");
       }
-
-      auto gaushits = hepnos::read_product<recob::Hit>(event, "gaushit", strict);
-      if (gaushits) art::put_product_in_principal(std::move(gaushits), *outE, "gaushit");
-      
       if (gaushits && wires) {
         auto assns = hepnos::read_assns<recob::Hit, recob::Wire>(event, outE, *gaushits, *wires, "gaushit","recowireraw");
         art::put_product_in_principal(std::move(assns), *outE, "gaushit");
       }
-
-      auto icarushits = hepnos::read_product<recob::Hit>(event, "icarushit", strict);
-      if (icarushits) art::put_product_in_principal(std::move(icarushits), *outE, "icarushit");
-      
       if (icarushits && wires) {
         auto assns = hepnos::read_assns<recob::Hit, recob::Wire>(event, outE, *icarushits, *wires, "icarushit","recowireraw");
         art::put_product_in_principal(std::move(assns), *outE, "icarushit");
       }
+
+      art::put_product_in_principal(std::move(rawdigits), *outE, "rawdigitfilter");
+      art::put_product_in_principal(std::move(wires), *outE, "recowireraw");
+      art::put_product_in_principal(std::move(wires_dcon), *outE, "decon1droi");
+      art::put_product_in_principal(std::move(hits), *outE, "gaushitall");
+      art::put_product_in_principal(std::move(gaushits), *outE, "gaushit");
+      art::put_product_in_principal(std::move(icarushits), *outE, "icarushit");
 
       auto spacepoints_1 = hepnos::read_product<recob::SpacePoint>(event, "pandoraGaus", strict);
       if (spacepoints_1) art::put_product_in_principal(std::move(spacepoints_1), *outE, "pandoraGaus");
@@ -193,7 +182,7 @@ namespace hepnossource {
       rh.reconstitutes<art::Assns<recob::Hit, recob::Wire>, art::InEvent>("gaushit");
       rh.reconstitutes<std::vector<recob::SpacePoint>, art::InEvent>("pandoraGaus");
       rh.reconstitutes<std::vector<recob::SpacePoint>, art::InEvent>("pandoraICARUS");
-      rh.reconstitutes<std::vector<recob::SpacePoint>, art::InEvent>("pandoaKalmanTrackICARUS");
+      rh.reconstitutes<std::vector<recob::SpacePoint>, art::InEvent>("pandoraKalmanTrackICARUS");
       rh.reconstitutes<std::vector<recob::SpacePoint>, art::InEvent>("pandoraKalmanTrackGaus");
     }
 
@@ -204,9 +193,9 @@ namespace hepnossource {
                   art::EventPrincipal*& outE);
 
     void readFile(std::string const& dsname, art::FileBlock*& fb) {
-      auto connection_file = "client.yaml";
+      auto connection_file = "connection.json";
       auto dataset_name = dsname;
-      datastore_ = hepnos::DataStore::connect(connection_file);
+      datastore_ = hepnos::DataStore::connect("ofi+tcp", connection_file);
       dataset_ = datastore_.root()[dataset_name];
       fb = new art::FileBlock{art::FileFormatVersion{1, "SimpleSource 2017"},
                           dsname};

@@ -87,6 +87,7 @@ Setup area:
 Install spack infrastructure:
 
 wget https://cdcvs.fnal.gov/redmine/projects/spack-infrastructure/repository/revisions/master/raw/bin/bootstrap
+This wget may not work ... I had to login to the cdcvs.fnal.gov to get access to this... 
 
 sh ./bootstrap $spack_area $spack_inf_vers $spack_vers
 
@@ -94,6 +95,17 @@ sh ./bootstrap $spack_area $spack_inf_vers $spack_vers
 Install local instance of spack:
 
 8. source $spack_area/setup-env.sh
+
+ we can check now what repos were added: 
+
+spack repo list
+
+==> 5 package repositories.
+local           /work1/fwk/icaruswfgoo/spack_demo_1/spack/v0.16.1.fermi/NULL/var/spack/repos/local
+ups_to_spack    /work1/fwk/icaruswfgoo/spack_demo_1/spack/v0.16.1.fermi/NULL/var/spack/repos/ups_to_spack
+scd_recipes     /work1/fwk/icaruswfgoo/spack_demo_1/spack/v0.16.1.fermi/NULL/var/spack/repos/scd_recipes
+fnal_art        /work1/fwk/icaruswfgoo/spack_demo_1/spack/v0.16.1.fermi/NULL/var/spack/repos/fnal_art
+builtin         /work1/fwk/icaruswfgoo/spack_demo_1/spack/v0.16.1.fermi/NULL/var/spack/repos/builtin
 
 8. export spack_os=$(spack arch -o) 
 
