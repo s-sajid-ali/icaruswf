@@ -41,7 +41,29 @@ hepnos_goo$ spack concretize
 ==> Error: Package 'hepnos' not found.
 ```
 
+# Using spack environment with icarus code and hepnos to build new code on Theta (WIP)
 
+
+1.   clone the repository, : 
+
+2. Get an interactive node: qsub -I -n 4 -t 01:00 --attrs enable_ssh=1 -q debug-cache-quad -A HEP_on_HPC
+
+3. module unload PrgEnv-intel
+
+4. source /projects/HEP_on_HPC/icaruscode/spack/share/spack/setup-env.sh
+5. 
+7. `export ICARUSWF_SRC=<path to cloned repository>` 
+8. 
+9. make a build directory for out of source build and cd into it. 
+10. 
+11. `spack load cmake` and `spack load gcc@9.4.0`
+12. 
+13. activate spack environment: `spack env activate icaruscode-hepnos`
+14. 
+15. update ROOT_INCLUDE_PATH, `export ROOT_INCLUDE_PATH=/lus/theta-fs0/projects/HEP_on_HPC/icaruscode/spack/opt/spack/cray-cnl7-haswell/gcc-7.3.0/gcc-9.4.0-mb3r4vv5srge7q3qh4gkbbbmsgjdv4oq/include/c++/9.4.0/:${ROOT_INCLUDE_PATH}`
+16. 
+17. set up the environment variables: source ${ICARUSWF_SRC}/envvariable.sh
+18. 
 
 # Using spack environment with icarus code and hepnos to build new code on csresearch00.fnal.gov
 
