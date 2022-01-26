@@ -24,9 +24,20 @@ add_library(HepnosStoreData_module SHARED HepnosStoreData_module.cc)
 target_link_libraries(HepnosStoreData_module PRIVATE Boost::system hepnos Boost::serialization TBB::tbb)
 target_include_directories(HepnosStoreData_module PRIVATE  $ENV{ROOT_INC} $ENV{ART_INC} $ENV{HEPNOS_INC})
 
+add_library(HepnosStoreDataNew_module SHARED HepnosStoreDataNew_module.cc)
+target_link_libraries(HepnosStoreDataNew_module PRIVATE Boost::system hepnos Boost::serialization TBB::tbb)
+target_include_directories(HepnosStoreDataNew_module PRIVATE  $ENV{ROOT_INC} $ENV{ART_INC} $ENV{HEPNOS_INC})
+
 add_library(HepnosInput_source SHARED HepnosInput_source.cc)
 target_link_libraries(HepnosInput_source PRIVATE Boost::system hepnos Boost::serialization TBB::tbb art::Framework_IO_Sources $ENV{LARDATAOBJ_LIB}/liblardataobj_RecoBase.so)
 target_include_directories(HepnosInput_source PRIVATE $ENV{ROOT_INC} $ENV{ART_INC} $ENV{HEPNOS_INC} $ENV{LARDATAOBJ_INC})
 
+add_library(HepnosOutput_module SHARED HepnosOutput_module.cc)
+target_link_libraries(HepnosOutput_module PRIVATE Boost::system hepnos Boost::serialization TBB::tbb)
+target_include_directories(HepnosOutput_module PRIVATE  $ENV{ROOT_INC} $ENV{ART_INC} $ENV{HEPNOS_INC})
+
+add_library(HepnosDataStore_service SHARED HepnosDataStore_service.cc)
+target_link_libraries(HepnosDataStore_service PRIVATE Boost::system hepnos Boost::serialization TBB::tbb art::Framework_Services_Registry)
+target_include_directories(HepnosDataStore_service PRIVATE  $ENV{ROOT_INC} $ENV{ART_INC} $ENV{HEPNOS_INC})
 add_subdirectory(test)
 

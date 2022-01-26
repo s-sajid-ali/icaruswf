@@ -6,6 +6,7 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/IO/Sources/Source.h"
 #include "art/Framework/Core/InputSourceMacros.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Provenance/canonicalProductName.h"
 
@@ -26,10 +27,6 @@
 #include "larcoreobj/SimpleTypesAndConstants/RawTypes.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
 
-//#include "lardataobj/RawData/RawDigit.h"
-//#include "lardataobj/RecoBase/Hit.h"
-//#include "lardataobj/RecoBase/SpacePoint.h"
-//#include "lardataobj/RecoBase/Wire.h"
 
 #define private public
 #include "hepnos.hpp"
@@ -40,6 +37,7 @@
 #include "spacepoint_serialization.h"
 #include "wire_serialization.h"
 
+#include "HepnosDataStore.h"
 #include <boost/serialization/utility.hpp>
 
 using namespace std;
@@ -51,9 +49,10 @@ namespace hepnos {
   std::unique_ptr<std::vector<T>> 
   read_product(hepnos::Event& event,
               std::string const& module_label,
+              std::string const& instancename,
               bool strict) 
   {
-     art::InputTag const tag(module_label, "", "");
+     art::InputTag const tag(module_label, instancename, "");
      std::vector<T> products;
      auto ret = event.load(tag, products);
      if (ret) return std::make_unique<std::vector<T>>(products);
@@ -100,7 +99,21 @@ namespace hepnos {
      return std::make_unique<art::Assns<A, B>>(art_assns);
   }
   
-
+  bool
+  read_daq(hepnos::Event& event, 
+           bool strict, 
+           art::EventPrincipal*& outE) 
+  { 
+     auto daq0 = hepnos::read_product<raw::RawDigit>(event, "daq0", "PHYSCRATEDATATPCEE", strict); 
+     auto daq1 = hepnos::read_product<raw::RawDigit>(event, "daq1", "PHYSCRATEDATATPCEW", strict); 
+     auto daq2 = hepnos::read_product<raw::RawDigit>(event, "daq2", "PHYSCRATEDATATPCWE", strict); 
+     auto daq3 = hepnos::read_product<raw::RawDigit>(event, "daq3", "PHYSCRATEDATATPCWW", strict); 
+     art::put_product_in_principal(std::move(daq0), *outE, "daq0", "PHYSCRATEDATATPCEE");
+     art::put_product_in_principal(std::move(daq1), *outE, "daq1", "PHYSCRATEDATATPCEW");
+     art::put_product_in_principal(std::move(daq2), *outE, "daq2", "PHYSCRATEDATATPCWE");
+     art::put_product_in_principal(std::move(daq3), *outE, "daq3", "PHYSCRATEDATATPCWW");
+     return true;
+  }
   // Funtion in hepnos namespace to read in all the data products and association
   // collection needed in this workflow. We are working with data products of 
   // known types here, and hence we have a sequence of similar steps to read 
@@ -111,12 +124,12 @@ namespace hepnos {
           art::EventPrincipal*& outE) 
   {
 
-      auto rawdigits = hepnos::read_product<raw::RawDigit>(event, "rawdigitfilter", strict);
-      auto wires = hepnos::read_product<recob::Wire>(event, "recowireraw", strict);
-      auto wires_dcon = hepnos::read_product<recob::Wire>(event, "decon1droi", strict);
-      auto hits = hepnos::read_product<recob::Hit>(event, "gaushitall", strict);
-      auto gaushits = hepnos::read_product<recob::Hit>(event, "gaushit", strict);
-      auto icarushits = hepnos::read_product<recob::Hit>(event, "icarushit", strict);
+      auto rawdigits = hepnos::read_product<raw::RawDigit>(event, "rawdigitfilter", "",strict);
+      auto wires = hepnos::read_product<recob::Wire>(event, "recowireraw", "",strict);
+      auto wires_dcon = hepnos::read_product<recob::Wire>(event, "decon1droi", "",strict);
+      auto hits = hepnos::read_product<recob::Hit>(event, "gaushitall", "",strict);
+      auto gaushits = hepnos::read_product<recob::Hit>(event, "gaushit", "",strict);
+      auto icarushits = hepnos::read_product<recob::Hit>(event, "icarushit", "",strict);
       
       if (rawdigits && wires) {
         auto assns = hepnos::read_assns<raw::RawDigit, recob::Wire>(event, outE, *rawdigits, *wires, "rawdigitfilter", "recowireraw");
@@ -146,29 +159,33 @@ namespace hepnos {
       art::put_product_in_principal(std::move(gaushits), *outE, "gaushit");
       art::put_product_in_principal(std::move(icarushits), *outE, "icarushit");
 
-      auto spacepoints_1 = hepnos::read_product<recob::SpacePoint>(event, "pandoraGaus", strict);
+      auto spacepoints_1 = hepnos::read_product<recob::SpacePoint>(event, "pandoraGaus", "",strict);
       if (spacepoints_1) art::put_product_in_principal(std::move(spacepoints_1), *outE, "pandoraGaus");
 
-      auto spacepoints_2 = hepnos::read_product<recob::SpacePoint>(event, "pandoraICARUS", strict);
+      auto spacepoints_2 = hepnos::read_product<recob::SpacePoint>(event, "pandoraICARUS", "",strict);
       if (spacepoints_2) art::put_product_in_principal(std::move(spacepoints_2), *outE, "pandoraICARUS");
 
-      auto spacepoints_3 = hepnos::read_product<recob::SpacePoint>(event, "pandoraKalmanTrackICARUS", strict);
+      auto spacepoints_3 = hepnos::read_product<recob::SpacePoint>(event, "pandoraKalmanTrackICARUS", "",strict);
       if (spacepoints_3) art::put_product_in_principal(std::move(spacepoints_3), *outE, "pandoraKalmanTrackICARUS");
 
-      auto spacepoints_4 = hepnos::read_product<recob::SpacePoint>(event, "pandoraKalmanTrackGaus", strict);
+      auto spacepoints_4 = hepnos::read_product<recob::SpacePoint>(event, "pandoraKalmanTrackGaus", "",strict);
       if (spacepoints_4) art::put_product_in_principal(std::move(spacepoints_4), *outE, "pandoraKalmanTrackGaus");
 
   return true;
   }
 }
 
-namespace hepnossource {
+namespace icaruswf {
   class HepnosInputSource {
   public:
     HepnosInputSource(fhicl::ParameterSet const& p, 
                       art::ProductRegistryHelper& rh, 
-                      art::SourceHelper const& pm) : pm_(pm)
+                      art::SourceHelper const& pm) : pm_(pm), datastore_{art::ServiceHandle<HepnosDataStore>()->getStore()}
     {
+      rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq0", "PHYSCRATEDATATPCEE");
+      rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq1", "PHYSCRATEDATATPCEW");
+      rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq2", "PHYSCRATEDATATPCWE");
+      rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq3", "PHYSCRATEDATATPCWW");
       rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("rawdigitfilter");
       rh.reconstitutes<std::vector<recob::Wire>, art::InEvent>("recowireraw");
       rh.reconstitutes<std::vector<recob::Wire>, art::InEvent>("decon1droi");
@@ -193,10 +210,9 @@ namespace hepnossource {
                   art::EventPrincipal*& outE);
 
     void readFile(std::string const& dsname, art::FileBlock*& fb) {
-      auto connection_file = "connection.json";
       auto dataset_name = dsname;
-      datastore_ = hepnos::DataStore::connect("ofi+tcp", connection_file);
       dataset_ = datastore_.root()[dataset_name];
+      std::cout << "Input:After creating datastore\n";
       fb = new art::FileBlock{art::FileFormatVersion{1, "SimpleSource 2017"},
                           dsname};
       es_ = dataset_.events();
@@ -205,7 +221,7 @@ namespace hepnossource {
 
     void closeCurrentFile() {}
   private:
-    hepnos::DataStore datastore_;
+    hepnos::DataStore const& datastore_;
     hepnos::DataSet dataset_;
     art::SourceHelper const& pm_;
     hepnos::RunNumber r_ = -1ull;
@@ -239,7 +255,7 @@ namespace hepnossource {
       outE = pm_.makeEventPrincipal(r, sr, ev_->number(), ts, false);
       
       auto const strict = true; 
-      auto status = hepnos::read_all(*ev_, strict, outE);     
+      auto status = hepnos::read_daq(*ev_, strict, outE);     
       ++ev_;
       return status;
     }
@@ -248,8 +264,8 @@ namespace hepnossource {
 namespace art {
  // We don't want the file services: we must say so by specializing the             // template *before* specifying the typedef.
   template <>
-  struct Source_wantFileServices<hepnossource::HepnosInputSource> {
+  struct Source_wantFileServices<icaruswf::HepnosInputSource> {
       static constexpr bool value{false};
   };
 } // namespace art
-DEFINE_ART_INPUT_SOURCE(art::Source<hepnossource::HepnosInputSource>);
+DEFINE_ART_INPUT_SOURCE(art::Source<icaruswf::HepnosInputSource>);

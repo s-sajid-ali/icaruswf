@@ -2,7 +2,7 @@ process_name : hepnosstore
 
 physics : {
   analyzers : {
-      myana : {module_type: HepnosStoreData}
+      myana : {module_type: HepnosStoreDataNew}
   }
  end_path : [myana]
  }
