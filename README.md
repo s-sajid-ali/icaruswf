@@ -74,6 +74,31 @@
 
 19.  `art -c ${ICARUSWF_SRC}/test/test_hepnosinput_source.fcl`
 
+# Samples and fcl files for icaruscode v09_37_01_02p02
+
+Input root files and configuration files have been copied to theta.alcf.anl.gov.
+Directory is: `/projects/HEP_on_HPC/icarus_data/icaruscode-v09_37_01_02p02/`
+
+It contains one directory of fcl files:<br>
+`ls icaruscode-09_37_01_02p02-configs/`<br>
+`hitfinding.fcl  pandora.fcl  signalprocessing.fcl`
+
+And one for root files:<br>
+`ls icaruscode-09_37_01_02p02-samples/`<br>
+`prodcorsika_bnb_genie_protononly_overburden_icarus_20220118T213827-GenBNBbkgr_100evt_G4_DetSim.root  prodcorsika_bnb_genie_protononly_overburden_icarus_20220204T005428-GenBNBbkgr_10kevt.root`
+
+In order to run the reduced set of test (signal processing, hitfinder, pandora) over a detsim sample of 100 events one can do:<br>
+`lar -c signalprocessing.fcl -n -1 -s prodcorsika_bnb_genie_protononly_overburden_icarus_20220118T213827-GenBNBbkgr_100evt_G4_DetSim.root`<br>
+`lar -c hitfinding.fcl -n -1 -s prodcorsika_bnb_genie_protononly_overburden_icarus_20220118T213827-GenBNBbkgr_100evt_G4_DetSim_*-MCstage0.root`<br>
+`lar -c pandora.fcl -n -1 -s prodcorsika_bnb_genie_protononly_overburden_icarus_20220118T213827-GenBNBbkgr_100evt_G4_DetSim_*-MCstage0_*-HitFinding.root`<br>
+
+In order to run the full chain set of test (g4, detsim, reco1, reco2) one can use the standard fcl files already shipped with the installation:<br>
+g4: `cosmics_g4_icarus_sce_overburden.fcl`<br>
+detsim: `standard_detsim_icarus.fcl`<br>
+reco1: `stage0_multiTPC_icarus_MC.fcl`<br>
+reco2: `stage1_multiTPC_icarus_gauss_MC.fcl`<br>
+These can be run in sequence starting from a larger file with 10k events:
+`prodcorsika_bnb_genie_protononly_overburden_icarus_20220204T005428-GenBNBbkgr_10kevt.root`
 
 
 # Spack build instructions for ICARUS Code
