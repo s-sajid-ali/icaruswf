@@ -15,7 +15,7 @@
  
 7. `spack load cmake` and `spack load gcc@9.4.0`
  
-8. activate spack environment: `spack env activate icaruscode-hepnos`
+8. activate spack environment: `spack env activate icaruscode-hepnos-9-37-01-02p2`
  
 9. set up the environment variables: `source ${ICARUSWF_SRC}/envvariable.sh` 
  
