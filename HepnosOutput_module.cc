@@ -7,8 +7,6 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Common/Wrapper.h"
-#include "cetlib/lpad.h"
-#include "cetlib/rpad.h"
 #include "fhiclcpp/types/ConfigurationTable.h"
 
 #include <algorithm>
@@ -26,6 +24,7 @@
 #include <boost/serialization/utility.hpp>
 #include "HepnosDataStore.h"
 
+using namespace art;
 namespace hepnos { 
   template <typename A, typename B>
   using Assns =std::vector<std::pair<hepnos::Ptr<A>, hepnos::Ptr<B>>>; 
@@ -69,7 +68,7 @@ namespace icaruswf {
   class HepnosOutput;
 }
 
-class art::HepnosOutput : public OutputModule {
+class HepnosOutput : public OutputModule {
 public:
   struct Config {
     fhicl::TableFragment<OutputModule::Config> omConfig;
@@ -83,72 +82,45 @@ public:
 
 private:
   void write(EventPrincipal& e) override;
-  void writeRun(RunPrincipal& r) override;
-  void writeSubRun(SubRunPrincipal& sr) override;
-  void readResults(ResultsPrincipal const& resp) override;
-
-  template <typename P>
-  void storePrincipal(P const& p);
+  void writeRun(RunPrincipal& r) override {}
+  void writeSubRun(SubRunPrincipal& sr) override{}
+  void beginRun(RunPrincipal const& r) override;
+  void beginSubRun(SubRunPrincipal const& sr) override;
   bool const wantResolveProducts_;
+  hepnos::Run r_;
   hepnos::SubRun sr_;
   hepnos::DataStore & datastore_;
+  hepnos::DataSet dataset_;
   std::map<art::ProductID, hepnos::ProductID> translator_;
 }; // HepnosOutput
 
-art::HepnosOutput::HepnosOutput(Parameters const& ps)
+HepnosOutput::HepnosOutput(Parameters const& ps)
   : OutputModule{ps().omConfig, ps.get_PSet()}
   , wantResolveProducts_{ps().resolveProducts()}
-  , datastore_{art::ServiceHandle<HepnosDataStore>()->getStore()}
+  , datastore_{art::ServiceHandle<icaruswf::HepnosDataStore>()->getStore()}
+  , dataset_{datastore_.root().createDataSet(ps().omConfig().fileName())}
 {
-      auto connection_file = "connection.json";
-      auto ds_name = "icarus";
-      hepnos::DataSet current = datastore_.root();
-      std::cout << "Created datastore\n";
-      current = current.createDataSet(ds_name); 
-      std::cout << "Created dataset\n";
-      auto r = current.createRun(1000); 
-      std::cout << "Created run\n";
-      sr_ = r.createSubRun(34);
-      std::cout << "Created subrun\n";
+}
+
+
+void
+HepnosOutput::beginRun(RunPrincipal const& r)
+{
+  r_ = dataset_.createRun(r.run());
 }
 
 void
-art::HepnosOutput::write(EventPrincipal& e)
+HepnosOutput::beginSubRun(SubRunPrincipal const& sr)
 {
-  storePrincipal(e);
+  sr_ = r_.createSubRun(sr.subRun());
 }
 
 void
-art::HepnosOutput::writeRun(RunPrincipal& r)
+HepnosOutput::write(EventPrincipal& p)
 {
- // storePrincipal(r);
-}
-
-void
-art::HepnosOutput::writeSubRun(SubRunPrincipal& sr)
-{
- // storePrincipal(sr);
-}
-
-void
-art::HepnosOutput::readResults(ResultsPrincipal const& resp)
-{
- // storePrincipal(resp);
-}
-
-template <typename P>
-void
-art::HepnosOutput::storePrincipal(P const& p)
-{
-  std::cout << "Just starting storePrincipal\n";
   if (!p.size())
     return;
-  std::cout << "Before create Event\n";
-  hepnos::Event h_e = sr_.createEvent(p.eventID().event());
-  std::cout << "Created Event\n";
-  size_t present{0};
-  size_t not_present{0};
-
+  hepnos::Event h_e = sr_.createEvent(p.event());
   //need to make sure we have the map with art::ProductIDs and 
   //hepnos::ProductIDs before we attempt storing association 
   //collections in hepnos store, otherwise since products may be
@@ -182,10 +154,16 @@ art::HepnosOutput::storePrincipal(P const& p)
     EDProduct const* product = oh.isValid() ? oh.wrapper() : nullptr;
     if (auto pwt = prodWithType<art::Assns<raw::RawDigit,recob::Wire,void>>(product, pd)) 
        storeassns(datastore_, h_e, translator_, pd.inputTag(), *pwt); 
-    else if (auto pwt = prodWithType<art::Assns<recob::Hit,recob::Wire,void>>(product, pd)) 
-       storeassns(datastore_, h_e, translator_, pd.inputTag(), *pwt); 
+    else if (auto pwt = prodWithType<art::Assns<recob::Hit,recob::Wire,void>>(product, pd)) { 
+      std::cout << "Store Assns: Hit/Wire\n"; 
+      storeassns(datastore_, h_e, translator_, pd.inputTag(), *pwt); 
+   }
+    else if (auto pwt = prodWithType<art::Assns<recob::Wire,recob::Hit,void>>(product, pd)) { 
+      std::cout << "Store Assns: Hit/Wire\n"; 
+      storeassns(datastore_, h_e, translator_, pd.inputTag(), *pwt); 
+   }
    }
 }
 
 
-DEFINE_ART_MODULE(art::HepnosOutput)
+DEFINE_ART_MODULE(HepnosOutput)

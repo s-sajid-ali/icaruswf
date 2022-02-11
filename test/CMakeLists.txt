@@ -40,7 +40,7 @@ add_test(test_artdaq_fragment test_artdaq_fragment)
 
 add_executable(test_rawdigit test_rawdigit.cc main.cc)
 target_link_libraries(test_rawdigit Core cetlib_except cetlib Boost::serialization lardataobj_RawData
-larcoreobj_SummaryData)
+larcoreobj_SummaryData larcoreobj_SimpleTypesAndConstants)
 add_test(test_rawdigit test_rawdigit) 
 
 add_executable(test_wire test_wire.cc main.cc)
