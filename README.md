@@ -102,6 +102,16 @@ reco2: `stage1_multiTPC_icarus_gauss_MC.fcl`<br>
 These can be run in sequence starting from a larger file with 10k events:
 `prodcorsika_bnb_genie_protononly_overburden_icarus_20220204T005428-GenBNBbkgr_10kevt.root`
 
+In order to run the full sequence with the three steps (signal processing, hitfinder, pandora) we plan to optimize performed separately, please follow the following instruction. The first two fcl files are centrally provided with the icaruscode release the others can be found in the directory specified above. The GEN input file is also found at the directory above. The following is an example running over two events:
+g4: `lar -c cosmics_g4_icarus_sce_overburden.fcl -n 2 -s prodcorsika_bnb_genie_protononly_overburden_icarus_20220204T005428-GenBNBbkgr_10k.root -o test-g4.root`<br>
+detsim: `lar -c standard_detsim_icarus.fcl -n 2 -s test-g4.root -o test-ds.root`<br>
+signal processing: `lar -c signalprocessing.fcl -n 2 -s test-ds.root -o outBNB:test-sp.root`<br>
+hit finding: `lar -c hitfinding.fcl -n 2 -s test-sp.root -o outBNB:test-hf.root`<br>
+rest of stage0: `lar -c stage0_multiTPC_icarus_MC_postSPHF.fcl -n 2 -s test-hf.root -o outBNB:test-s0.root`<br>
+pandora: `lar -c pandora.fcl -n 2 -s test-s0.root -o test-pa.root`<br>
+rest of stage1: `lar -c stage1_multiTPC_icarus_gauss_MC_postPA.fcl -n 2 -s test-pa.root -o test-s1.root`
+
+
 # Spack build instructions for ICARUS Code
 
 export spack_area=`pwd`/spack_demo_1
