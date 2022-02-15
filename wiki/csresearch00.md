@@ -32,7 +32,7 @@
 
 16.  `hepnos-list-databases ofi+tcp -s hepnos.ssg > connection.json` 
 
-17.  `art -c ${ICARUSWF_SRC}/test/test_hepnosstore_module.fcl -s ../icaruswf_data/reco-6a3acf37-4e29-4080-a323-ef716c70d712.root -n 2`
+17.  `art -c ${ICARUSWF_SRC}/test/test_hepnosstore_module.fcl -s /scratch/cerati/icaruscode-v09_37_01_02p02/reco-6a3acf37-4e29-4080-a323-ef716c70d712.root -n 2`
 
 19.  `art -c ${ICARUSWF_SRC}/test/test_hepnosinput_source.fcl`
 
