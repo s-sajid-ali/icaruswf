@@ -72,7 +72,7 @@ In the part about gcc@8.2.0 change the line "flags: {}" to:
 
 Get recipe repo for HEPnOS
 ```
-git clone github.com/mochi-hpc/mochi-spack-packages/ $SPACK_ROOT/var/spack/repos/nmochi-repo
+git clone github.com/mochi-hpc/mochi-spack-packages/ $SPACK_ROOT/var/spack/repos/mochi-repo
 spack repo add --scope=site $SPACK_ROOT/var/spack/repos/mochi-repo
 export SPACK_REPOS=$SPACK_ROOT/var/spack/repos
 ```
