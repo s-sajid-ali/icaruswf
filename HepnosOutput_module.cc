@@ -8,6 +8,7 @@
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Common/Wrapper.h"
 #include "fhiclcpp/types/ConfigurationTable.h"
+#include "canvas/Persistency/Provenance/canonicalProductName.h"
 
 #include <algorithm>
 #include <iostream>
@@ -23,6 +24,9 @@
 
 #include <boost/serialization/utility.hpp>
 #include "HepnosDataStore.h"
+#include "canvas/Utilities/uniform_type_name.h"
+
+#include "canvas/Utilities/FriendlyName.h"
 
 using namespace art;
 namespace hepnos { 
@@ -31,6 +35,21 @@ namespace hepnos {
 }
 
 namespace {
+
+  std::tuple<std::string, std::string, std::string> splitTag(std::string const& inputtag) {
+   //InputTag: label = 'daq0', instance = 'PHYSCRATEDATATPCEE', process = 'DetSim'
+   //For clarity I am defining all these variables
+   std::string label = "label = '";
+   std::string instance = "instance = '";
+   std::string process = "process = '";
+   auto ll = label.length();
+   auto il = instance.length();
+   auto pl = process.length();
+   auto ls = inputtag.find(label);
+   auto is = inputtag.find(instance);
+   auto ps = inputtag.find(process);
+   return std::make_tuple(inputtag.substr(ls+ll, (is-(ls+ll)-3)), inputtag.substr(is+il, ps-(il+is)-3),inputtag.substr(ps+pl, inputtag.length()-(ps+pl)-1));
+  }
 template <typename P>
 P const * prodWithType(art::EDProduct const* product, art::BranchDescription const& pd) {
     if (product == nullptr) return nullptr;
@@ -72,7 +91,7 @@ class HepnosOutput : public OutputModule {
 public:
   struct Config {
     fhicl::TableFragment<OutputModule::Config> omConfig;
-    fhicl::Atom<bool> resolveProducts{fhicl::Name("resolveProducts"), true};
+    fhicl::Atom<bool> forwardProducts{fhicl::Name("forwardProducts"), false};
   };
 
   using Parameters =
@@ -86,7 +105,7 @@ private:
   void writeSubRun(SubRunPrincipal& sr) override{}
   void beginRun(RunPrincipal const& r) override;
   void beginSubRun(SubRunPrincipal const& sr) override;
-  bool const wantResolveProducts_;
+  bool const wantForwardProducts_;
   hepnos::Run r_;
   hepnos::SubRun sr_;
   hepnos::DataStore & datastore_;
@@ -96,7 +115,7 @@ private:
 
 HepnosOutput::HepnosOutput(Parameters const& ps)
   : OutputModule{ps().omConfig, ps.get_PSet()}
-  , wantResolveProducts_{ps().resolveProducts()}
+  , wantForwardProducts_{ps().forwardProducts()}
   , datastore_{art::ServiceHandle<icaruswf::HepnosDataStore>()->getStore()}
   , dataset_{datastore_.root().createDataSet(ps().omConfig().fileName())}
 {
@@ -121,6 +140,28 @@ HepnosOutput::write(EventPrincipal& p)
   if (!p.size())
     return;
   hepnos::Event h_e = sr_.createEvent(p.event());
+  auto prodIds = h_e.listProducts("");
+  hepnos::UUID datasetId;
+  hepnos::RunNumber run;
+  hepnos::SubRunNumber subrun;
+  hepnos::EventNumber hepnosevent;
+  std::string hepnostag;
+  std::string type;
+  for (auto p: prodIds) {
+    p.unpackInformation(&datasetId, &run, &subrun, &hepnosevent, &hepnostag, &type);
+    std::cout << "Tag: " << hepnostag << "#### Type: " << type << "\n";
+    std::cout << "Uniform type: " << art::uniform_type_name(type) << "\n";
+    auto [label, instance, processname] = splitTag(hepnostag);  
+    auto t = art::uniform_type_name(type);
+    auto const product_name = art::canonicalProductName(art::friendlyname::friendlyName(t), 
+                                        label, 
+                                        instance, 
+                                        processname);
+    auto art_pid = art::ProductID{product_name};
+    if (translator_.find(art_pid) != translator_.cend()) continue;
+    translator_[art_pid] = p;
+    std::cout << "art/hepnos: " << art_pid << ", " << product_name << "\n";   
+   }
   //need to make sure we have the map with art::ProductIDs and 
   //hepnos::ProductIDs before we attempt storing association 
   //collections in hepnos store, otherwise since products may be
@@ -131,7 +172,9 @@ HepnosOutput::write(EventPrincipal& p)
   for (auto const& pr : p) {
     auto const& g = *pr.second;
     auto const& pd = g.productDescription();
-    auto const& oh = p.getForOutput(pd.productID(), wantResolveProducts_);
+    std::cout << "art: " << pd.productID() << ", " << pd.branchName() << ", " << pd.processName()<< "\n";   
+    if (translator_.find(pd.productID()) != translator_.cend()) continue;
+    auto const& oh = p.getForOutput(pd.productID(), true);
     std::cout << pd.inputTag() << std::endl;
     //dynamic cast to the type we care about is needed here
     EDProduct const* product = oh.isValid() ? oh.wrapper() : nullptr;
@@ -148,18 +191,15 @@ HepnosOutput::write(EventPrincipal& p)
    for (auto const& pr : p) {
     auto const& g = *pr.second;
     auto const& pd = g.productDescription();
-    auto const& oh = p.getForOutput(pd.productID(), wantResolveProducts_);
+    std::cout << "art/assns: " << pd.productID() << ", " << pd.branchName() << "\n";   
+    if (translator_.find(pd.productID()) != translator_.cend()) continue;
+    auto const& oh = p.getForOutput(pd.productID(), true);
     
     //dynamic cast to the type we care about is needed here
     EDProduct const* product = oh.isValid() ? oh.wrapper() : nullptr;
     if (auto pwt = prodWithType<art::Assns<raw::RawDigit,recob::Wire,void>>(product, pd)) 
        storeassns(datastore_, h_e, translator_, pd.inputTag(), *pwt); 
-    else if (auto pwt = prodWithType<art::Assns<recob::Hit,recob::Wire,void>>(product, pd)) { 
-      std::cout << "Store Assns: Hit/Wire\n"; 
-      storeassns(datastore_, h_e, translator_, pd.inputTag(), *pwt); 
-   }
     else if (auto pwt = prodWithType<art::Assns<recob::Wire,recob::Hit,void>>(product, pd)) { 
-      std::cout << "Store Assns: Hit/Wire\n"; 
       storeassns(datastore_, h_e, translator_, pd.inputTag(), *pwt); 
    }
    }

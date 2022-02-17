@@ -159,17 +159,38 @@ namespace hepnos {
            bool strict, 
            art::EventPrincipal*& outE) 
   { 
-     auto hits0 = hepnos::read_product<recob::Hit>(event, "", "gaushitTPCEE", "HitFinding", strict); 
-     auto hits1 = hepnos::read_product<recob::Hit>(event, "", "gaushitTPCEW", "HitFinding", strict); 
-     auto hits2 = hepnos::read_product<recob::Hit>(event, "", "gaushitTPCWE", "HitFinding", strict); 
-     auto hits3 = hepnos::read_product<recob::Hit>(event, "", "gaushitTPCWW", "HitFinding", strict); 
-     art::put_product_in_principal(std::move(hits0), *outE, "", "gaushitTPCEE");
-     art::put_product_in_principal(std::move(hits1), *outE, "", "gaushitTPCEW");
-     art::put_product_in_principal(std::move(hits2), *outE, "", "gaushitTPCWE");
-     art::put_product_in_principal(std::move(hits3), *outE, "", "gaushitTPCWW");
+     auto hits0 = hepnos::read_product<recob::Hit>(event, "gaushitTPCEE", "", "HitFinding", strict); 
+     auto hits1 = hepnos::read_product<recob::Hit>(event, "gaushitTPCEW", "", "HitFinding", strict); 
+     auto hits2 = hepnos::read_product<recob::Hit>(event, "gaushitTPCWE", "", "HitFinding", strict); 
+     auto hits3 = hepnos::read_product<recob::Hit>(event, "gaushitTPCWW", "", "HitFinding", strict); 
+     art::put_product_in_principal(std::move(hits0), *outE, "gaushitTPCEE", "");
+     art::put_product_in_principal(std::move(hits1), *outE, "gaushitTPCEW", "");
+     art::put_product_in_principal(std::move(hits2), *outE, "gaushitTPCWE", "");
+     art::put_product_in_principal(std::move(hits3), *outE, "gaushitTPCWW", "");
      return true;
   }
+
+
+bool
+read_assns_hits_wires(hepnos::Event& event, 
+                      bool strict, 
+                      art::EventPrincipal*& outE)
+{
+  std::vector <recob::Hit> hits;
+  std::vector <recob::Wire> wires;
+  auto hits_wires_0 = hepnos::read_assns<recob::Wire, recob::Hit>(event, outE,  wires, hits, "gaushitTPCEE", "gaushitTPCEE"); 
+  auto hits_wires_1 = hepnos::read_assns<recob::Wire, recob::Hit>(event, outE,  wires, hits, "gaushitTPCEW", "gaushitTPCEW"); 
+  auto hits_wires_2 = hepnos::read_assns<recob::Wire, recob::Hit>(event, outE,  wires, hits, "gaushitTPCWE", "gaushitTPCWE"); 
+  auto hits_wires_3 = hepnos::read_assns<recob::Wire, recob::Hit>(event, outE,  wires, hits, "gaushitTPCWW", "gaushitTPCWW"); 
+     art::put_product_in_principal(std::move(hits_wires_0), *outE, "gaushitTPCEE", "");
+     art::put_product_in_principal(std::move(hits_wires_1), *outE, "gaushitTPCEW", "");
+     art::put_product_in_principal(std::move(hits_wires_2), *outE, "gaushitTPCWE", "");
+     art::put_product_in_principal(std::move(hits_wires_3), *outE, "gaushitTPCWW", "");
+ std::cout << "Done reading assns\n"; 
+ return true;
 }
+}
+
 
 namespace icaruswf {
   class HepnosInputSource {
@@ -192,14 +213,14 @@ namespace icaruswf {
         rh.reconstitutes<std::vector<recob::Wire>, art::InEvent>("roifinder", "PHYSCRATEDATATPCWW");
       }
       if (processname_ == "HitFinding") {
-        rh.reconstitutes<std::vector<recob::Hit>, art::InEvent>("", "gaushitTPCEE");
-        rh.reconstitutes<std::vector<recob::Hit>, art::InEvent>("", "gaushitTPCEW");
-        rh.reconstitutes<std::vector<recob::Hit>, art::InEvent>("", "gaushitTPCWE");
-        rh.reconstitutes<std::vector<recob::Hit>, art::InEvent>("", "gaushitTPCWW");
-        rh.reconstitutes<art::Assns<recob::Hit, recob::Wire, void>, art::InEvent>("", "gaushitTPCEE");
-        rh.reconstitutes<art::Assns<recob::Hit, recob::Wire, void>, art::InEvent>("", "gaushitTPCEW");
-        rh.reconstitutes<art::Assns<recob::Hit, recob::Wire, void>, art::InEvent>("", "gaushitTPCWE");
-        rh.reconstitutes<art::Assns<recob::Hit, recob::Wire, void>, art::InEvent>("", "gaushitTPCWW");
+        rh.reconstitutes<std::vector<recob::Hit>, art::InEvent>("gaushitTPCEE", "");
+        rh.reconstitutes<std::vector<recob::Hit>, art::InEvent>("gaushitTPCEW", "");
+        rh.reconstitutes<std::vector<recob::Hit>, art::InEvent>("gaushitTPCWE", "");
+        rh.reconstitutes<std::vector<recob::Hit>, art::InEvent>("gaushitTPCWW", "");
+        rh.reconstitutes<art::Assns<recob::Hit, recob::Wire, void>, art::InEvent>("gaushitTPCEE", "");
+        rh.reconstitutes<art::Assns<recob::Hit, recob::Wire, void>, art::InEvent>("gaushitTPCEW", "");
+        rh.reconstitutes<art::Assns<recob::Hit, recob::Wire, void>, art::InEvent>("gaushitTPCWE", "");
+        rh.reconstitutes<art::Assns<recob::Hit, recob::Wire, void>, art::InEvent>("gaushitTPCWW", "");
       }
     }
 
@@ -261,8 +282,10 @@ namespace icaruswf {
           status = hepnos::read_daq(*ev_, strict, outE); 
       if (processname_ == "SignalProcessing") 
           status = hepnos::read_wires(*ev_, strict, outE);     
-      if (processname_ == "HitFinding") 
-          status = hepnos::read_hits(*ev_, strict, outE);     
+      if (processname_ == "HitFinding") {
+          status = hepnos::read_hits(*ev_, strict, outE); 
+        //  status = hepnos::read_assns_hits_wires(*ev_, strict, outE);
+      }    
       ++ev_;
       return true;
     }
