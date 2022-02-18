@@ -1,4 +1,4 @@
-# Using spack environment with icarus code and hepnos to build new code on Theta 
+# Using spack environment with icarus code and hepnos to build new code on Theta and run icarus workflow with hepnos using interactive session
 
 1. clone the repository, : `git clone git@github.com:HEPonHPC/icaruswf.git`
 
@@ -8,7 +8,7 @@
 
 4. `export ICARUSWF_SRC=<path to cloned repository>` 
 
-5. make a build directory for out of source build and cd into it.
+5. make a build directory for out of source build and cd into it. 
  
 6. `source /projects/HEP_on_HPC/icaruscode/spack/share/spack/setup-env.sh` 
  
@@ -18,7 +18,7 @@
  
 9. set up the environment variables: `source ${ICARUSWF_SRC}/envvariable.sh` 
  
-10. update ROOT_INCLUDE_PATH, `export ROOT_INCLUDE_PATH=/lus/theta-fs0/projects/HEP_on_HPC/icaruscode/spack/opt/spack/cray-cnl7-haswell/gcc-7.3.0/gcc-9.4.0-mb3r4vv5srge7q3qh4gkbbbmsgjdv4oq/include/c++/9.4.0/:${ROOT_INCLUDE_PATH}`
+10. define FHICL_FILE_PATH: `export FHICL_FILE_PATH=$SPACK_ENV/.spack-env/view/fcl`
 
 11. run cmake in the build directory: `cmake -DCMAKE_CXX_COMPILER=$(which g++) ${ICARUSWF_SRC}`
 
@@ -26,12 +26,15 @@
 
 13. update the CET_PLUGIN_PATH: `export CET_PLUGIN_PATH=${PWD}:${CET_PLUGIN_PATH}`
 
-14. Start hepnos server: `aprun -n 2 bedrock ofi+tcp -c /projects/HEP_on_HPC/sehrish/hepnos.json &`, 
+13. define following before starting hepnos server: `export MPICH_GNI_NDREG_ENTRIES=1024` and `export MPICH_MAX_THREAD_SAFETY=multiple`
 
-15. followed by `hepnos-list-databases ofi+tcp -s hepnos.ssg > connection.json`
+14. Define protection domains: `export PDOMAIN=hepnos-icarus` and `apstat -P | grep ${PDOMAIN} || apmgr pdomain -c -u ${PDOMAIN}`
 
-16. `aprun -n 1 -N 1 art -c ${ICARUSWF_SRC}/test/test_hepnosstore_module.fcl -s ../../icarus_data/poms_icarus_prod_cosmics_v07_11_00/reco-
-6a3acf37-4e29-4080-a323-ef716c70d712.root -n 2`
+15. Start hepnos server: `aprun -n 2 -p ${PDOMAIN} bedrock ofi+gni -c /projects/HEP_on_HPC/sehrish/icarus-configs/hepnos.json &`, 
 
-17. `aprun -n 1 -N 1 art -c ${ICARUSWF_SRC}/test/test_hepnosinput_source.fcl`
+16. followed by `aprun -n 1 -p ${PDOMAIN} hepnos-list-databases ofi+gni -s /projects/HEP_on_HPC/sehrish/icarus-configs/hepnos.ssg > connection.json`, there may be some extra lines at the end of connection.json, they should be removed. 
+
+17. Store data to hepnos: `aprun -n 1 -N 1 -p ${PDOMAIN} art -c /projects/HEP_on_HPC/sehrish/icarus-configs/storedata.fcl -s /projects/HEP_on_HPC/icarus_data/icaruscode-v09_37_01_02p02/icaruscode-09_37_01_02p02-samples/prodcorsika_bnb_genie_protononly_overburden_icarus_20220118T213827-GenBNBbkgr_100evt_G4_DetSim.root -n 1`
+
+18. Run signal processing, using hepnos as input and output: `aprun -n 1 -N 1 -p ${PDOMAIN} art -c /projects/HEP_on_HPC/sehrish/icarus-configs/sp_hepnos.fcl`
 
