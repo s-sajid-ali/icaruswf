@@ -38,3 +38,8 @@
 
 18. Run signal processing, using hepnos as input and output: `aprun -n 1 -N 1 -p ${PDOMAIN} art -c /projects/HEP_on_HPC/sehrish/icarus-configs/sp_hepnos.fcl`
 
+18. Run hit finding, using hepnos as input and output: `aprun -n 1 -N 1 -p ${PDOMAIN} art -c /projects/HEP_on_HPC/sehrish/icarus-configs/hf_hepnos.fcl`
+
+18. Run pandora, using hepnos as input and output: `aprun -n 1 -N 1 -p ${PDOMAIN} art -c /projects/HEP_on_HPC/sehrish/icarus-configs/p_hepnos.fcl`
+
+
