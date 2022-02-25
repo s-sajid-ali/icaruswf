@@ -182,11 +182,10 @@ read_assns_hits_wires(hepnos::Event& event,
   auto hits_wires_1 = hepnos::read_assns<recob::Wire, recob::Hit>(event, outE,  wires, hits, "gaushitTPCEW", "gaushitTPCEW"); 
   auto hits_wires_2 = hepnos::read_assns<recob::Wire, recob::Hit>(event, outE,  wires, hits, "gaushitTPCWE", "gaushitTPCWE"); 
   auto hits_wires_3 = hepnos::read_assns<recob::Wire, recob::Hit>(event, outE,  wires, hits, "gaushitTPCWW", "gaushitTPCWW"); 
-     art::put_product_in_principal(std::move(hits_wires_0), *outE, "gaushitTPCEE", "");
-     art::put_product_in_principal(std::move(hits_wires_1), *outE, "gaushitTPCEW", "");
-     art::put_product_in_principal(std::move(hits_wires_2), *outE, "gaushitTPCWE", "");
-     art::put_product_in_principal(std::move(hits_wires_3), *outE, "gaushitTPCWW", "");
- std::cout << "Done reading assns\n"; 
+  art::put_product_in_principal(std::move(hits_wires_0), *outE, "gaushitTPCEE", "");
+  art::put_product_in_principal(std::move(hits_wires_1), *outE, "gaushitTPCEW", "");
+  art::put_product_in_principal(std::move(hits_wires_2), *outE, "gaushitTPCWE", "");
+  art::put_product_in_principal(std::move(hits_wires_3), *outE, "gaushitTPCWW", "");
  return true;
 }
 }
@@ -195,24 +194,30 @@ read_assns_hits_wires(hepnos::Event& event,
 namespace icaruswf {
   class HepnosInputSource {
   public:
+    template <typename T> 
+    void reconstitutes(std::string const& moduleLabel, std::string const& instanceName, std::string const& processName) {
+      art::BranchDescription const bd{art::InEvent, moduleLabel, processName, art::TypeID{typeid(T)}.className(), instanceName, {}, {}, art::BranchDescription::Transients::PresentFromSource, false, false};
+      productList_->try_emplace(art::BranchKey{bd}, bd);  
+    }
+
     HepnosInputSource(fhicl::ParameterSet const& p, 
                       art::ProductRegistryHelper& rh, 
-                      art::SourceHelper const& pm) : pm_(pm), datastore_{art::ServiceHandle<HepnosDataStore>()->getStore()}, processname_(p.get< std::string >("processName"))
+                      art::SourceHelper const& pm) : pm_(pm), datastore_{art::ServiceHandle<HepnosDataStore>()->getStore()}, inputProcessname_(p.get< std::string >("processName"))
     {
-      std::string type = "std::vector<recob::Wire, std::allocator<recob::Wire> >";
-      if (processname_ == "DetSim") {
-        rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq0", "PHYSCRATEDATATPCEE");
-        rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq1", "PHYSCRATEDATATPCEW");
-        rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq2", "PHYSCRATEDATATPCWE");
-        rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq3", "PHYSCRATEDATATPCWW");
+      if (inputProcessname_ == "DetSim") {
+        rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq0", "PHYSCRATEDATATPCEE");//, inputProcessname_);
+        rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq1", "PHYSCRATEDATATPCEW");//, inputProcessname_);
+        rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq2", "PHYSCRATEDATATPCWE");//, inputProcessname_);
+        rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq3", "PHYSCRATEDATATPCWW");//, inputProcessname_);
+        //rh.productList(std::move(productList_));
       }
-      if (processname_ == "SignalProcessing") {
+      if (inputProcessname_ == "SignalProcessing") {
         rh.reconstitutes<std::vector<recob::Wire>, art::InEvent>("roifinder", "PHYSCRATEDATATPCEE");
         rh.reconstitutes<std::vector<recob::Wire>, art::InEvent>("roifinder", "PHYSCRATEDATATPCEW");
         rh.reconstitutes<std::vector<recob::Wire>, art::InEvent>("roifinder", "PHYSCRATEDATATPCWE");
         rh.reconstitutes<std::vector<recob::Wire>, art::InEvent>("roifinder", "PHYSCRATEDATATPCWW");
       }
-      if (processname_ == "HitFinding") {
+      if (inputProcessname_ == "HitFinding") {
         rh.reconstitutes<std::vector<recob::Hit>, art::InEvent>("gaushitTPCEE", "");
         rh.reconstitutes<std::vector<recob::Hit>, art::InEvent>("gaushitTPCEW", "");
         rh.reconstitutes<std::vector<recob::Hit>, art::InEvent>("gaushitTPCWE", "");
@@ -244,7 +249,8 @@ namespace icaruswf {
     hepnos::DataStore const& datastore_;
     hepnos::DataSet dataset_;
     art::SourceHelper const& pm_;
-    std::string processname_;
+    std::unique_ptr<art::ProductList> productList_{std::make_unique<art::ProductList>()};
+    std::string inputProcessname_;
     hepnos::RunNumber r_ = -1ull;
     hepnos::SubRunNumber sr_ = -1ull;
     std::optional<hepnos::EventSet> es_;
@@ -278,11 +284,11 @@ namespace icaruswf {
       auto const strict = true; 
       //check whats in store
       auto status = true; 
-      if (processname_ == "DetSim") 
+      if (inputProcessname_ == "DetSim") 
           status = hepnos::read_daq(*ev_, strict, outE); 
-      if (processname_ == "SignalProcessing") 
+      if (inputProcessname_ == "SignalProcessing") 
           status = hepnos::read_wires(*ev_, strict, outE);     
-      if (processname_ == "HitFinding") {
+      if (inputProcessname_ == "HitFinding") {
           status = hepnos::read_hits(*ev_, strict, outE); 
         //  status = hepnos::read_assns_hits_wires(*ev_, strict, outE);
       }    

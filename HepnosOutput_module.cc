@@ -180,7 +180,7 @@ HepnosOutput::write(EventPrincipal& p)
     EDProduct const* product = oh.isValid() ? oh.wrapper() : nullptr;
     if (auto pwt = prodWithType<std::vector<raw::RawDigit>>(product, pd)) 
        translator_[pd.productID()] = h_e.store(pd.inputTag(), *pwt); 
-    else if (auto pwt = prodWithType<std::vector<recob::Wire>>(product, pd)) 
+    else if (auto pwt = prodWithType<std::vector<recob::Wire>>(product, pd))
        translator_[pd.productID()] = h_e.store(pd.inputTag(), *pwt); 
     else if (auto pwt = prodWithType<std::vector<recob::Hit>>(product, pd)) 
        translator_[pd.productID()] = h_e.store(pd.inputTag(), *pwt); 
