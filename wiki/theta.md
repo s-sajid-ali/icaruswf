@@ -12,7 +12,7 @@
  
 6. `source /projects/HEP_on_HPC/icaruscode/spack/share/spack/setup-env.sh` 
  
-7. `spack load cmake` and `spack load gcc@9.4.0`
+7. `module load cmake && spack load gcc@9.4.0`
  
 8. activate spack environment: `spack env activate icaruscode-hepnos-9-37-01-02p2`
  
@@ -28,11 +28,13 @@
 
 13. define following before starting hepnos server: `export MPICH_GNI_NDREG_ENTRIES=1024` and `export MPICH_MAX_THREAD_SAFETY=multiple`
 
-14. Define protection domains: `export PDOMAIN=hepnos-icarus` and `apstat -P | grep ${PDOMAIN} || apmgr pdomain -c -u ${PDOMAIN}`
+14. Define you protection domain, which can only be used by you: `export PDOMAIN=mypdomainname` and `apstat -P | grep ${PDOMAIN} || apmgr pdomain -c -u ${PDOMAIN}`
 
-15. Start hepnos server: `aprun -n 2 -p ${PDOMAIN} bedrock ofi+gni -c /projects/HEP_on_HPC/sehrish/icarus-configs/hepnos.json &`, 
+15. Copy hepnos server config `cp /projects/HEP_on_HPC/sehrish/icarus-configs/hepnos.json .`
 
-16. followed by `aprun -n 1 -p ${PDOMAIN} hepnos-list-databases ofi+gni -s /projects/HEP_on_HPC/sehrish/icarus-configs/hepnos.ssg > connection.json`, there may be some extra lines at the end of connection.json, they should be removed. 
+15. Start hepnos server: `aprun -n 2 -p ${PDOMAIN} bedrock ofi+gni -c hepnos.json &`, 
+
+16. followed by `aprun -n 1 -p ${PDOMAIN} hepnos-list-databases ofi+gni -s hepnos.ssg > connection.json`, there may be some extra lines at the end of connection.json, they should be removed. 
 
 17. Store data to hepnos: `aprun -n 1 -N 1 -p ${PDOMAIN} art -c /projects/HEP_on_HPC/sehrish/icarus-configs/storedata.fcl -s /projects/HEP_on_HPC/icarus_data/icaruscode-v09_37_01_02p02/icaruscode-09_37_01_02p02-samples/prodcorsika_bnb_genie_protononly_overburden_icarus_20220118T213827-GenBNBbkgr_100evt_G4_DetSim.root -n 1`
 
@@ -41,5 +43,3 @@
 18. Run hit finding, using hepnos as input and output: `aprun -n 1 -N 1 -p ${PDOMAIN} art -c /projects/HEP_on_HPC/sehrish/icarus-configs/hf_hepnos.fcl`
 
 18. Run pandora, using hepnos as input and output: `aprun -n 1 -N 1 -p ${PDOMAIN} art -c /projects/HEP_on_HPC/sehrish/icarus-configs/p_hepnos.fcl`
-
-
