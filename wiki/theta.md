@@ -26,9 +26,9 @@
 
 13. update the CET_PLUGIN_PATH: `export CET_PLUGIN_PATH=${PWD}:${CET_PLUGIN_PATH}`
 
-13. define following before starting hepnos server: `export MPICH_GNI_NDREG_ENTRIES=1024` and `export MPICH_MAX_THREAD_SAFETY=multiple`
+13. define following before starting hepnos server: `export MPICH_GNI_NDREG_ENTRIES=1024 && export MPICH_MAX_THREAD_SAFETY=multiple`
 
-14. Define you protection domain, which can only be used by you: `export PDOMAIN=mypdomainname` and `apstat -P | grep ${PDOMAIN} || apmgr pdomain -c -u ${PDOMAIN}`
+14. Define you protection domain, which can only be used by you: `export PDOMAIN=mypdomainname && apstat -P | grep ${PDOMAIN} || apmgr pdomain -c -u ${PDOMAIN}`
 
 15. Copy hepnos server config `cp /projects/HEP_on_HPC/sehrish/icarus-configs/hepnos.json .`
 
