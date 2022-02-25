@@ -54,3 +54,7 @@ add_test(test_spacepoint test_spacepoint)
 add_executable(test_edge test_edge.cc main.cc)
 target_link_libraries(test_edge Core cetlib_except cetlib larcoreobj_SummaryData lardataobj_RecoBase hepnos Boost::serialization)
 add_test(test_edge test_edge)
+
+add_executable(test_pfparticle test_pfparticle.cc main.cc)
+target_link_libraries(test_pfparticle Core cetlib_except cetlib larcoreobj_SummaryData lardataobj_RecoBase hepnos Boost::serialization)
+add_test(test_pfparticle test_pfparticle)
