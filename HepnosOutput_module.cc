@@ -149,8 +149,8 @@ HepnosOutput::write(EventPrincipal& p)
   std::string type;
   for (auto p: prodIds) {
     p.unpackInformation(&datasetId, &run, &subrun, &hepnosevent, &hepnostag, &type);
-    std::cout << "Tag: " << hepnostag << "#### Type: " << type << "\n";
-    std::cout << "Uniform type: " << art::uniform_type_name(type) << "\n";
+    //std::cout << "Tag: " << hepnostag << "#### Type: " << type << "\n";
+    //std::cout << "Uniform type: " << art::uniform_type_name(type) << "\n";
     auto [label, instance, processname] = splitTag(hepnostag);  
     auto t = art::uniform_type_name(type);
     auto const product_name = art::canonicalProductName(art::friendlyname::friendlyName(t), 
@@ -160,7 +160,7 @@ HepnosOutput::write(EventPrincipal& p)
     auto art_pid = art::ProductID{product_name};
     if (translator_.find(art_pid) != translator_.cend()) continue;
     translator_[art_pid] = p;
-    std::cout << "art/hepnos: " << art_pid << ", " << product_name << "\n";   
+    //std::cout << "art/hepnos: " << art_pid << ", " << product_name << "\n";   
    }
   //need to make sure we have the map with art::ProductIDs and 
   //hepnos::ProductIDs before we attempt storing association 
@@ -172,10 +172,10 @@ HepnosOutput::write(EventPrincipal& p)
   for (auto const& pr : p) {
     auto const& g = *pr.second;
     auto const& pd = g.productDescription();
-    std::cout << "art: " << pd.productID() << ", " << pd.branchName() << ", " << pd.processName()<< "\n";   
+    //std::cout << "art: " << pd.productID() << ", " << pd.branchName() << ", " << pd.processName()<< "\n";   
     if (translator_.find(pd.productID()) != translator_.cend()) continue;
     auto const& oh = p.getForOutput(pd.productID(), true);
-    std::cout << pd.inputTag() << std::endl;
+    //std::cout << pd.inputTag() << std::endl;
     //dynamic cast to the type we care about is needed here
     EDProduct const* product = oh.isValid() ? oh.wrapper() : nullptr;
     if (auto pwt = prodWithType<std::vector<raw::RawDigit>>(product, pd)) 
@@ -191,7 +191,7 @@ HepnosOutput::write(EventPrincipal& p)
    for (auto const& pr : p) {
     auto const& g = *pr.second;
     auto const& pd = g.productDescription();
-    std::cout << "art/assns: " << pd.productID() << ", " << pd.branchName() << "\n";   
+    //std::cout << "art/assns: " << pd.productID() << ", " << pd.branchName() << "\n";   
     if (translator_.find(pd.productID()) != translator_.cend()) continue;
     auto const& oh = p.getForOutput(pd.productID(), true);
     

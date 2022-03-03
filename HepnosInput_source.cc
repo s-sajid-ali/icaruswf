@@ -61,6 +61,7 @@ namespace hepnos {
    auto ps = inputtag.find(process);
    return std::make_tuple(inputtag.substr(ls+ll, (is-(ls+ll)-3)), inputtag.substr(is+il, ps-(il+is)-3),inputtag.substr(ps+pl, inputtag.length()-(ps+pl)-1));
   }
+
   template <typename T>
   std::unique_ptr<std::vector<T>> 
   read_product(hepnos::Event& event,
@@ -132,8 +133,11 @@ namespace hepnos {
       for (auto p: prodIds) {
         p.unpackInformation(&datasetId, &run, &subrun, &hepnosevent, &hepnostag, &type);
         auto [label, instance, process] = hepnos::splitTag(hepnostag);
-        auto prod = hepnos::read_product<raw::RawDigit>(event, label, instance, process ,strict); 
-        art::put_product_in_principal(std::move(prod), *outE, label, instance);
+        std::cout << "Input Source: " << label << ", " << instance << ", " << process << "\n";
+        if (type == "std::vector<raw::RawDigit, std::allocator<raw::RawDigit> >") {
+          auto prod = hepnos::read_product<raw::RawDigit>(event, label, instance, process ,strict); 
+          art::put_product_in_principal(std::move(prod), *outE, label, instance);
+        }
       }
      return true;
   }
@@ -205,11 +209,10 @@ namespace icaruswf {
                       art::SourceHelper const& pm) : pm_(pm), datastore_{art::ServiceHandle<HepnosDataStore>()->getStore()}, inputProcessname_(p.get< std::string >("processName"))
     {
       if (inputProcessname_ == "DetSim") {
-        rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq0", "PHYSCRATEDATATPCEE");//, inputProcessname_);
-        rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq1", "PHYSCRATEDATATPCEW");//, inputProcessname_);
-        rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq2", "PHYSCRATEDATATPCWE");//, inputProcessname_);
-        rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq3", "PHYSCRATEDATATPCWW");//, inputProcessname_);
-        //rh.productList(std::move(productList_));
+        rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq0", "PHYSCRATEDATATPCEE");
+        rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq1", "PHYSCRATEDATATPCEW");
+        rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq2", "PHYSCRATEDATATPCWE");
+        rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq3", "PHYSCRATEDATATPCWW");
       }
       if (inputProcessname_ == "SignalProcessing") {
         rh.reconstitutes<std::vector<recob::Wire>, art::InEvent>("roifinder", "PHYSCRATEDATATPCEE");
