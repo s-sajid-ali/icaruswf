@@ -7,7 +7,7 @@
 // for comparing them during assertions
 
 template <typename T>
-bool compare( T const* a, T const* b, int len) {
+bool compare( const T &a, const T &b, int len) {
   for(auto i=0;i<len;++i)
     if (a[i] != b[i]) return false;
   return true;

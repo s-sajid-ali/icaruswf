@@ -26,5 +26,3 @@ target_include_directories(HepnosSPOutput_module PRIVATE  $ENV{ROOT_INC} $ENV{AR
 add_library(HepnosDataStore_service SHARED HepnosDataStore_service.cc)
 target_link_libraries(HepnosDataStore_service PRIVATE Boost::system hepnos Boost::serialization TBB::tbb art::Framework_Services_Registry)
 target_include_directories(HepnosDataStore_service PRIVATE  $ENV{ROOT_INC} $ENV{ART_INC} $ENV{HEPNOS_INC} $ENV{THALLIUM_INC} $ENV{LARDATAOBJ_INC} $ENV{CEREAL_INC})
-
-
