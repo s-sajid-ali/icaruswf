@@ -1,6 +1,8 @@
 #include "catch.hpp"
-#include "../edge_serialization.h"
-#include "larcoreobj/SimpleTypesAndConstants/RawTypes.h"
+
+#include "../src/serialization/edge_serialization.h"
+
+#include <larcoreobj/SimpleTypesAndConstants/RawTypes.h>
 
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
@@ -15,8 +17,8 @@ TEST_CASE("Edge comparison works")
   recob::Edge e1(20., 3, 4, 5);
   recob::Edge e2(20., 3, 4, 5);
   recob::Edge e3(45., 3, 4, 5);
-  CHECK(e1==e2); 
-  CHECK(!(e1==e3)); 
+  CHECK(e1==e2);
+  CHECK(!(e1==e3));
 }
 
 TEST_CASE("writing an edge works")
@@ -32,7 +34,7 @@ TEST_CASE("writing an edge works")
   std::ifstream ifs("edgeout");
   CHECK(ifs.good());
   boost::archive::binary_iarchive ia(ifs);
-  recob::Edge e; 
+  recob::Edge e;
   CHECK(!(e == edge));
   ia >> e;
   CHECK( e == edge );

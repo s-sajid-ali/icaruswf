@@ -1,8 +1,8 @@
 #include "catch.hpp"
 
-#include "../artdaq_fragment_serialization.h"
-#include "artdaq-core/Data/Fragment.hh"
-#include "artdaq-core/Core/QuickVec.hh"
+#include "../src/serialization/artdaq_fragment_serialization.h"
+#include <artdaq-core/Data/Fragment.hh>
+#include <artdaq-core/Core/QuickVec.hh>
 
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>

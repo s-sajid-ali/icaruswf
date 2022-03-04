@@ -1,6 +1,7 @@
 #include "catch.hpp"
-#include "../rawdigit_serialization.h"
-#include "larcoreobj/SimpleTypesAndConstants/RawTypes.h"
+
+#include "../src/serialization/rawdigit_serialization.h"
+#include <larcoreobj/SimpleTypesAndConstants/RawTypes.h>
 
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
@@ -29,7 +30,7 @@ TEST_CASE("writing a rawdigit works")
   std::ifstream ifs("rawdigiout");
   CHECK(ifs.good());
   boost::archive::binary_iarchive ia(ifs);
-  raw::RawDigit d; 
+  raw::RawDigit d;
   CHECK(!(d == digi));
   ia >> d;
   CHECK(digi == d);
