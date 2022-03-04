@@ -1,11 +1,10 @@
-#include "artdaq-core/Data/Fragment.hh"
-#include "artdaq-core/Core/QuickVec.hh"
-
 #include <iostream>
 
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/version.hpp>
+#include <artdaq-core/Data/Fragment.hh>
+#include <artdaq-core/Core/QuickVec.hh>
+
+#include <boost/serialization/serialization.hpp>
+#include <boost/serialization/split_free.hpp>
 
 using datavec = artdaq::QuickVec<unsigned long long>;
 

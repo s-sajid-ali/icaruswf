@@ -30,38 +30,36 @@ $ENV{LARCOREOBJ_LIB})
 #$ENV{ROOT_LIB}) 
 
 add_executable(test_hit test_hit.cc main.cc)
-target_link_libraries(test_hit Core cetlib_except cetlib larcoreobj_SummaryData lardataobj_RecoBase hepnos Boost::serialization)
+target_link_libraries(test_hit Core cetlib_except cetlib lardataobj_RecoBase Boost::serialization)
 add_test(test_hit test_hit)
 
 add_executable(test_artdaq_fragment test_artdaq_fragment.cc main.cc)
-target_link_libraries(test_artdaq_fragment cetlib_except cetlib Boost::serialization artdaq-core_Core
-artdaq-core_Data)
+target_link_libraries(test_artdaq_fragment cetlib_except cetlib Boost::serialization artdaq-core_Core artdaq-core_Data)
 add_test(test_artdaq_fragment test_artdaq_fragment) 
 
 add_executable(test_rawdigit test_rawdigit.cc main.cc)
-target_link_libraries(test_rawdigit Core cetlib_except cetlib Boost::serialization lardataobj_RawData
-larcoreobj_SummaryData larcoreobj_SimpleTypesAndConstants)
+target_link_libraries(test_rawdigit Core cetlib_except cetlib Boost::serialization lardataobj_RawData )
 add_test(test_rawdigit test_rawdigit) 
 
 add_executable(test_wire test_wire.cc main.cc)
-target_link_libraries(test_wire Core cetlib_except cetlib larcoreobj_SummaryData lardataobj_RecoBase hepnos Boost::serialization)
+target_link_libraries(test_wire Core cetlib_except cetlib lardataobj_RecoBase Boost::serialization)
 add_test(test_wire test_wire)
 
 add_executable(test_spacepoint test_spacepoint.cc main.cc)
-target_link_libraries(test_spacepoint Core cetlib_except cetlib larcoreobj_SummaryData lardataobj_RecoBase hepnos Boost::serialization)
+target_link_libraries(test_spacepoint Core cetlib_except cetlib lardataobj_RecoBase Boost::serialization)
 add_test(test_spacepoint test_spacepoint)
 
 add_executable(test_edge test_edge.cc main.cc)
-target_link_libraries(test_edge Core cetlib_except cetlib larcoreobj_SummaryData lardataobj_RecoBase hepnos Boost::serialization)
+target_link_libraries(test_edge Core cetlib_except cetlib lardataobj_RecoBase Boost::serialization)
 add_test(test_edge test_edge)
 
 add_executable(test_pfparticle test_pfparticle.cc main.cc)
-target_link_libraries(test_pfparticle Core cetlib_except cetlib larcoreobj_SummaryData lardataobj_RecoBase Boost::serialization)
+target_link_libraries(test_pfparticle Core cetlib_except cetlib lardataobj_RecoBase Boost::serialization)
 add_test(test_pfparticle test_pfparticle)
 
 add_executable(test_seed test_seed.cc main.cc)
 target_link_libraries(test_seed Core cetlib_except cetlib Boost::serialization lardataobj_RecoBase)
 add_test(test_seed test_seed) 
 
-
+# Copy over hepnos.json file
 configure_file(hepnos.json.in hepnos.json)

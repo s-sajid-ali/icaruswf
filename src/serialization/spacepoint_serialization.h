@@ -1,12 +1,9 @@
-#include "lardataobj/RecoBase/SpacePoint.h"
-#include "larcoreobj/SimpleTypesAndConstants/RawTypes.h"
-#include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
-#include "lardataobj/Utilities/sparse_vector.h"
-
 #include <iostream>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/version.hpp>
+
+#include <lardataobj/RecoBase/SpacePoint.h>
+
+#include <boost/serialization/serialization.hpp>
+#include <boost/serialization/split_free.hpp>
 
 #include "utils.h"
 
