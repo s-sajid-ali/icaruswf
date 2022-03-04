@@ -1,6 +1,8 @@
 #include "catch.hpp"
-#include "../pfparticle_serialization.h"
-#include "larcoreobj/SimpleTypesAndConstants/RawTypes.h"
+
+#include "../src/serialization/pfparticle_serialization.h"
+
+#include <larcoreobj/SimpleTypesAndConstants/RawTypes.h>
 
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
@@ -38,7 +40,7 @@ TEST_CASE("writing a PFParticle works")
   std::ifstream ifs("pfparticleout");
   CHECK(ifs.good());
   boost::archive::binary_iarchive ia(ifs);
-  recob::PFParticle pf2; 
+  recob::PFParticle pf2;
   CHECK(!(pf1 == pf2));
   ia >> pf2;
   CHECK( pf1 == pf2 );

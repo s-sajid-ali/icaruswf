@@ -8,17 +8,11 @@
 
 4. setup spack: `source /scratch/gartung/spack/share/spack/setup-env.sh`
 
-5. load the compiler via `spack load gcc@9.3.0`; activate spack environment: `spack env activate icaruscode-hepnos`
+5. load the compiler via `spack load gcc@9.3.0`; activate spack environment: `spack env activate icaruscode-hepnos-new`
 
-6. update ROOT_INCLUDE_PATH, 
+6. set up the environment variables: `source ${ICARUSWF_SRC}/envvariable.sh`
 
-  `export ROOT_INCLUDE_PATH=/cvmfs/fermilab.opensciencegrid.org/packages/external/gcc/9.3.0/linux-scientific7-x86_64-gcc-4.8.5-arqo2nne2somynanmkuhpgjpx6xa53gi/include/c++/9.3.0:${ROOT_INCLUDE_PATH}`
-
-7. set up the environment variables: `source ${ICARUSWF_SRC}/envvariable.sh`
-
-8. update PATH: `export PATH=/cvmfs/fermilab.opensciencegrid.org/packages/external/gcc/9.3.0/linux-scientific7-x86_64-gcc-4.8.5-arqo2nne2somynanmkuhpgjpx6xa53gi/bin/:$PATH`
-
-9. run cmake in the build directory: `cmake -DCMAKE_CXX_COMPILER=$(which g++) ${ICARUSWF_SRC}`
+7. run cmake in the build directory: `cmake -DCMAKE_CXX_COMPILER=$(which g++) ${ICARUSWF_SRC}`
 
 10. build the code: `make -j10 all`
 
