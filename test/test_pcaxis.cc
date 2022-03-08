@@ -46,4 +46,12 @@ TEST_CASE("writing a pcaxis works")
   recob::PCAxis p2;
   ia >> p2;
   CHECK(p1 == p2);
+
+  std::for_each(std::begin(avpos), std::end(avpos), [](auto& x) { x += 1; });
+
+  recob::PCAxis p3(svdstatus, nhits, static_cast<const double*>(eigvals.data()),
+      static_cast<const recob::PCAxis::EigenVectors&>(eigvecs),
+      static_cast<const double*>(avpos.data()), static_cast<const double>(hitdoca), fid);
+
+  CHECK_THROWS(p1==p3);
 }
