@@ -11,11 +11,21 @@
 namespace recob {
   inline bool
     operator==(const recob::PCAxis& p1, const recob::PCAxis& p2) {
-      if (p1.getSvdOK() != p2.getSvdOK()) return false;
-      if (p1.getNumHitsUsed() != p2.getNumHitsUsed()) return false;
-      if (p1.getAvePosition() != p2.getAvePosition()) return false;
-      if (p1.getAveHitDoca() != p2.getAveHitDoca()) return false;
-      if (p1.getID() != p2.getID()) return false;
+      if (p1.getSvdOK() != p2.getSvdOK()) {
+        throw std::runtime_error("svd status is not same");
+        return false;}
+      if (p1.getNumHitsUsed() != p2.getNumHitsUsed()) {
+        throw std::runtime_error("num hits is not same");
+        return false;}
+      if (p1.getAveHitDoca() != p2.getAveHitDoca()){
+        throw std::runtime_error("avhitdoca is different");
+        return false;}
+      if (p1.getID() != p2.getID()) {
+        throw std::runtime_error("ID is different");
+        return false;}
+      if (compare(p1.getAvePosition(), p2.getAvePosition(), 3) == false) {
+        throw std::runtime_error("av pos arrays are different");
+        return false;}
       if (compare(p1.getEigenValues(), p2.getEigenValues(), 3) == false) {
         std::cout << "eigen values are different!" << "\n";
         return false;}
