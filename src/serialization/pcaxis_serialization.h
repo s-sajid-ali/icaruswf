@@ -4,6 +4,7 @@
 #include <lardataobj/RecoBase/PCAxis.h>
 
 #include <boost/serialization/array.hpp>
+#include <boost/serialization/vector.hpp>
 
 #include "utils.h"
 
@@ -54,7 +55,6 @@ namespace boost {
           eigvals[i] = p.getEigenValues()[i];
           avpos[i]   = p.getAvePosition()[i];
         }
-        std::array<std::array<double,3>,3> _eigvecs;
         recob::PCAxis::EigenVectors eigvecs;
         eigvecs = p.getEigenVectors();
         if (eigvecs.size()!=3) {
@@ -66,7 +66,6 @@ namespace boost {
             throw std::invalid_argument("Invalid eigenvectors! \
                 Each eigenvector should only have three components.");
           }
-          _eigvecs[i] = {eigvecs[i][0], eigvecs[i][1], eigvecs[i][2]};
         }
 
         ar << svdstatus;
@@ -75,7 +74,7 @@ namespace boost {
         ar << hitdoca;
         ar << fid;
         ar << eigvals;
-        ar << _eigvecs;
+        ar << eigvecs;
       }
 
     template <class Archive>
@@ -91,19 +90,18 @@ namespace boost {
         std::array<std::array<double,3>,3> _eigvecs;
         recob::PCAxis::EigenVectors eigvecs;
 
+        eigvecs.resize(3);
+        for (int i=0; i<3; i++){
+          eigvecs[i].resize(3);
+        }
+
         ar >> svdstatus;
         ar >> nhits;
         ar >> avpos;
         ar >> hitdoca;
         ar >> fid;
         ar >> eigvals;
-        ar >> _eigvecs;
-
-        eigvecs.resize(3);
-        for (int i=0; i<3; i++){
-          eigvecs[i].resize(3);
-          eigvecs[i] = {_eigvecs[i][0], _eigvecs[i][1], _eigvecs[i][2]};
-        }
+        ar >> eigvecs;
 
         recob::PCAxis(svdstatus, nhits, static_cast<const double*>(eigvals.data()),
             static_cast<const recob::PCAxis::EigenVectors&>(eigvecs),
