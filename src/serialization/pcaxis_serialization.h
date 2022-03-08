@@ -96,7 +96,6 @@ namespace boost {
         size_t fid;
         std::array<double, 3> avpos;
         std::array<double, 3> eigvals;
-        std::array<std::array<double,3>,3> _eigvecs;
         recob::PCAxis::EigenVectors eigvecs;
 
         eigvecs.resize(3);
