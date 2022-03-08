@@ -103,7 +103,7 @@ namespace boost {
         ar >> eigvals;
         ar >> eigvecs;
 
-        recob::PCAxis(svdstatus, nhits, static_cast<const double*>(eigvals.data()),
+        p = recob::PCAxis(svdstatus, nhits, static_cast<const double*>(eigvals.data()),
             static_cast<const recob::PCAxis::EigenVectors&>(eigvecs),
             static_cast<const double*>(avpos.data()), static_cast<const double>(hitdoca), fid);
       }
