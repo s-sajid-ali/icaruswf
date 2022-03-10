@@ -65,5 +65,10 @@ add_executable(test_pcaxis test_pcaxis.cc main.cc)
 target_link_libraries(test_pcaxis Core cetlib_except cetlib Boost::serialization lardataobj_RecoBase)
 add_test(test_pcaxis test_pcaxis) 
 
+add_executable(test_slice test_slice.cc main.cc)
+target_link_libraries(test_slice Core cetlib_except cetlib Boost::serialization lardataobj_RecoBase)
+add_test(test_slice test_slice) 
+
+
 # Copy over hepnos.json file
 configure_file(hepnos.json.in hepnos.json)
