@@ -10,9 +10,9 @@
 
 TEST_CASE("writing a vertex works")
 {
-  double chi2;
-  int    dof;
-  int    id;
+  double chi2 = 1.1;
+  int    dof  = 22;
+  int    id   = 33;
   std::array<
     ROOT::Math::PositionVector3D<
     ROOT::Math::Cartesian3D<Coord_t>,
