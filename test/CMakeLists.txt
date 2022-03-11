@@ -69,6 +69,9 @@ add_executable(test_slice test_slice.cc main.cc)
 target_link_libraries(test_slice Core cetlib_except cetlib Boost::serialization lardataobj_RecoBase)
 add_test(test_slice test_slice) 
 
+add_executable(test_vertex test_vertex.cc main.cc)
+target_link_libraries(test_vertex Core cetlib_except cetlib Boost::serialization lardataobj_RecoBase)
+add_test(test_vertex test_vertex) 
 
 # Copy over hepnos.json file
 configure_file(hepnos.json.in hepnos.json)
