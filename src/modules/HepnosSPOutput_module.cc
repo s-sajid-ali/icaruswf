@@ -23,6 +23,7 @@
 #include "../serialization/wire_serialization.h"
 #include "../serialization/edge_serialization.h"
 #include "../serialization/pfparticle_serialization.h"
+#include "../serialization/seed_serialization.h"
 
 #include <boost/serialization/utility.hpp>
 #include "HepnosDataStore.h"
@@ -142,13 +143,18 @@ namespace {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
           translator[pd.productID()] = h_e.store(pd.inputTag(), *pwt);
         }
-        // For recob::Edge
+        // For recob::Edge as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Edge>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
           translator[pd.productID()] = h_e.store(pd.inputTag(), *pwt);
         }
-        // For PFParticles
+        // For PFParticles as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::PFParticle>>(product, pd)) {
+          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
+          translator[pd.productID()] = h_e.store(pd.inputTag(), *pwt);
+        }
+        // For Seeds as output of Pandora
+        if (auto pwt = prodWithType<std::vector<recob::Seed>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
           translator[pd.productID()] = h_e.store(pd.inputTag(), *pwt);
         }
@@ -185,6 +191,12 @@ namespace {
           storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
         }
         if (auto pwt = prodWithType<art::Assns<recob::Edge,recob::SpacePoint,void>>(product, pd)) {
+          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        }
+        if (auto pwt = prodWithType<art::Assns<recob::PFParticle,recob::Seed,void>>(product, pd)) {
+          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        }
+        if (auto pwt = prodWithType<art::Assns<recob::Hit,recob::Seed,void>>(product, pd)) {
           storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
         }
       }
