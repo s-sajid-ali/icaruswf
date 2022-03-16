@@ -1,3 +1,6 @@
+#if !defined(wire_serialization_h)
+#define wire_serialization_h 
+
 #include <iostream>
 
 #include <lardataobj/RecoBase/Wire.h>
@@ -73,3 +76,4 @@ namespace boost {
 }
 BOOST_SERIALIZATION_SPLIT_FREE(lar::sparse_vector<float>);
 BOOST_SERIALIZATION_SPLIT_FREE(recob::Wire);
+#endif

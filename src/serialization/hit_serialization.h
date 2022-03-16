@@ -1,3 +1,6 @@
+#if !defined(hit_serialization_h)
+#define hit_serialization_h
+
 #include <iostream>
 
 #include <lardataobj/RecoBase/Hit.h>
@@ -121,5 +124,6 @@ namespace boost {
       }
   }
 }
-  BOOST_SERIALIZATION_SPLIT_FREE(geo::WireID)
+BOOST_SERIALIZATION_SPLIT_FREE(geo::WireID)
 BOOST_SERIALIZATION_SPLIT_FREE(recob::Hit)
+#endif

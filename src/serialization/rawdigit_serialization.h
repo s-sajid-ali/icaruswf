@@ -1,3 +1,7 @@
+
+#if !defined(rawdigit_serialization_h)
+#define rawdigit_serialization_h
+
 #include <iostream>
 
 #include <lardataobj/RawData/RawDigit.h>
@@ -101,3 +105,4 @@ namespace boost {
 }
 
 BOOST_SERIALIZATION_SPLIT_FREE(raw::RawDigit)
+#endif

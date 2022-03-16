@@ -1,3 +1,7 @@
+
+#if !defined(pcaxis_serialization_h)
+#define pcaxis_serialization_h
+
 #include <iostream>
 
 #include <lardataobj/RecoBase/PCAxis.h>
@@ -118,4 +122,4 @@ namespace boost {
   }
 }
 BOOST_SERIALIZATION_SPLIT_FREE(recob::PCAxis)
-
+#endif

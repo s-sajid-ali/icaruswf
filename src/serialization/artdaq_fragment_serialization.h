@@ -1,3 +1,6 @@
+#if !defined(artdaq_fragment_serialization_h)
+#define artdaq_fragment_serialization_h 
+
 #include <iostream>
 
 #include <artdaq-core/Data/Fragment.hh>
@@ -90,3 +93,4 @@ namespace boost {
 }
   BOOST_SERIALIZATION_SPLIT_FREE(datavec)
 BOOST_SERIALIZATION_SPLIT_FREE(artdaq::Fragment)
+#endif

@@ -1,3 +1,5 @@
+#if !defined(utils_h)
+#define utils_h
 // Common utilities for seriziation
 
 
@@ -12,4 +14,4 @@ bool compare( const T &a, const T &b, int len) {
     if (a[i] != b[i]) return false;
   return true;
 }
-
+#endif

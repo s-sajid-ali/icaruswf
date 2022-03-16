@@ -1,3 +1,7 @@
+
+#if !defined(vertex_serialization_h)
+#define vertex_serialization_h
+
 #include <iostream>
 #include <algorithm>
 
@@ -107,3 +111,4 @@ namespace boost {
   }
 }
 BOOST_SERIALIZATION_SPLIT_FREE(recob::Vertex)
+#endif

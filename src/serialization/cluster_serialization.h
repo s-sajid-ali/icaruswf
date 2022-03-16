@@ -1,3 +1,7 @@
+
+#if !defined(cluster_serialization_h)
+#define cluster_serialization_h
+
 #include <iostream>
 
 #include <lardataobj/RecoBase/Cluster.h>
@@ -220,3 +224,4 @@ namespace boost {
   }
 }
 BOOST_SERIALIZATION_SPLIT_FREE(recob::Cluster)
+#endif

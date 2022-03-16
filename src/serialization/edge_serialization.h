@@ -1,3 +1,7 @@
+
+#if !defined(edge_serialization_h)
+#define edge_serialization_h
+
 #include <iostream>
 
 #include <lardataobj/RecoBase/Edge.h>
@@ -44,3 +48,4 @@ namespace boost {
   }
 }
 BOOST_SERIALIZATION_SPLIT_FREE(recob::Edge)
+#endif

@@ -1,3 +1,6 @@
+#if !defined(seed_serialization_h)
+#define seed_serialization_h
+
 #include <iostream>
 
 #include <lardataobj/RecoBase/Seed.h>
@@ -84,4 +87,4 @@ namespace boost {
   }
 }
 BOOST_SERIALIZATION_SPLIT_FREE(recob::Seed)
-
+#endif

@@ -1,3 +1,7 @@
+
+#if !defined(slice_serialization_h)
+#define slice_serialization_h
+
 #include <iostream>
 
 #include <lardataobj/RecoBase/Slice.h>
@@ -160,4 +164,4 @@ namespace boost {
   }
 }
 BOOST_SERIALIZATION_SPLIT_FREE(recob::Slice)
-
+#endif

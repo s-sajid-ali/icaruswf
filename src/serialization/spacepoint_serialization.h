@@ -1,3 +1,5 @@
+#if !defined(spacepoint_serialization_h)
+#define spacepoint_serialization_h
 #include <iostream>
 
 #include <lardataobj/RecoBase/SpacePoint.h>
@@ -58,3 +60,4 @@ namespace boost {
   }
 }
 BOOST_SERIALIZATION_SPLIT_FREE(recob::SpacePoint);
+#endif
