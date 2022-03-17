@@ -1,0 +1,19 @@
+process_name : hepnosstore
+
+  outputs : {
+      hepnos : {
+         module_type: HepnosSPOutput
+         fileName: "icarus"
+         forwardProducts: true
+      }
+  }
+
+services.HepnosDataStore: {
+   protocol: "ofi+tcp"
+   # if on Theta
+   #protocol: "ofi+gni"
+}
+
+physics : {
+ end_path : [hepnos]
+ }
