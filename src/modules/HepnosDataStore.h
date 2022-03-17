@@ -1,5 +1,5 @@
-#ifndef HEPNOSDATASTORESERVICE_H
-#define HEPNOSDATASTORESERVICE_H
+#ifndef HEPNOSDATASTORE_H
+#define HEPNOSDATASTORE_H
 
 #include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"

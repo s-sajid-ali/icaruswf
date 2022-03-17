@@ -20,9 +20,12 @@ target_include_directories(HepnosOutput_module PRIVATE  $ENV{ROOT_INC} $ENV{ART_
 
 
 add_library(HepnosSPOutput_module SHARED HepnosSPOutput_module.cc)
-target_link_libraries(HepnosSPOutput_module PRIVATE Boost::system hepnos Boost::serialization TBB::tbb)
+target_link_libraries(HepnosSPOutput_module PRIVATE ROOT::Core Boost::system hepnos Boost::serialization TBB::tbb)
 target_include_directories(HepnosSPOutput_module PRIVATE  $ENV{ROOT_INC} $ENV{ART_INC} $ENV{HEPNOS_INC} $ENV{CANVAS_INC} $ENV{CETLIB_INC} $ENV{CETLIB_EXCEPT_INC} $ENV{FHICLCPP_INC} $ENV{HEP_CONCURRENCY_INC} $ENV{LARDATAOBJ_INC} $ENV{THALLIUM_INC} $ENV{CEREAL_INC} $ENV{LARCOREOBJ_INC})
 
 add_library(HepnosDataStore_service SHARED HepnosDataStore_service.cc)
 target_link_libraries(HepnosDataStore_service PRIVATE Boost::system hepnos Boost::serialization TBB::tbb art::Framework_Services_Registry)
 target_include_directories(HepnosDataStore_service PRIVATE  $ENV{ROOT_INC} $ENV{ART_INC} $ENV{HEPNOS_INC} $ENV{THALLIUM_INC} $ENV{LARDATAOBJ_INC} $ENV{CEREAL_INC})
+
+
+

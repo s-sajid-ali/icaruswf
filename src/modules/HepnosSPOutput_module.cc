@@ -17,13 +17,17 @@
 
 #include "hepnos.hpp"
 
-#include "../serialization/hit_serialization.h"
-#include "../serialization/rawdigit_serialization.h"
-#include "../serialization/spacepoint_serialization.h"
-#include "../serialization/wire_serialization.h"
+#include "../serialization/cluster_serialization.h"
 #include "../serialization/edge_serialization.h"
+#include "../serialization/hit_serialization.h"
+#include "../serialization/pcaxis_serialization.h"
 #include "../serialization/pfparticle_serialization.h"
+#include "../serialization/rawdigit_serialization.h"
 #include "../serialization/seed_serialization.h"
+#include "../serialization/slice_serialization.h"
+#include "../serialization/spacepoint_serialization.h"
+#include "../serialization/vertex_serialization.h"
+#include "../serialization/wire_serialization.h"
 
 #include <boost/serialization/utility.hpp>
 #include "HepnosDataStore.h"
@@ -115,7 +119,6 @@ namespace {
 
   std::map<art::ProductID, hepnos::ProductID>
     update_map_aevent(EventPrincipal& a_e, hepnos::Event h_e) {
-
       std::map<art::ProductID, hepnos::ProductID> translator;
       for (auto const& pr : a_e) {
         auto const& g = *pr.second;
@@ -134,29 +137,49 @@ namespace {
           translator[pd.productID()] = h_e.store(inputtag, *pwt);
         }
         // For hits as output of hit finding
+        // Hits are also output of Pandora?
         if (auto pwt = prodWithType<std::vector<recob::Hit>>(product, pd)) {
-          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "HitFinding");
           translator[pd.productID()] = h_e.store(pd.inputTag(), *pwt);
         }
         // For SpacePoints as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::SpacePoint>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(pd.inputTag(), *pwt);
+          translator[pd.productID()] = h_e.store(inputtag, *pwt);
         }
-        // For recob::Edge as output of Pandora
+        // For Edge as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Edge>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(pd.inputTag(), *pwt);
+          translator[pd.productID()] = h_e.store(inputtag, *pwt);
         }
         // For PFParticles as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::PFParticle>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(pd.inputTag(), *pwt);
+          translator[pd.productID()] = h_e.store(inputtag, *pwt);
         }
         // For Seeds as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Seed>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(pd.inputTag(), *pwt);
+          translator[pd.productID()] = h_e.store(inputtag, *pwt);
+        }
+        // For Slices as output of Pandora
+        if (auto pwt = prodWithType<std::vector<recob::Slice>>(product, pd)) {
+          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
+          translator[pd.productID()] = h_e.store(inputtag, *pwt);
+        }
+        // For Vertices as output of Pandora
+        if (auto pwt = prodWithType<std::vector<recob::Vertex>>(product, pd)) {
+          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
+          translator[pd.productID()] = h_e.store(inputtag, *pwt);
+        }
+        // For Clusters as output of Pandora
+        if (auto pwt = prodWithType<std::vector<recob::Cluster>>(product, pd)) {
+          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
+          translator[pd.productID()] = h_e.store(inputtag, *pwt);
+        }
+        // For PCAxis as output of Pandora
+        if (auto pwt = prodWithType<std::vector<recob::PCAxis>>(product, pd)) {
+          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
+          translator[pd.productID()] = h_e.store(inputtag, *pwt);
         }
       }
       return translator;
@@ -196,7 +219,25 @@ namespace {
         if (auto pwt = prodWithType<art::Assns<recob::PFParticle,recob::Seed,void>>(product, pd)) {
           storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
         }
-        if (auto pwt = prodWithType<art::Assns<recob::Hit,recob::Seed,void>>(product, pd)) {
+        if (auto pwt = prodWithType<art::Assns<recob::Seed,recob::Hit,void>>(product, pd)) {
+          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        }
+        if (auto pwt = prodWithType<art::Assns<recob::PFParticle,recob::Slice,void>>(product, pd)) {
+          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        }
+        if (auto pwt = prodWithType<art::Assns<recob::Hit,recob::Slice,void>>(product, pd)) {
+          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        }
+        if (auto pwt = prodWithType<art::Assns<recob::PFParticle,recob::Vertex,void>>(product, pd)) {
+          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        }
+        if (auto pwt = prodWithType<art::Assns<recob::Cluster, recob::PFParticle, void>>(product, pd)) {
+          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        }
+        if (auto pwt = prodWithType<art::Assns<recob::Cluster, recob::Hit,void>>(product, pd)) {
+          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        }
+        if (auto pwt = prodWithType<art::Assns<recob::PCAxis, recob::PFParticle, void>>(product, pd)) {
           storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
         }
       }
