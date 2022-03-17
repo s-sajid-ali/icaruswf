@@ -77,5 +77,9 @@ add_executable(test_cluster test_cluster.cc main.cc)
 target_link_libraries(test_cluster Core cetlib_except cetlib Boost::serialization lardataobj_RecoBase)
 add_test(test_cluster test_cluster) 
 
+add_executable(test_hepnos test_hepnos.cc)
+target_link_libraries(test_hepnos PRIVATE Boost::system hepnos Core cetlib_except cetlib Boost::serialization
+lardataobj_RecoBase TBB::tbb)
+#target_include_directories(test_hepnos PRIVATE  $ENV{ROOT_INC} $ENV{ART_INC} $ENV{HEPNOS_INC} $ENV{CANVAS_INC} $ENV{CETLIB_INC} $ENV{CETLIB_EXCEPT_INC} $ENV{FHICLCPP_INC} $ENV{HEP_CONCURRENCY_INC} $ENV{LARDATAOBJ_INC} $ENV{THALLIUM_INC} $ENV{CEREAL_INC} $ENV{LARCOREOBJ_INC})
 # Copy over hepnos.json file
 configure_file(hepnos.json.in hepnos.json)
