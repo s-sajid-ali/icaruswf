@@ -1,11 +1,19 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 project(icaruswf LANGUAGES CXX C)
 
-enable_testing()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+option(USE_GNI_TRANSPORT "use Cray's uGNI transport backend for libfabric" OFF)
+if(USE_GNI_TRANSPORT)
+  set(MERCURY_TRANSPORT_PROTOCOL "ofi+gni")
+  message(STATUS "Using ofi+gni as the mercury protocol")
+else()
+  set(MERCURY_TRANSPORT_PROTOCOL "ofi+tcp")
+  message(STATUS "Using ofi+tcp as the mercury protocol")
+endif()
 
 find_package(MPI REQUIRED COMPONENTS C)
 find_package(Boost REQUIRED COMPONENTS system serialization)
@@ -18,6 +26,9 @@ find_package(hep_concurrency REQUIRED)
 find_package(larcoreobj REQUIRED)
 find_package(lardataobj REQUIRED)
 
-add_subdirectory (src)
+add_subdirectory(src)
 
+add_subdirectory(fcl)
+
+enable_testing()
 add_subdirectory(test)

@@ -1,258 +1,430 @@
 outputs: {
-   outBNB: {
+   out1: {
+      SelectEvents: [
+         "reco"
+      ]
+#      compressionLevel: 1
       dataTier: "reconstructed"
-      module_label: "outBNB"
-      module_type: "HepnosSPOutput"
       fileName: "icarus"
-      forwardProducts: false
+      module_label: "out1"
+      module_type: "HepnosSPOutput"
       outputCommands: [
          "keep *_*_*_*",
-         "drop *_MCDecodeTPCROI_*_*",
-         "drop *_decon1droi_*_*",
-         "drop raw::RawDigits_*_*_*"
+         "drop *_caloskimCalorimetryCryoE_*_*",
+         "drop *_caloskimCalorimetryCryoW_*_*"
       ]
-      streamName: "outBNB"
+      streamName: "out1"
    }
 }
 physics: {
    end_paths: [
-      "streamBNB"
+      "stream1"
    ]
    producers: {
-      MCDecodeTPCROI: {
-         DecoderTool: {
-            CoherentGrouping: 64
-            FFTCutoffVals: [
-               [
-                  8,
-                  800
-               ],
-               [
-                  8,
-                  800
-               ],
-               [
-                  3,
-                  800
-               ]
-            ]
-            FFTSigmaVals: [
-               [
-                  1.5,
-                  20
-               ],
-               [
-                  1.5,
-                  20
-               ],
-               [
-                  2,
-                  20
-               ]
-            ]
-            FilterModeVec: [
-               "e",
-               "g",
-               "d"
-            ]
-            FilterWindow: 10
-            FragmentIDMap: [
-               [
-                  0,
-                  5132
-               ],
-               [
-                  1,
-                  5134
-               ],
-               [
-                  2,
-                  5136
-               ],
-               [
-                  6,
-                  5140
-               ],
-               [
-                  8,
-                  5390
-               ],
-               [
-                  9,
-                  5392
-               ]
-            ]
-            NSigmaForTrucation: 3.5
-            StructuringElement: 16
-            Threshold: [
-               12,
-               12,
-               12
-            ]
-            UseFFTFilter: false
-            fragment_id_offset: 0
-            tool_type: "TPCNoiseFilter1D"
+      cluster3DCryoE: {
+         ClusterAlg: {
+            ClusterParamsBuilder: {
+               ClusterMaxLostFraction: 5e-1
+               ClusterMinHits: 3
+               ClusterMinUniqueFraction: 5e-1
+               PrincipalComponentsAlg: {
+                  ParallelLines: 1e-5
+               }
+               tool_type: "ClusterParamsBuilder"
+            }
+            EnableMonitoring: true
+            MinPairPts: 1
+            kdTree: {
+               EnableMonitoring: true
+               PairSigmaPeakTime: 3
+               RefLeafBestDist: 7.5e-1
+            }
+            tool_type: "DBScanAlg"
          }
-         DiagnosticOutput: false
-         FragmentsLabelVec: [
-            "daq3:PHYSCRATEDATATPCWW",
-            "daq2:PHYSCRATEDATATPCWE",
-            "daq1:PHYSCRATEDATATPCEW",
-            "daq0:PHYSCRATEDATATPCEE"
-         ]
-         OutInstanceLabelVec: [
-            "PHYSCRATEDATATPCWW",
-            "PHYSCRATEDATATPCWE",
-            "PHYSCRATEDATATPCEW",
-            "PHYSCRATEDATATPCEE"
-         ]
-         OutputCoherentPath: "Cor"
-         OutputCorrection: false
-         OutputRawWavePath: "RAW"
-         OutputRawWaveform: false
-         module_label: "MCDecodeTPCROI"
-         module_type: "MCDecoderICARUSTPCwROI"
+         ClusterMergeAlg: {
+            AxisAngleScaleFactor: 5
+            EnableMonitoring: true
+            MinEigenToProcess: 50
+            MinTransEigenVal: 9e-2
+            PrincipalComponentsAlg: {
+               ParallelLines: 1e-5
+            }
+            tool_type: "ClusterMergeAlg"
+         }
+         ClusterParamsBuilder: {
+            ClusterMaxLostFraction: 5e-1
+            ClusterMinHits: 3
+            ClusterMinUniqueFraction: 5e-1
+            PrincipalComponentsAlg: {
+               ParallelLines: 1e-5
+            }
+            tool_type: "ClusterParamsBuilder"
+         }
+         ClusterPathAlg: {
+            ClusterAlg: {
+               ClusterParamsBuilder: {
+                  ClusterMaxLostFraction: 5e-1
+                  ClusterMinHits: 3
+                  ClusterMinUniqueFraction: 5e-1
+                  PrincipalComponentsAlg: {
+                     ParallelLines: 1e-5
+                  }
+                  tool_type: "ClusterParamsBuilder"
+               }
+               EnableMonitoring: true
+               MinPairPts: 1
+               kdTree: {
+                  EnableMonitoring: true
+                  PairSigmaPeakTime: 3
+                  RefLeafBestDist: 7.5e-1
+               }
+               tool_type: "DBScanAlg"
+            }
+            EnableMonitoring: true
+            MinEigen0To1Ratio: 12
+            MinTinyClusterSize: 2e6
+            PrincipalComponentsAlg: {
+               ParallelLines: 1e-5
+            }
+            tool_type: "ConvexHullPathFinder"
+         }
+         EnableMonitoring: true
+         EnableProduction: false
+         Hit3DBuilderAlg: {
+            DeltaPeakTimeSig: 1.75
+            EnableMonitoring: true
+            HitFinderTagVec: [
+               "gaushitTPCEW",
+               "gaushitTPCEE"
+            ]
+            HitWidthScaleFactor: 3
+            LongHitsStretchFactor: 1.5
+            MaxHitChiSquare: 1e6
+            OutputHistograms: false
+            PHLowSelection: 0
+            PulseHeightFraction: 0
+            RangeNumSigma: 3
+            TickCorrectionArray: [
+               [
+                  [
+                     0,
+                     0
+                  ],
+                  [
+                     0,
+                     0
+                  ],
+                  [
+                     0,
+                     0
+                  ],
+                  [
+                     0,
+                     0
+                  ]
+               ],
+               [
+                  [
+                     0,
+                     0
+                  ],
+                  [
+                     0,
+                     0
+                  ],
+                  [
+                     0,
+                     0
+                  ],
+                  [
+                     0,
+                     0
+                  ]
+               ]
+            ]
+            WirePitchScaleFactor: 1.9
+            tool_type: "SnippetHit3DBuilderICARUS"
+         }
+         HitFinderModuleLabel: "gaushit"
+         PCASeedFinderAlg: {
+            GapDistance: 5
+            MinAllowedCosAng: 7e-1
+            NumSeed2DHits: 80
+            PrincipalComponentsAlg: {
+               ParallelLines: 1e-5
+            }
+         }
+         ParallelHitsAlg: {
+            GapDistance: 20
+            MaxNumEdgeHits: 1000
+            NumSeed2DHits: 80
+            PrincipalComponentsAlg: {
+               ParallelLines: 1e-5
+            }
+         }
+         PrincipalComponentsAlg: {
+            ParallelLines: 1e-5
+         }
+         SeedFinderAlg: {
+            DisplayHoughHist: false
+            HalfRhoBins: 75
+            HiThresholdFrac: 5e-2
+            HiThresholdMin: 5
+            LoThresholdFrac: 8.5e-1
+            MaxLoopsPerCluster: 3
+            MaximumGap: 5
+            Minimum3DHits: 5
+            NumAveDocas: 6
+            NumSeed2DHits: 80
+            NumSkippedHits: 10
+            PrincipalComponentsAlg: {
+               ParallelLines: 1e-5
+            }
+            ThetaBins: 360
+         }
+         SkeletonAlg: {
+            MaximumDeltaTicks: 10
+            MinimumDeltaTicks: 5e-2
+         }
+         module_label: "cluster3DCryoE"
+         module_type: "Cluster3D"
       }
-      decon1droi: {
-         Baseline: {
-            MaxROILength: 100
-            tool_type: "icaruscode/TPC/SignalProcessing/RecoWire/DeconTools/BaselineMostProbAve"
+      cluster3DCryoW: {
+         ClusterAlg: {
+            ClusterParamsBuilder: {
+               ClusterMaxLostFraction: 5e-1
+               ClusterMinHits: 3
+               ClusterMinUniqueFraction: 5e-1
+               PrincipalComponentsAlg: {
+                  ParallelLines: 1e-5
+               }
+               tool_type: "ClusterParamsBuilder"
+            }
+            EnableMonitoring: true
+            MinPairPts: 1
+            kdTree: {
+               EnableMonitoring: true
+               PairSigmaPeakTime: 3
+               RefLeafBestDist: 7.5e-1
+            }
+            tool_type: "DBScanAlg"
          }
-         Deconvolution: {
-            Baseline: {
-               MaxROILength: 100
-               tool_type: "icaruscode/TPC/SignalProcessing/RecoWire/DeconTools/BaselineMostProbAve"
+         ClusterMergeAlg: {
+            AxisAngleScaleFactor: 5
+            EnableMonitoring: true
+            MinEigenToProcess: 50
+            MinTransEigenVal: 9e-2
+            PrincipalComponentsAlg: {
+               ParallelLines: 1e-5
             }
-            DoBaselineSub: true
-            DodQdxCalib: false
-            MinROIAverageTickThreshold: -5e-1
-            dQdxCalibFileName: "dQdxCalibrationPlanev1.txt"
-            tool_type: "FullWireDeconvolution"
+            tool_type: "ClusterMergeAlg"
          }
-         MinAllowedChannelStatus: 3
-         NoiseSource: 3
-         OutputHistograms: false
-         ROIFinderToolVec: {
-            ROIFinderToolPlane0: {
-               Plane: 0
-               roiLeadTrailPad: [
-                  2000,
-                  2000
-               ]
-               tool_type: "ROIFinderNOP"
+         ClusterParamsBuilder: {
+            ClusterMaxLostFraction: 5e-1
+            ClusterMinHits: 3
+            ClusterMinUniqueFraction: 5e-1
+            PrincipalComponentsAlg: {
+               ParallelLines: 1e-5
             }
-            ROIFinderToolPlane1: {
-               Plane: 1
-               roiLeadTrailPad: [
-                  2000,
-                  2000
-               ]
-               tool_type: "ROIFinderNOP"
+            tool_type: "ClusterParamsBuilder"
+         }
+         ClusterPathAlg: {
+            ClusterAlg: {
+               ClusterParamsBuilder: {
+                  ClusterMaxLostFraction: 5e-1
+                  ClusterMinHits: 3
+                  ClusterMinUniqueFraction: 5e-1
+                  PrincipalComponentsAlg: {
+                     ParallelLines: 1e-5
+                  }
+                  tool_type: "ClusterParamsBuilder"
+               }
+               EnableMonitoring: true
+               MinPairPts: 1
+               kdTree: {
+                  EnableMonitoring: true
+                  PairSigmaPeakTime: 3
+                  RefLeafBestDist: 7.5e-1
+               }
+               tool_type: "DBScanAlg"
             }
-            ROIFinderToolPlane2: {
-               Plane: 2
-               roiLeadTrailPad: [
-                  2000,
-                  2000
+            EnableMonitoring: true
+            MinEigen0To1Ratio: 12
+            MinTinyClusterSize: 2e6
+            PrincipalComponentsAlg: {
+               ParallelLines: 1e-5
+            }
+            tool_type: "ConvexHullPathFinder"
+         }
+         EnableMonitoring: true
+         EnableProduction: false
+         Hit3DBuilderAlg: {
+            DeltaPeakTimeSig: 1.75
+            EnableMonitoring: true
+            HitFinderTagVec: [
+               "gaushitTPCWW",
+               "gaushitTPCWE"
+            ]
+            HitWidthScaleFactor: 3
+            LongHitsStretchFactor: 1.5
+            MaxHitChiSquare: 1e6
+            OutputHistograms: false
+            PHLowSelection: 0
+            PulseHeightFraction: 0
+            RangeNumSigma: 3
+            TickCorrectionArray: [
+               [
+                  [
+                     0,
+                     0
+                  ],
+                  [
+                     0,
+                     0
+                  ],
+                  [
+                     0,
+                     0
+                  ],
+                  [
+                     0,
+                     0
+                  ]
+               ],
+               [
+                  [
+                     0,
+                     0
+                  ],
+                  [
+                     0,
+                     0
+                  ],
+                  [
+                     0,
+                     0
+                  ],
+                  [
+                     0,
+                     0
+                  ]
                ]
-               tool_type: "ROIFinderNOP"
+            ]
+            WirePitchScaleFactor: 1.9
+            tool_type: "SnippetHit3DBuilderICARUS"
+         }
+         HitFinderModuleLabel: "gaushit"
+         PCASeedFinderAlg: {
+            GapDistance: 5
+            MinAllowedCosAng: 7e-1
+            NumSeed2DHits: 80
+            PrincipalComponentsAlg: {
+               ParallelLines: 1e-5
             }
          }
-         RawDigitLabelVec: [
-            "MCDecodeTPCROI:PHYSCRATEDATATPCWW",
-            "MCDecodeTPCROI:PHYSCRATEDATATPCWE",
-            "MCDecodeTPCROI:PHYSCRATEDATATPCEW",
-            "MCDecodeTPCROI:PHYSCRATEDATATPCEE"
-         ]
-         SaveWireWF: 0
-         TruncRMSMinFraction: 6e-1
-         TruncRMSThreshold: 6
-         module_label: "decon1droi"
-         module_type: "Decon1DROI"
+         ParallelHitsAlg: {
+            GapDistance: 20
+            MaxNumEdgeHits: 1000
+            NumSeed2DHits: 80
+            PrincipalComponentsAlg: {
+               ParallelLines: 1e-5
+            }
+         }
+         PrincipalComponentsAlg: {
+            ParallelLines: 1e-5
+         }
+         SeedFinderAlg: {
+            DisplayHoughHist: false
+            HalfRhoBins: 75
+            HiThresholdFrac: 5e-2
+            HiThresholdMin: 5
+            LoThresholdFrac: 8.5e-1
+            MaxLoopsPerCluster: 3
+            MaximumGap: 5
+            Minimum3DHits: 5
+            NumAveDocas: 6
+            NumSeed2DHits: 80
+            NumSkippedHits: 10
+            PrincipalComponentsAlg: {
+               ParallelLines: 1e-5
+            }
+            ThetaBins: 360
+         }
+         SkeletonAlg: {
+            MaximumDeltaTicks: 10
+            MinimumDeltaTicks: 5e-2
+         }
+         module_label: "cluster3DCryoW"
+         module_type: "Cluster3D"
       }
-      roifinder: {
-         CorrectROIBaseline: true
-         DaignosticOutput: false
-         MaxSizeForCorrection: 512
-         MinSizeForCorrection: 12
-         OutInstanceLabelVec: [
-            "PHYSCRATEDATATPCWW",
-            "PHYSCRATEDATATPCWE",
-            "PHYSCRATEDATATPCEW",
-            "PHYSCRATEDATATPCEE"
-         ]
-         OutputHistograms: false
-         OutputMorphed: false
-         ROIFinderToolVec: {
-            ROIFinderPlane0: {
-               Plane: 0
-               StructuringElement: [
-                  25,
-                  5
-               ]
-               Threshold: [
-                  7.5,
-                  7.5,
-                  6
-               ]
-               tool_type: "ROIMorphological2D"
-            }
-            ROIFinderPlane1: {
-               Plane: 1
-               StructuringElement: [
-                  25,
-                  5
-               ]
-               Threshold: [
-                  7.5,
-                  7.5,
-                  6
-               ]
-               tool_type: "ROIMorphological2D"
-            }
-            ROIFinderPlane2: {
-               Plane: 2
-               StructuringElement: [
-                  25,
-                  5
-               ]
-               Threshold: [
-                  7.5,
-                  7.5,
-                  6
-               ]
-               tool_type: "ROIMorphological2D"
-            }
-         }
-         WireModuleLabel: "decon1droi"
-         WireModuleLabelVec: [
-            "decon1droi:PHYSCRATEDATATPCWW",
-            "decon1droi:PHYSCRATEDATATPCWE",
-            "decon1droi:PHYSCRATEDATATPCEW",
-            "decon1droi:PHYSCRATEDATATPCEE"
-         ]
-         module_label: "roifinder"
-         module_type: "ROIFinder"
+      pandoraGausCryoE: {
+         ConfigFile: "PandoraSettings_Master_ICARUS.xml"
+         EnableLineGaps: true
+         EnableMCParticles: false
+         EnableProduction: true
+         GeantModuleLabel: "largeant"
+         HitFinderModuleLabel: "cluster3DCryoE"
+         PrintOverallRecoStatus: false
+         ShouldPerformSliceId: true
+         ShouldRunAllHitsCosmicReco: true
+         ShouldRunCosmicHitRemoval: true
+         ShouldRunCosmicRecoOption: true
+         ShouldRunNeutrinoRecoOption: true
+         ShouldRunSlicing: true
+         ShouldRunStitching: true
+         UseActiveBoundingBox: true
+         UseGlobalCoordinates: true
+         UseHitWidths: false
+         module_label: "pandoraGausCryoE"
+         module_type: "StandardPandora"
+      }
+      pandoraGausCryoW: {
+         ConfigFile: "PandoraSettings_Master_ICARUS.xml"
+         EnableLineGaps: true
+         EnableMCParticles: false
+         EnableProduction: true
+         GeantModuleLabel: "largeant"
+         HitFinderModuleLabel: "cluster3DCryoW"
+         PrintOverallRecoStatus: false
+         ShouldPerformSliceId: true
+         ShouldRunAllHitsCosmicReco: true
+         ShouldRunCosmicHitRemoval: true
+         ShouldRunCosmicRecoOption: true
+         ShouldRunNeutrinoRecoOption: true
+         ShouldRunSlicing: true
+         ShouldRunStitching: true
+         UseActiveBoundingBox: true
+         UseGlobalCoordinates: true
+         UseHitWidths: false
+         module_label: "pandoraGausCryoW"
+         module_type: "StandardPandora"
       }
    }
    reco: [
-      "MCDecodeTPCROI",
-      "decon1droi",
-      "roifinder"
+      "cluster3DCryoE",
+      "pandoraGausCryoE",
+      "cluster3DCryoW",
+      "pandoraGausCryoW"
    ]
-   streamBNB: [
-      "outBNB"
+   stream1: [
+      "out1"
    ]
    trigger_paths: [
       "reco"
    ]
 }
-process_name: "SignalProcessing"
+process_name: "Pandora"
 services: {
    HepnosDataStore: { 
-      protocol: "ofi+tcp"
-      #if on Theta change to 
-      #protocol: "ofi+gni"
+      protocol: "${MERCURY_TRANSPORT_PROTOCOL}"
+   }
+   BackTrackerService: {
+      BackTracker: {
+         G4ModuleLabel: "largeant"
+         MinimumHitEnergyFraction: 1e-1
+         SimChannelModuleLabel: "largeant"
+      }
+      service_type: "BackTrackerService"
    }
    CatalogInterface: {
       service_provider: "TrivialFileDelivery"
@@ -393,15 +565,6 @@ services: {
    }
    GeometryConfigurationWriter: {
       service_type: "GeometryConfigurationWriter"
-   }
-   IICARUSChannelMap: {
-      ChannelMappingTool: {
-         DBFileName: "ChannelMapICARUS.db"
-         tool_type: "ChannelMapSQLite"
-      }
-      DiagnosticOutput: false
-      service_provider: "ICARUSChannelMap"
-      service_type: "IICARUSChannelMap"
    }
    LArPropertiesService: {
       AbsLengthEnergies: [
@@ -818,6 +981,13 @@ services: {
       }
       service_type: "MemoryTracker"
    }
+   ParticleInventoryService: {
+      ParticleInventory: {
+         EveIdCalculator: "EmEveIdCalculator"
+         G4ModuleLabel: "largeant"
+      }
+      service_type: "ParticleInventoryService"
+   }
    SignalShapingICARUSService: {
       DeconNorm: 1
       InitialFFTSize: 4096
@@ -962,6 +1132,17 @@ services: {
       StoreHistograms: true
       service_type: "SignalShapingICARUSService"
    }
+   SpaceChargeService: {
+      EnableCalEfieldSCE: false
+      EnableCalSpatialSCE: false
+      EnableCorrSCE: false
+      EnableSimEfieldSCE: false
+      EnableSimSpatialSCE: false
+      InputFilename: "SCEoffsets/SCEoffsets_ICARUS_E500_voxelTH3.root"
+      RepresentationType: "Voxelized_TH3"
+      service_provider: "SpaceChargeServiceICARUS"
+      service_type: "SpaceChargeService"
+   }
    TFileService: {
       fileName: "Supplemental-%ifb_%tc-%p.root"
       service_type: "TFileService"
@@ -978,22 +1159,30 @@ services: {
       destinations: {
          STDCOUT: {
             categories: {
-               MTdiagnostics: {
-                  limit: 0
-               }
-               default: {
+               Cluster3D: {
                   limit: -1
                   reportEvery: 1
                }
+               MTdiagnostics: {
+                  limit: 0
+               }
+               PMAlgTracker: {
+                  limit: -1
+                  reportEvery: 1
+               }
+               default: {
+                  limit: 0
+                  reportEvery: 0
+               }
             }
-            threshold: "WARNING"
+            threshold: "DEBUG"
             type: "cout"
          }
       }
    }
    scheduler: {
       debug: {
-         fileName: "sp_root.fcl"
+         fileName: "p_root.fcl"
          option: "debug-config"
          printMode: "raw"
       }
@@ -1011,10 +1200,11 @@ source: {
    module_label: "source"
    module_type: "HepnosInput"
    fileNames: ['icarus']
-   processName: DetSim
+   processName: "HitFinding"
 }
 trigger_paths: {
    trigger_paths: [
       "0:reco"
    ]
 }
+services.message: @erase

@@ -1,0 +1,10 @@
+
+configure_file(storedata.fcl.in  storedata.fcl)
+configure_file(p_hepnos.fcl.in p_hepnos.fcl)
+configure_file(hf_hepnos.fcl.in hf_hepnos.fcl)
+configure_file(sp_hepnos.fcl.in sp_hepnos.fcl)
+configure_file(p_hepnos_root.fcl.in p_hepnos_root.fcl)
+
+configure_file(hf_root.fcl hf_root.fcl)
+configure_file(p_root.fcl p_root.fcl)
+configure_file(sp_root.fcl sp_root.fcl)

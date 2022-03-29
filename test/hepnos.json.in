@@ -207,7 +207,7 @@
             ]
         },
         "mercury": {
-            "address": "ofi+tcp",
+            "address": "${MERCURY_TRANSPORT_PROTOCOL}",
             "listening": true,
             "ip_subnet": "",
             "auth_key": "",

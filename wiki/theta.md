@@ -9,10 +9,10 @@
 4. `export ICARUSWF_SRC=<path to cloned repository>` 
 
 5. make a build directory for out of source build and cd into it. 
+
+6. Load the system provided modules `gcc@9.3.0` and `cray-mpich` via `module load gcc/9.3.0 && module load cray-mpich/7.7.14`
  
-6. `source /projects/HEP_on_HPC/icaruscode/spack/share/spack/setup-env.sh` 
- 
-7. `module load gcc/9.3.0 && module load cray-mpich/7.7.14`
+7. Setup spack by `source /projects/HEP_on_HPC/icaruscode/spack/share/spack/setup-env.sh` 
  
 8. activate spack environment: `spack env activate icaruscode-9-37-01-03-p02-vec`
  
@@ -20,13 +20,13 @@
  
 10. enable dynamic linking via `export CRAYPE_LINK_TYPE=dynamic`
 
-11. make a build directory via `mkdir -p build`, run cmake in the build directory: `cd build && cmake -DCMAKE_CXX_COMPILER=CC ${ICARUSWF_SRC}`; where `CC` is the cray compiler wrapper for the underlying c++ compiler.
+11. make a build directory via `mkdir -p build`, run cmake in the build directory: `cd build && cmake -DCMAKE_CXX_COMPILER=CC -DUSE_GNI_TRANSPORT=On ${ICARUSWF_SRC}`; where `CC` is the cray compiler wrapper for the underlying c++ compiler.
 
 12. build the code: `make -j10` 
 
 13. Update the CET_PLUGIN_PATH: `export CET_PLUGIN_PATH=${ICARUSWF_SRC}/build/src/modules:${CET_PLUGIN_PATH}`
 
-14. Update the FHICL_FILE_PATH: `export FHICL_FILE_PATH=${ICARUSWF_SRC}/fcl:${FHICL_FILE_PATH}`
+14. Update the FHICL_FILE_PATH: `export FHICL_FILE_PATH=${ICARUSWF_SRC}/build/fcl:${FHICL_FILE_PATH}`
 
 15. define following before starting hepnos server: `export MPICH_GNI_NDREG_ENTRIES=1024 && export MPICH_MAX_THREAD_SAFETY=multiple`
 
@@ -34,7 +34,7 @@
 
 17. Move to the test sub-directory `cd ${ICARUSWF_SRC}/build/test`
 
-18. Start hepnos server: `aprun -n 2 -p ${PDOMAIN} bedrock ofi+gni -c hepnos_theta.json &`, 
+18. Start hepnos server: `aprun -n 2 -p ${PDOMAIN} bedrock ofi+gni -c hepnos.json &`, 
 
 19. followed by `aprun -n 1 -p ${PDOMAIN} hepnos-list-databases ofi+gni -s hepnos.ssg > connection.json`, there may be some extra lines at the end of connection.json, they should be removed. 
 

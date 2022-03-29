@@ -18,13 +18,13 @@
 
 11. Update the CET_PLUGIN_PATH: `export CET_PLUGIN_PATH=${ICARUSWF_SRC}/build/src/modules:${CET_PLUGIN_PATH}`
 
-12. Update the FHICL_FILE_PATH: `export FHICL_FILE_PATH=${ICARUSWF_SRC}/fcl:${FHICL_FILE_PATH}`
+12. Update the FHICL_FILE_PATH: `export FHICL_FILE_PATH=${ICARUSWF_SRC}/build/fcl:${FHICL_FILE_PATH}`
 
 13. For running the icarus workflow to store and load data from hepnos via an art job, do the following: 
 
 14. Move to the test sub-directory `cd ${ICARUSWF_SRC}/build/test`
 
-14.  Start hepnos server: `mpirun -np 2 bedrock ofi+tcp -c hepnos_csresearch00.json &`, make sure you have hepnos.json, sample will be provided. If successful, hepnos.ssg file will be created. 
+14.  Start hepnos server: `mpirun -np 2 bedrock ofi+tcp -c hepnos.json &`, make sure you have hepnos.json, sample will be provided. If successful, hepnos.ssg file will be created. 
 
 16.  `hepnos-list-databases ofi+tcp -s hepnos.ssg > connection.json` 
 

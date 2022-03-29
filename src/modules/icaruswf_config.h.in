@@ -1,0 +1,3 @@
+#include<string>
+
+std::string mercury_transport_protocol="${MERCURY_TRANSPORT_PROTOCOL}";

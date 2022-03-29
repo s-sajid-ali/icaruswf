@@ -9,9 +9,7 @@ process_name : hepnosstore
   }
 
 services.HepnosDataStore: {
-   protocol: "ofi+tcp"
-   # if on Theta
-   #protocol: "ofi+gni"
+   protocol: "${MERCURY_TRANSPORT_PROTOCOL}"
 }
 
 physics : {
