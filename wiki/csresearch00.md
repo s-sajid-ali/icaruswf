@@ -4,7 +4,7 @@
 
 2. `export ICARUSWF_SRC=<path to cloned repository>`
 
-3. make a build directory for out of source build and cd into it. 
+3. make a build directory for out of source build and cd into it. `export ICARUSWF_BUILD=<path to the build dir>`
 
 4. setup spack: `source /scratch/gartung/spack/share/spack/setup-env.sh`
 
@@ -16,13 +16,13 @@
 
 10. build the code: `make -j10 all`
 
-11. Update the CET_PLUGIN_PATH: `export CET_PLUGIN_PATH=${ICARUSWF_SRC}/build/src/modules:${CET_PLUGIN_PATH}`
+11. Update the CET_PLUGIN_PATH: `export CET_PLUGIN_PATH=${ICARUSWF_BUILD}/src/modules:${CET_PLUGIN_PATH}`
 
-12. Update the FHICL_FILE_PATH: `export FHICL_FILE_PATH=${ICARUSWF_SRC}/build/fcl:${FHICL_FILE_PATH}`
+12. Update the FHICL_FILE_PATH: `export FHICL_FILE_PATH=${ICARUSWF_BUILD}/fcl:${FHICL_FILE_PATH}`
 
 13. For running the icarus workflow to store and load data from hepnos via an art job, do the following: 
 
-14. Move to the test sub-directory `cd ${ICARUSWF_SRC}/build/test`
+14. Move to the test sub-directory `cd ${ICARUSWF_BUILD}/test`
 
 14.  Start hepnos server: `mpirun -np 2 bedrock ofi+tcp -c hepnos.json &`, make sure you have hepnos.json, sample will be provided. If successful, hepnos.ssg file will be created. 
 
