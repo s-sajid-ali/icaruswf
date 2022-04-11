@@ -351,9 +351,7 @@ physics: {
 process_name: "HitFinding"
 services: {
    HepnosDataStore: { 
-      protocol: "ofi+tcp"
-      #if on Theta change to 
-      #protocol: "ofi+gni"
+      protocol: "${MERCURY_TRANSPORT_PROTOCOL}"
    }
    CatalogInterface: {
       service_provider: "TrivialFileDelivery"

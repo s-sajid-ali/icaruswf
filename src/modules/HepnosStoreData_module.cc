@@ -25,6 +25,8 @@
 #include <boost/serialization/utility.hpp>
 
 
+#include "icaruswf_config.h"
+
 namespace hepnos {
   template <typename A, typename B>
     using Assns =std::vector<std::pair<hepnos::Ptr<A>, hepnos::Ptr<B>>>;
@@ -84,7 +86,7 @@ namespace {
         async<art::InEvent>();
         auto connection_file = "connection.json";
         auto ds_name = "icarus";
-        datastore_ = hepnos::DataStore::connect("ofi+tcp", connection_file);
+        datastore_ = hepnos::DataStore::connect(mercury_transport_protocol, connection_file);
         hepnos::DataSet current = datastore_.root();
         current = current.createDataSet(ds_name);
         auto r = current.createRun(1000);
