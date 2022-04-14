@@ -61,6 +61,10 @@ add_executable(test_opflash test_opflash.cc main.cc)
 target_link_libraries(test_opflash Core cetlib_except cetlib lardataobj_RecoBase Boost::serialization)
 add_test(test_opflash test_opflash)
 
+add_executable(test_opdetwaveform test_opdetwaveform.cc main.cc)
+target_link_libraries(test_opdetwaveform Core cetlib_except cetlib lardataobj_RawData Boost::serialization)
+add_test(test_opdetwaveform test_opdetwaveform)
+
 add_executable(test_pfparticle test_pfparticle.cc main.cc)
 target_link_libraries(test_pfparticle Core cetlib_except cetlib lardataobj_RecoBase Boost::serialization)
 add_test(test_pfparticle test_pfparticle)
