@@ -45,7 +45,7 @@ namespace recob {
               Each eigenvector should only have three components.");
         }
         if (compare(eigvecs1[i],eigvecs2[i] , 3) == false ) {
-          std::cout << "eigen vector components are different!" << "\n";
+          throw std::runtime_error("eigen vector components are different!");
           return false;}
       }
       return true;
