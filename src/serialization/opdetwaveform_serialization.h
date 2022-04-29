@@ -19,8 +19,8 @@ operator==(const raw::OpDetWaveform& o1, const raw::OpDetWaveform& o2) {
   if (o1.TimeStamp() != o2.TimeStamp()) {
     throw std::runtime_error("timestamp values are not same");
     return false;}
-  const std::vector<raw::ADC_Count_t>& v1 = dynamic_cast<const std::vector<raw::ADC_Count_t>&>(o1);
-  const std::vector<raw::ADC_Count_t>& v2 = dynamic_cast<const std::vector<raw::ADC_Count_t>&>(o2);
+  const std::vector<raw::ADC_Count_t>& v1 = static_cast<const std::vector<raw::ADC_Count_t>&>(o1);
+  const std::vector<raw::ADC_Count_t>& v2 = static_cast<const std::vector<raw::ADC_Count_t>&>(o2);
 
   if (v1.size() != v2.size()) {
     throw std::runtime_error("vector sizes are not same");
@@ -40,7 +40,7 @@ namespace boost {
       {
         raw::Channel_t c = o.ChannelNumber();
         raw::TimeStamp_t t = o.TimeStamp();
-        const std::vector<raw::ADC_Count_t>& v = dynamic_cast<const std::vector<raw::ADC_Count_t>&>(o);
+        const std::vector<raw::ADC_Count_t>& v = static_cast<const std::vector<raw::ADC_Count_t>&>(o);
         size_t len = v.size();
         ar << c << t << len << v;
       }
@@ -55,7 +55,7 @@ namespace boost {
         ar >> c >> t >> len;
 
         o = raw::OpDetWaveform(c, t, len);
-        std::vector<raw::ADC_Count_t>& v = dynamic_cast<std::vector<raw::ADC_Count_t>&>(o);
+        std::vector<raw::ADC_Count_t>& v = static_cast<std::vector<raw::ADC_Count_t>&>(o);
         ar >> v;
       }
   }
