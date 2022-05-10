@@ -141,20 +141,20 @@ namespace {
         if (auto pwt = prodWithType<std::vector<recob::Hit>>(product, pd)) {
           translator[pd.productID()] = h_e.store(pd.inputTag(), *pwt);
         }
-        // For SpacePoints as output of Pandora
+        // For SpacePoints as output of Pandora and MCstage1
         if (auto pwt = prodWithType<std::vector<recob::SpacePoint>>(product, pd)) {
-          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(inputtag, *pwt);
+          //auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
+          translator[pd.productID()] = h_e.store(pd.inputTag(), *pwt);
         }
         // For Edge as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Edge>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
           translator[pd.productID()] = h_e.store(inputtag, *pwt);
         }
-        // For PFParticles as output of Pandora
+        // For PFParticles as output of Pandora and MCStage1
         if (auto pwt = prodWithType<std::vector<recob::PFParticle>>(product, pd)) {
-          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(inputtag, *pwt);
+         // auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
+          translator[pd.productID()] = h_e.store(pd.inputTag(), *pwt);
         }
         // For Seeds as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Seed>>(product, pd)) {
@@ -179,6 +179,16 @@ namespace {
         // For PCAxis as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::PCAxis>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
+          translator[pd.productID()] = h_e.store(inputtag, *pwt);
+        }
+        //For OpHits as output of MCstage0
+        if (auto pwt = prodWithType<std::vector<recob::OpHit>>(product, pd)) {
+          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage0");
+          translator[pd.productID()] = h_e.store(inputtag, *pwt);
+        }
+        //For OpFlashs as output of MCstage0
+        if (auto pwt = prodWithType<std::vector<recob::OpFlash>>(product, pd)) {
+          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage0");
           translator[pd.productID()] = h_e.store(inputtag, *pwt);
         }
       }
@@ -238,6 +248,9 @@ namespace {
           storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
         }
         if (auto pwt = prodWithType<art::Assns<recob::PCAxis, recob::PFParticle, void>>(product, pd)) {
+          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        }
+        if (auto pwt = prodWithType<art::Assns<recob::OpFlash, recob::OpHit, void>>(product, pd)) {
           storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
         }
       }
