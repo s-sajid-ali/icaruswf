@@ -207,6 +207,11 @@ namespace {
         if (auto pwt = prodWithType<std::vector<recob::PCAxis>>(product, pd)) {
           translator[pd.productID()] = h_e.store(pd.inputTag(), *pwt);
         }
+        //For OpDetWaveform as output of 
+        if (auto pwt = prodWithType<std::vector<raw::OpDetWaveform>>(product, pd)) {
+         // auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage0");
+          translator[pd.productID()] = h_e.store(pd.inputTag(), *pwt);
+        }
         //For OpHits as output of MCstage0
         if (auto pwt = prodWithType<std::vector<recob::OpHit>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage0");

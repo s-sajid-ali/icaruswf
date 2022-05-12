@@ -1200,7 +1200,7 @@ source: {
    module_label: "source"
    module_type: "HepnosInput"
    fileNames: ['icarus']
-   processName: "HitFinding"
+   processName: "MCStage0"
 }
 trigger_paths: {
    trigger_paths: [

@@ -37,6 +37,7 @@
 #include "../serialization/rawdigit_serialization.h"
 #include "../serialization/spacepoint_serialization.h"
 #include "../serialization/wire_serialization.h"
+#include "../serialization/opdetwaveform_serialization.h"
 
 #include "HepnosDataStore.h"
 #include <boost/serialization/utility.hpp>
@@ -138,6 +139,10 @@ namespace hepnos {
           auto prod = hepnos::read_product<raw::RawDigit>(event, label, instance, process ,strict);
           art::put_product_in_principal(std::move(prod), *outE, label, instance);
         }
+        if (type == "std::vector<raw::OpDetWaveform, std::allocator<raw::OpDetWaveform> >") {
+          auto prod = hepnos::read_product<raw::OpDetWaveform>(event, label, instance, process ,strict);
+          art::put_product_in_principal(std::move(prod), *outE, label, instance);
+        }
       }
       return true;
     }
@@ -213,6 +218,7 @@ namespace icaruswf {
           rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq1", "PHYSCRATEDATATPCEW");
           rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq2", "PHYSCRATEDATATPCWE");
           rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq3", "PHYSCRATEDATATPCWW");
+          rh.reconstitutes<std::vector<raw::OpDetWaveform>, art::InEvent>("opdaq", "");
         }
         if (inputProcessname_ == "SignalProcessing") {
           rh.reconstitutes<std::vector<recob::Wire>, art::InEvent>("roifinder", "PHYSCRATEDATATPCEE");

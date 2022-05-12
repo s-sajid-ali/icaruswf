@@ -2,6 +2,8 @@
 configure_file(storedata.fcl.in  storedata.fcl)
 configure_file(p_hepnos.fcl.in p_hepnos.fcl)
 configure_file(hf_hepnos.fcl.in hf_hepnos.fcl)
+configure_file(reco0_psphf_hepnos.fcl.in reco0_psphf_hepnos.fcl)
+configure_file(reco1_pp_hepnos.fcl.in reco1_pp_hepnos.fcl)
 configure_file(sp_hepnos.fcl.in sp_hepnos.fcl)
 configure_file(p_hepnos_root.fcl.in p_hepnos_root.fcl)
 

@@ -1,0 +1,1793 @@
+outputs: {
+   out1: {
+      SelectEvents: [
+         "reco"
+      ]
+      compressionLevel: 1
+      dataTier: "reconstructed"
+      fileName: "icarus"
+      module_label: "out1"
+      module_type: "HepnosSPOutput"
+      outputCommands: [
+         "keep *_*_*_*",
+         "drop *_caloskimCalorimetryCryoE_*_*",
+         "drop *_caloskimCalorimetryCryoW_*_*"
+      ]
+      saveMemoryObjectThreshold: 0
+      streamName: "out1"
+   }
+}
+physics: {
+   analyzers: {
+      caloskimE: {
+         CALOproducer: "caloskimCalorimetryCryoE"
+         DoTailFit: false
+         G4producer: "largeant"
+         HITproducer: "cluster3DCryoE"
+         HitRawDigitsTickCollectWidth: 50
+         PFPproducer: "pandoraGausCryoE"
+         RawDigitproducers: []
+         RequireT0: true
+         SelectEvents: [
+            "reco"
+         ]
+         SelectionTools: [
+            {
+               EndMediandQdxCut: 1000
+               FVInsetMaxX: 15
+               FVInsetMaxY: 15
+               FVInsetMaxZ: 15
+               FVInsetMinX: 15
+               FVInsetMinY: 25
+               FVInsetMinZ: 15
+               MaxTimeTickInset: 100
+               MediandQdxRRMax: 2
+               MinTimeTickInset: 100
+               NumberTimeSamples: 4096
+               tool_type: "TrackCaloSkimmerSelectStoppingTrack"
+            },
+            {
+               TickCut: 2300
+               tool_type: "TrackCaloSkimmerSelectAnode2CathodeTrack"
+            },
+            {
+               EndMediandQdxCut: -1
+               FVInsetMaxX: 5
+               FVInsetMaxY: 5
+               FVInsetMaxZ: 5
+               FVInsetMinX: 5
+               FVInsetMinY: 5
+               FVInsetMinZ: 5
+               Invert: true
+               MaxTimeTickInset: 0
+               MinTimeTickInset: 0
+               NumberTimeSamples: 4096
+               PreScale: 1
+               RequireDownwards: false
+               tool_type: "TrackCaloSkimmerSelectStoppingTrack"
+            }
+         ]
+         SilenceMissingDataProducts: true
+         SimChannelproducer: "largeant"
+         T0producer: "pandoraGausCryoE"
+         TRKproducer: "pandoraTrackGausCryoE"
+         module_label: "caloskimE"
+         module_type: "TrackCaloSkimmer"
+      }
+      caloskimW: {
+         CALOproducer: "caloskimCalorimetryCryoW"
+         DoTailFit: false
+         G4producer: "largeant"
+         HITproducer: "cluster3DCryoE"
+         HitRawDigitsTickCollectWidth: 50
+         PFPproducer: "pandoraGausCryoW"
+         RawDigitproducers: []
+         RequireT0: true
+         SelectEvents: [
+            "reco"
+         ]
+         SelectionTools: [
+            {
+               EndMediandQdxCut: 1000
+               FVInsetMaxX: 15
+               FVInsetMaxY: 15
+               FVInsetMaxZ: 15
+               FVInsetMinX: 15
+               FVInsetMinY: 25
+               FVInsetMinZ: 15
+               MaxTimeTickInset: 100
+               MediandQdxRRMax: 2
+               MinTimeTickInset: 100
+               NumberTimeSamples: 4096
+               tool_type: "TrackCaloSkimmerSelectStoppingTrack"
+            },
+            {
+               TickCut: 2300
+               tool_type: "TrackCaloSkimmerSelectAnode2CathodeTrack"
+            },
+            {
+               EndMediandQdxCut: -1
+               FVInsetMaxX: 5
+               FVInsetMaxY: 5
+               FVInsetMaxZ: 5
+               FVInsetMinX: 5
+               FVInsetMinY: 5
+               FVInsetMinZ: 5
+               Invert: true
+               MaxTimeTickInset: 0
+               MinTimeTickInset: 0
+               NumberTimeSamples: 4096
+               PreScale: 1
+               RequireDownwards: false
+               tool_type: "TrackCaloSkimmerSelectStoppingTrack"
+            }
+         ]
+         SilenceMissingDataProducts: true
+         SimChannelproducer: "largeant"
+         T0producer: "pandoraGausCryoW"
+         TRKproducer: "pandoraTrackGausCryoW"
+         module_label: "caloskimW"
+         module_type: "TrackCaloSkimmer"
+      }
+      simpleLightAna: {
+         Debug: false
+         DumpWaveformsInfo: true
+         FlashLabels: [
+            "opflashCryoE",
+            "opflashCryoW"
+         ]
+         OpDetWaveformLabels: [
+            "daqPMT"
+         ]
+         OpHitLabels: [
+            "ophit"
+         ]
+         PEOpHitThreshold: 0
+         TriggerLabel: "daqTrigger"
+         module_label: "simpleLightAna"
+         module_type: "ICARUSFlashAssAna"
+      }
+   }
+   end_paths: [
+      "outana",
+      "stream1"
+   ]
+   outana: [
+      "caloskimE",
+      "caloskimW",
+      "simpleLightAna"
+   ]
+   producers: {
+      SBNShowerGausCryoE: {
+         AllowPartialShowers: true
+         PFParticleLabel: "pandoraGausCryoE"
+         ShowerBestPlaneLabel: "ShowerBestPlane"
+         ShowerDirectionLabel: "ShowerDirection"
+         ShowerEnergyLabel: "ShowerEnergy"
+         ShowerFinderTools: [
+            {
+               BaseTools: {
+                  EnableEventDisplay: false
+                  LArPandoraShowerAlg: {
+                     InitialTrackInputLabel: "InitialTrack"
+                     InitialTrackSpacePointsInputLabel: "InitialTrackSpacePoints"
+                     SCEXFlip: false
+                     ShowerDirectionInputLabel: "ShowerDirection"
+                     ShowerStartPositionInputLabel: "ShowerStartPosition"
+                     UseCollectionOnly: false
+                  }
+               }
+               ShowerDirectionInputLabel: "ShowerDirection"
+               ShowerStartPositionOutputLabel: "ShowerStartPosition"
+               tool_type: "ShowerPFPVertexStartPosition"
+            },
+            {
+               BaseTools: {
+                  EnableEventDisplay: false
+                  LArPandoraShowerAlg: {
+                     InitialTrackInputLabel: "InitialTrack"
+                     InitialTrackSpacePointsInputLabel: "InitialTrackSpacePoints"
+                     SCEXFlip: false
+                     ShowerDirectionInputLabel: "ShowerDirection"
+                     ShowerStartPositionInputLabel: "ShowerStartPosition"
+                     UseCollectionOnly: false
+                  }
+               }
+               ChargeWeighted: false
+               NSegments: 6
+               ShowerCentreOutputLabel: "ShowerCentre"
+               ShowerDirectionOutputLabel: "ShowerDirection"
+               ShowerPCAOutputLabel: "ShowerPCA"
+               ShowerStartPositionInputLabel: "ShowerStartPosition"
+               UseStartPosition: true
+               tool_type: "ShowerPCADirection"
+            },
+            {
+               BaseTools: {
+                  EnableEventDisplay: false
+                  LArPandoraShowerAlg: {
+                     InitialTrackInputLabel: "InitialTrack"
+                     InitialTrackSpacePointsInputLabel: "InitialTrackSpacePoints"
+                     SCEXFlip: false
+                     ShowerDirectionInputLabel: "ShowerDirection"
+                     ShowerStartPositionInputLabel: "ShowerStartPosition"
+                     UseCollectionOnly: false
+                  }
+               }
+               Percentile: 9e-1
+               ShowerDirectionInputLabel: "ShowerDirection"
+               ShowerLengthOutputLabel: "ShowerLength"
+               ShowerOpeningAngleOutputLabel: "ShowerOpeningAngle"
+               ShowerStartPositionInputLabel: "ShowerStartPosition"
+               tool_type: "ShowerLengthPercentile"
+            },
+            {
+               BaseTools: {
+                  EnableEventDisplay: false
+                  LArPandoraShowerAlg: {
+                     InitialTrackInputLabel: "InitialTrack"
+                     InitialTrackSpacePointsInputLabel: "InitialTrackSpacePoints"
+                     SCEXFlip: false
+                     ShowerDirectionInputLabel: "ShowerDirection"
+                     ShowerStartPositionInputLabel: "ShowerStartPosition"
+                     UseCollectionOnly: false
+                  }
+               }
+               CalorimetryAlg: {
+                  CalAmpConstants: [
+                     5.88726e-4,
+                     1.18998e-3
+                  ]
+                  CalAreaConstants: [
+                     1.343e-2,
+                     1.338e-2,
+                     1.475e-2
+                  ]
+                  CaloDoLifeTimeCorrection: true
+                  CaloLifeTimeForm: 0
+                  CaloUseModBox: true
+               }
+               RecombinationFactor: 6.4e-1
+               ShowerBestPlaneOutputLabel: "ShowerBestPlane"
+               ShowerEnergyOutputLabel: "ShowerEnergy"
+               tool_type: "ShowerNumElectronsEnergy"
+            },
+            {
+               BaseTools: {
+                  EnableEventDisplay: false
+                  LArPandoraShowerAlg: {
+                     InitialTrackInputLabel: "InitialTrack"
+                     InitialTrackSpacePointsInputLabel: "InitialTrackSpacePoints"
+                     SCEXFlip: false
+                     ShowerDirectionInputLabel: "ShowerDirection"
+                     ShowerStartPositionInputLabel: "ShowerStartPosition"
+                     UseCollectionOnly: false
+                  }
+               }
+               DebugEVD: false
+               ForwardHitsOnly: true
+               InitialTrackHitsOutputLabel: "InitialTrackHits"
+               InitialTrackSpacePointsOutputLabel: "InitialTrackSpacePoints"
+               MaxPerpendicularDist: 1
+               MaxProjectionDist: 10
+               ShowerDirectionInputLabel: "ShowerDirection"
+               ShowerStartPositionInputLabel: "ShowerStartPosition"
+               tool_type: "Shower3DCylinderTrackHitFinder"
+            },
+            {
+               BaseTools: {
+                  EnableEventDisplay: false
+                  LArPandoraShowerAlg: {
+                     InitialTrackInputLabel: "InitialTrack"
+                     InitialTrackSpacePointsInputLabel: "InitialTrackSpacePoints"
+                     SCEXFlip: false
+                     ShowerDirectionInputLabel: "ShowerDirection"
+                     ShowerStartPositionInputLabel: "ShowerStartPosition"
+                     UseCollectionOnly: false
+                  }
+               }
+               CalorimetryAlg: {
+                  CalAmpConstants: [
+                     5.88726e-4,
+                     1.18998e-3
+                  ]
+                  CalAreaConstants: [
+                     1.343e-2,
+                     1.338e-2,
+                     1.475e-2
+                  ]
+                  CaloDoLifeTimeCorrection: true
+                  CaloLifeTimeForm: 0
+                  CaloUseModBox: true
+               }
+               InitialTrackHitsInputLabel: "InitialTrackHits"
+               MaxHitPlane: true
+               MissFirstPoint: true
+               ShowerBestPlaneOutputLabel: "ShowerBestPlane"
+               ShowerDirectionInputLabel: "ShowerDirection"
+               ShowerStartPositionInputLabel: "ShowerStartPosition"
+               ShowerdEdxOutputLabel: "ShowerdEdx"
+               dEdxTrackLength: 3
+               tool_type: "ShowerUnidirectiondEdx"
+            },
+            {
+               BaseTools: {
+                  EnableEventDisplay: false
+                  LArPandoraShowerAlg: {
+                     InitialTrackInputLabel: "InitialTrack"
+                     InitialTrackSpacePointsInputLabel: "InitialTrackSpacePoints"
+                     SCEXFlip: false
+                     ShowerDirectionInputLabel: "ShowerDirection"
+                     ShowerStartPositionInputLabel: "ShowerStartPosition"
+                     UseCollectionOnly: false
+                  }
+               }
+               InitialTrackHitsInputLabel: "InitialTrackHits"
+               InitialTrackLengthOutputLabel: "InitialTrackLength"
+               InitialTrackOutputLabel: "InitialTrack"
+               InitialTrackSpacePointsInputLabel: "InitialTrackSpacePoints"
+               MinTrajectoryPoints: 2
+               ShowerDirectionInputLabel: "ShowerDirection"
+               ShowerStartPositionInputLabel: "ShowerStartPosition"
+               SlidingFitHalfWindow: 12
+               tool_type: "ShowerPandoraSlidingFitTrackFinder"
+            },
+            {
+               BaseTools: {
+                  EnableEventDisplay: false
+                  LArPandoraShowerAlg: {
+                     InitialTrackInputLabel: "InitialTrack"
+                     InitialTrackSpacePointsInputLabel: "InitialTrackSpacePoints"
+                     SCEXFlip: false
+                     ShowerDirectionInputLabel: "ShowerDirection"
+                     ShowerStartPositionInputLabel: "ShowerStartPosition"
+                     UseCollectionOnly: false
+                  }
+               }
+               CalorimetryAlg: {
+                  CalAmpConstants: [
+                     5.88726e-4,
+                     1.18998e-3
+                  ]
+                  CalAreaConstants: [
+                     1.343e-2,
+                     1.338e-2,
+                     1.475e-2
+                  ]
+                  CaloDoLifeTimeCorrection: true
+                  CaloLifeTimeForm: 0
+                  CaloUseModBox: true
+               }
+               CutStartPosition: false
+               InitialTrackInputLabel: "InitialTrack"
+               InitialTrackSpacePointsInputLabel: "InitialTrackSpacePoints"
+               MaxDist: 2
+               MinAngleToWire: 2.6e-1
+               MinDistCutOff: 2
+               SCECorrectEField: false
+               SCECorrectPitch: false
+               SCEInputCorrected: false
+               ShapingTime: 999
+               ShowerBestPlaneOutputLabel: "ShowerBestPlane"
+               ShowerStartPositionInputLabel: "ShowerStartPosition"
+               ShowerdEdxOutputLabel: "ShowerdEdx"
+               ShowerdEdxVecOutputLabel: "ShowerdEdxVec"
+               T0Correct: false
+               UseMedian: true
+               dEdxCut: 999
+               dEdxTrackLength: 3
+               tool_type: "ShowerTrajPointdEdx"
+            }
+         ]
+         ShowerLengthLabel: "ShowerLength"
+         ShowerOpeningAngleLabel: "ShowerOpeningAngle"
+         ShowerStartPositionLabel: "ShowerStartPosition"
+         ShowerdEdxLabel: "ShowerdEdx"
+         Verbose: 0
+         module_label: "SBNShowerGausCryoE"
+         module_type: "LArPandoraModularShowerCreation"
+      }
+      SBNShowerGausCryoW: {
+         AllowPartialShowers: true
+         PFParticleLabel: "pandoraGausCryoW"
+         ShowerBestPlaneLabel: "ShowerBestPlane"
+         ShowerDirectionLabel: "ShowerDirection"
+         ShowerEnergyLabel: "ShowerEnergy"
+         ShowerFinderTools: [
+            {
+               BaseTools: {
+                  EnableEventDisplay: false
+                  LArPandoraShowerAlg: {
+                     InitialTrackInputLabel: "InitialTrack"
+                     InitialTrackSpacePointsInputLabel: "InitialTrackSpacePoints"
+                     SCEXFlip: false
+                     ShowerDirectionInputLabel: "ShowerDirection"
+                     ShowerStartPositionInputLabel: "ShowerStartPosition"
+                     UseCollectionOnly: false
+                  }
+               }
+               ShowerDirectionInputLabel: "ShowerDirection"
+               ShowerStartPositionOutputLabel: "ShowerStartPosition"
+               tool_type: "ShowerPFPVertexStartPosition"
+            },
+            {
+               BaseTools: {
+                  EnableEventDisplay: false
+                  LArPandoraShowerAlg: {
+                     InitialTrackInputLabel: "InitialTrack"
+                     InitialTrackSpacePointsInputLabel: "InitialTrackSpacePoints"
+                     SCEXFlip: false
+                     ShowerDirectionInputLabel: "ShowerDirection"
+                     ShowerStartPositionInputLabel: "ShowerStartPosition"
+                     UseCollectionOnly: false
+                  }
+               }
+               ChargeWeighted: false
+               NSegments: 6
+               ShowerCentreOutputLabel: "ShowerCentre"
+               ShowerDirectionOutputLabel: "ShowerDirection"
+               ShowerPCAOutputLabel: "ShowerPCA"
+               ShowerStartPositionInputLabel: "ShowerStartPosition"
+               UseStartPosition: true
+               tool_type: "ShowerPCADirection"
+            },
+            {
+               BaseTools: {
+                  EnableEventDisplay: false
+                  LArPandoraShowerAlg: {
+                     InitialTrackInputLabel: "InitialTrack"
+                     InitialTrackSpacePointsInputLabel: "InitialTrackSpacePoints"
+                     SCEXFlip: false
+                     ShowerDirectionInputLabel: "ShowerDirection"
+                     ShowerStartPositionInputLabel: "ShowerStartPosition"
+                     UseCollectionOnly: false
+                  }
+               }
+               Percentile: 9e-1
+               ShowerDirectionInputLabel: "ShowerDirection"
+               ShowerLengthOutputLabel: "ShowerLength"
+               ShowerOpeningAngleOutputLabel: "ShowerOpeningAngle"
+               ShowerStartPositionInputLabel: "ShowerStartPosition"
+               tool_type: "ShowerLengthPercentile"
+            },
+            {
+               BaseTools: {
+                  EnableEventDisplay: false
+                  LArPandoraShowerAlg: {
+                     InitialTrackInputLabel: "InitialTrack"
+                     InitialTrackSpacePointsInputLabel: "InitialTrackSpacePoints"
+                     SCEXFlip: false
+                     ShowerDirectionInputLabel: "ShowerDirection"
+                     ShowerStartPositionInputLabel: "ShowerStartPosition"
+                     UseCollectionOnly: false
+                  }
+               }
+               CalorimetryAlg: {
+                  CalAmpConstants: [
+                     5.88726e-4,
+                     1.18998e-3
+                  ]
+                  CalAreaConstants: [
+                     1.343e-2,
+                     1.338e-2,
+                     1.475e-2
+                  ]
+                  CaloDoLifeTimeCorrection: true
+                  CaloLifeTimeForm: 0
+                  CaloUseModBox: true
+               }
+               RecombinationFactor: 6.4e-1
+               ShowerBestPlaneOutputLabel: "ShowerBestPlane"
+               ShowerEnergyOutputLabel: "ShowerEnergy"
+               tool_type: "ShowerNumElectronsEnergy"
+            },
+            {
+               BaseTools: {
+                  EnableEventDisplay: false
+                  LArPandoraShowerAlg: {
+                     InitialTrackInputLabel: "InitialTrack"
+                     InitialTrackSpacePointsInputLabel: "InitialTrackSpacePoints"
+                     SCEXFlip: false
+                     ShowerDirectionInputLabel: "ShowerDirection"
+                     ShowerStartPositionInputLabel: "ShowerStartPosition"
+                     UseCollectionOnly: false
+                  }
+               }
+               DebugEVD: false
+               ForwardHitsOnly: true
+               InitialTrackHitsOutputLabel: "InitialTrackHits"
+               InitialTrackSpacePointsOutputLabel: "InitialTrackSpacePoints"
+               MaxPerpendicularDist: 1
+               MaxProjectionDist: 10
+               ShowerDirectionInputLabel: "ShowerDirection"
+               ShowerStartPositionInputLabel: "ShowerStartPosition"
+               tool_type: "Shower3DCylinderTrackHitFinder"
+            },
+            {
+               BaseTools: {
+                  EnableEventDisplay: false
+                  LArPandoraShowerAlg: {
+                     InitialTrackInputLabel: "InitialTrack"
+                     InitialTrackSpacePointsInputLabel: "InitialTrackSpacePoints"
+                     SCEXFlip: false
+                     ShowerDirectionInputLabel: "ShowerDirection"
+                     ShowerStartPositionInputLabel: "ShowerStartPosition"
+                     UseCollectionOnly: false
+                  }
+               }
+               CalorimetryAlg: {
+                  CalAmpConstants: [
+                     5.88726e-4,
+                     1.18998e-3
+                  ]
+                  CalAreaConstants: [
+                     1.343e-2,
+                     1.338e-2,
+                     1.475e-2
+                  ]
+                  CaloDoLifeTimeCorrection: true
+                  CaloLifeTimeForm: 0
+                  CaloUseModBox: true
+               }
+               InitialTrackHitsInputLabel: "InitialTrackHits"
+               MaxHitPlane: true
+               MissFirstPoint: true
+               ShowerBestPlaneOutputLabel: "ShowerBestPlane"
+               ShowerDirectionInputLabel: "ShowerDirection"
+               ShowerStartPositionInputLabel: "ShowerStartPosition"
+               ShowerdEdxOutputLabel: "ShowerdEdx"
+               dEdxTrackLength: 3
+               tool_type: "ShowerUnidirectiondEdx"
+            },
+            {
+               BaseTools: {
+                  EnableEventDisplay: false
+                  LArPandoraShowerAlg: {
+                     InitialTrackInputLabel: "InitialTrack"
+                     InitialTrackSpacePointsInputLabel: "InitialTrackSpacePoints"
+                     SCEXFlip: false
+                     ShowerDirectionInputLabel: "ShowerDirection"
+                     ShowerStartPositionInputLabel: "ShowerStartPosition"
+                     UseCollectionOnly: false
+                  }
+               }
+               InitialTrackHitsInputLabel: "InitialTrackHits"
+               InitialTrackLengthOutputLabel: "InitialTrackLength"
+               InitialTrackOutputLabel: "InitialTrack"
+               InitialTrackSpacePointsInputLabel: "InitialTrackSpacePoints"
+               MinTrajectoryPoints: 2
+               ShowerDirectionInputLabel: "ShowerDirection"
+               ShowerStartPositionInputLabel: "ShowerStartPosition"
+               SlidingFitHalfWindow: 12
+               tool_type: "ShowerPandoraSlidingFitTrackFinder"
+            },
+            {
+               BaseTools: {
+                  EnableEventDisplay: false
+                  LArPandoraShowerAlg: {
+                     InitialTrackInputLabel: "InitialTrack"
+                     InitialTrackSpacePointsInputLabel: "InitialTrackSpacePoints"
+                     SCEXFlip: false
+                     ShowerDirectionInputLabel: "ShowerDirection"
+                     ShowerStartPositionInputLabel: "ShowerStartPosition"
+                     UseCollectionOnly: false
+                  }
+               }
+               CalorimetryAlg: {
+                  CalAmpConstants: [
+                     5.88726e-4,
+                     1.18998e-3
+                  ]
+                  CalAreaConstants: [
+                     1.343e-2,
+                     1.338e-2,
+                     1.475e-2
+                  ]
+                  CaloDoLifeTimeCorrection: true
+                  CaloLifeTimeForm: 0
+                  CaloUseModBox: true
+               }
+               CutStartPosition: false
+               InitialTrackInputLabel: "InitialTrack"
+               InitialTrackSpacePointsInputLabel: "InitialTrackSpacePoints"
+               MaxDist: 2
+               MinAngleToWire: 2.6e-1
+               MinDistCutOff: 2
+               SCECorrectEField: false
+               SCECorrectPitch: false
+               SCEInputCorrected: false
+               ShapingTime: 999
+               ShowerBestPlaneOutputLabel: "ShowerBestPlane"
+               ShowerStartPositionInputLabel: "ShowerStartPosition"
+               ShowerdEdxOutputLabel: "ShowerdEdx"
+               ShowerdEdxVecOutputLabel: "ShowerdEdxVec"
+               T0Correct: false
+               UseMedian: true
+               dEdxCut: 999
+               dEdxTrackLength: 3
+               tool_type: "ShowerTrajPointdEdx"
+            }
+         ]
+         ShowerLengthLabel: "ShowerLength"
+         ShowerOpeningAngleLabel: "ShowerOpeningAngle"
+         ShowerStartPositionLabel: "ShowerStartPosition"
+         ShowerdEdxLabel: "ShowerdEdx"
+         Verbose: 0
+         module_label: "SBNShowerGausCryoW"
+         module_type: "LArPandoraModularShowerCreation"
+      }
+      caloskimCalorimetryCryoE: {
+         AssocHitModuleLabel: ""
+         CaloAlg: {
+            CalAmpConstants: [
+               1,
+               1,
+               1
+            ]
+            CalAreaConstants: [
+               1,
+               1,
+               1
+            ]
+            CaloDoLifeTimeCorrection: false
+            CaloLifeTimeForm: 0
+            CaloUseModBox: true
+         }
+         ChargeMethod: 1
+         Cryostat: 0
+         FieldDistortion: false
+         FieldDistortionEfield: false
+         T0ModuleLabel: ""
+         TrackIsFieldDistortionCorrected: false
+         TrackModuleLabel: "pandoraTrackGausCryoE"
+         module_label: "caloskimCalorimetryCryoE"
+         module_type: "GnocchiCalorimetry"
+      }
+      caloskimCalorimetryCryoW: {
+         AssocHitModuleLabel: ""
+         CaloAlg: {
+            CalAmpConstants: [
+               1,
+               1,
+               1
+            ]
+            CalAreaConstants: [
+               1,
+               1,
+               1
+            ]
+            CaloDoLifeTimeCorrection: false
+            CaloLifeTimeForm: 0
+            CaloUseModBox: true
+         }
+         ChargeMethod: 1
+         Cryostat: 0
+         FieldDistortion: false
+         FieldDistortionEfield: false
+         T0ModuleLabel: ""
+         TrackIsFieldDistortionCorrected: false
+         TrackModuleLabel: "pandoraTrackGausCryoW"
+         module_label: "caloskimCalorimetryCryoW"
+         module_type: "GnocchiCalorimetry"
+      }
+      fmatchCryoE: {
+         BeamWindowEnd: 50
+         BeamWindowStart: -50
+         ChargeToNPhotonsShower: 1
+         ChargeToNPhotonsTrack: 1
+         Cryostat: 0
+         DriftDistance: 1.49115e2
+         FlashEnd: 8e-2
+         FlashStart: -2e-2
+         ForceConcurrence: true
+         InputFileName: "FlashMatch/fm_metrics_icarus.root"
+         MakeTree: false
+         MaxFlashes: 3
+         MinFlashPE: 10
+         MinHitQ: 0
+         MinOpHPE: 0
+         MinParticleQ: 0
+         MinSliceQ: 0
+         MinSpacePointQ: 0
+         NoAvailableMetrics: false
+         OnlyCollectionWires: false
+         OpHitProducer: "ophit"
+         PDMapAlg: {
+            tool_type: "PDMapAlgSimple"
+         }
+         PandoraProducer: "pandoraGausCryoE"
+         SelectNeutrino: true
+         SpacePointProducer: "pandoraGausCryoE"
+         StoreCheatMCT0: false
+         StoreTrueNus: false
+         ThresholdTerm: 50
+         TrackProducer: "pandoraTrackGausCryoE"
+         UseOppVolMetric: true
+         XBins: 30
+         YBiasSlope: 0
+         YBins: 5
+         YHigh: 900
+         YLow: -135
+         ZBiasSlope: 0
+         ZBins: 18
+         ZLow: -900
+         dy_bins: 75
+         dy_low: -200
+         dy_up: 200
+         dz_bins: 75
+         dz_low: -200
+         dz_up: 200
+         module_label: "fmatchCryoE"
+         module_type: "FlashPredict"
+         ratio_TF1_fit: "pol3"
+         ratio_bins: 50
+         ratio_low: 0
+         ratio_up: 7e-1
+         rr_TF1_fit: "pol3"
+         rr_bins: 50
+         rr_low: 0
+         rr_up: 200
+         score_hist_bins: 100
+         score_hist_low: 0
+         score_hist_up: 50
+      }
+      fmatchCryoW: {
+         BeamWindowEnd: 50
+         BeamWindowStart: -50
+         ChargeToNPhotonsShower: 1
+         ChargeToNPhotonsTrack: 1
+         Cryostat: 1
+         DriftDistance: 1.49115e2
+         FlashEnd: 8e-2
+         FlashStart: -2e-2
+         ForceConcurrence: true
+         InputFileName: "FlashMatch/fm_metrics_icarus.root"
+         MakeTree: false
+         MaxFlashes: 3
+         MinFlashPE: 10
+         MinHitQ: 0
+         MinOpHPE: 0
+         MinParticleQ: 0
+         MinSliceQ: 0
+         MinSpacePointQ: 0
+         NoAvailableMetrics: false
+         OnlyCollectionWires: false
+         OpHitProducer: "ophit"
+         PDMapAlg: {
+            tool_type: "PDMapAlgSimple"
+         }
+         PandoraProducer: "pandoraGausCryoW"
+         SelectNeutrino: true
+         SpacePointProducer: "pandoraGausCryoW"
+         StoreCheatMCT0: false
+         StoreTrueNus: false
+         ThresholdTerm: 50
+         TrackProducer: "pandoraTrackGausCryoW"
+         UseOppVolMetric: true
+         XBins: 30
+         YBiasSlope: 0
+         YBins: 5
+         YHigh: 900
+         YLow: -135
+         ZBiasSlope: 0
+         ZBins: 18
+         ZLow: -900
+         dy_bins: 75
+         dy_low: -200
+         dy_up: 200
+         dz_bins: 75
+         dz_low: -200
+         dz_up: 200
+         module_label: "fmatchCryoW"
+         module_type: "FlashPredict"
+         ratio_TF1_fit: "pol3"
+         ratio_bins: 50
+         ratio_low: 0
+         ratio_up: 7e-1
+         rr_TF1_fit: "pol3"
+         rr_bins: 50
+         rr_low: 0
+         rr_up: 200
+         score_hist_bins: 100
+         score_hist_low: 0
+         score_hist_up: 50
+      }
+      mcassociationsGausCryoE: {
+         HitParticleAssociations: {
+            HitModuleLabelVec: [
+               "cluster3DCryoE"
+            ]
+            MCParticleLabel: "largeant"
+            tool_type: "DirectHitParticleAssns"
+         }
+         module_label: "mcassociationsGausCryoE"
+         module_type: "MCParticleHitMatching"
+      }
+      mcassociationsGausCryoW: {
+         HitParticleAssociations: {
+            HitModuleLabelVec: [
+               "cluster3DCryoW"
+            ]
+            MCParticleLabel: "largeant"
+            tool_type: "DirectHitParticleAssns"
+         }
+         module_label: "mcassociationsGausCryoW"
+         module_type: "MCParticleHitMatching"
+      }
+      pandoraKalmanTrackGausCryoE: {
+         doSpacePoints: true
+         doTrackFitHitInfo: false
+         inputCollection: "pandoraGausCryoE"
+         module_label: "pandoraKalmanTrackGausCryoE"
+         module_type: "TrackProducerFromPFParticle"
+         seedFromPF: false
+         showerFromPF: false
+         spacePointsFromTrajP: true
+         trackFromPF: true
+         trackInputTag: "pandoraTrackGausCryoE"
+         trackMaker: {
+            fitter: {
+               cleanZigzag: false
+               dumpLevel: 0
+               hitErr2ScaleFact: 1
+               maxChi2: -1
+               maxDist: -1
+               maxResidue: -1
+               maxResidueFirstHit: -1
+               negDistTolerance: 0
+               pickBestHitOnWire: false
+               rejectHighMultHits: false
+               rejectHitsNegativeGOF: true
+               skipNegProp: true
+               sortHitsByPlane: true
+               sortHitsByWire: false
+               sortOutputHitsMinLength: true
+               tryBothDirs: false
+               tryNoSkipWhenFails: true
+               useRMSError: true
+            }
+            mcsfit: {
+               angResol: 3
+               eLossMode: 0
+               minHitsPerSegment: 2
+               minNumSegments: 3
+               nElossSteps: 10
+               pIdHypothesis: 13
+               pMax: 7.5
+               pMin: 1e-2
+               pStep: 1e-2
+               segmentLength: 14
+            }
+            options: {
+               alwaysInvertDir: false
+               contInputTag: ""
+               defaultMomInGeV: 1
+               defaultPdgId: 13
+               dirFromVec: false
+               dirVec: [
+                  0,
+                  0,
+                  1
+               ]
+               keepInputTrajectoryPoints: false
+               mcsInputTag: ""
+               momFromCombAndPid: false
+               momFromMCSCollection: false
+               pidFromCollection: false
+               pidFromLengthCut: -1
+               pidInputTag: ""
+            }
+            propagator: {
+               maxElossFrac: 1e-1
+               maxNit: 10
+               minStep: 1
+               propPinvErr: false
+               tcut: 10
+               wrongDirDistTolerance: 1e-2
+            }
+            tool_type: "KalmanFilterFitTrackMaker"
+         }
+      }
+      pandoraKalmanTrackGausCryoW: {
+         doSpacePoints: true
+         doTrackFitHitInfo: false
+         inputCollection: "pandoraGausCryoW"
+         module_label: "pandoraKalmanTrackGausCryoW"
+         module_type: "TrackProducerFromPFParticle"
+         seedFromPF: false
+         showerFromPF: false
+         spacePointsFromTrajP: true
+         trackFromPF: true
+         trackInputTag: "pandoraTrackGausCryoW"
+         trackMaker: {
+            fitter: {
+               cleanZigzag: false
+               dumpLevel: 0
+               hitErr2ScaleFact: 1
+               maxChi2: -1
+               maxDist: -1
+               maxResidue: -1
+               maxResidueFirstHit: -1
+               negDistTolerance: 0
+               pickBestHitOnWire: false
+               rejectHighMultHits: false
+               rejectHitsNegativeGOF: true
+               skipNegProp: true
+               sortHitsByPlane: true
+               sortHitsByWire: false
+               sortOutputHitsMinLength: true
+               tryBothDirs: false
+               tryNoSkipWhenFails: true
+               useRMSError: true
+            }
+            mcsfit: {
+               angResol: 3
+               eLossMode: 0
+               minHitsPerSegment: 2
+               minNumSegments: 3
+               nElossSteps: 10
+               pIdHypothesis: 13
+               pMax: 7.5
+               pMin: 1e-2
+               pStep: 1e-2
+               segmentLength: 14
+            }
+            options: {
+               alwaysInvertDir: false
+               contInputTag: ""
+               defaultMomInGeV: 1
+               defaultPdgId: 13
+               dirFromVec: false
+               dirVec: [
+                  0,
+                  0,
+                  1
+               ]
+               keepInputTrajectoryPoints: false
+               mcsInputTag: ""
+               momFromCombAndPid: false
+               momFromMCSCollection: false
+               pidFromCollection: false
+               pidFromLengthCut: -1
+               pidInputTag: ""
+            }
+            propagator: {
+               maxElossFrac: 1e-1
+               maxNit: 10
+               minStep: 1
+               propPinvErr: false
+               tcut: 10
+               wrongDirDistTolerance: 1e-2
+            }
+            tool_type: "KalmanFilterFitTrackMaker"
+         }
+      }
+      pandoraTrackGausCryoE: {
+         PFParticleLabel: "pandoraGausCryoE"
+         module_label: "pandoraTrackGausCryoE"
+         module_type: "LArPandoraTrackCreation"
+      }
+      pandoraTrackGausCryoW: {
+         PFParticleLabel: "pandoraGausCryoW"
+         module_label: "pandoraTrackGausCryoW"
+         module_type: "LArPandoraTrackCreation"
+      }
+   }
+   reco: [
+      "pandoraTrackGausCryoE",
+      "pandoraKalmanTrackGausCryoE",
+      "SBNShowerGausCryoE",
+      "pandoraTrackGausCryoW",
+      "pandoraKalmanTrackGausCryoW",
+      "SBNShowerGausCryoW",
+      "fmatchCryoE",
+      "fmatchCryoW",
+      "caloskimCalorimetryCryoE",
+      "caloskimCalorimetryCryoW",
+      "mcassociationsGausCryoE",
+      "mcassociationsGausCryoW"
+   ]
+   stream1: [
+      "out1"
+   ]
+   trigger_paths: [
+      "reco"
+   ]
+}
+process_name: "MCstage1"
+services: {
+   HepnosDataStore: { 
+      protocol: "${MERCURY_TRANSPORT_PROTOCOL}"
+   }
+   BackTrackerService: {
+      BackTracker: {
+         G4ModuleLabel: "largeant"
+         MinimumHitEnergyFraction: 1e-1
+         SimChannelModuleLabel: "largeant"
+      }
+      service_type: "BackTrackerService"
+   }
+   CatalogInterface: {
+      service_provider: "TrivialFileDelivery"
+      service_type: "CatalogInterface"
+   }
+   ChannelStatusService: {
+      ChannelStatusProvider: {
+         AlgName: "SIOVChannelStatusProvider"
+         DatabaseRetrievalAlg: {
+            AlgName: "DatabaseRetrievalAlg"
+            DBFolderName: ""
+            DBTag: ""
+            DBUrl: ""
+         }
+         UseDB: false
+         UseFile: false
+      }
+      service_provider: "SIOVChannelStatusService"
+      service_type: "ChannelStatusService"
+   }
+   DetPedestalService: {
+      DetPedestalRetrievalAlg: {
+         AlgName: "DetPedestalRetrievalAlg"
+         DatabaseRetrievalAlg: {
+            AlgName: "DatabaseRetrievalAlg"
+            DBFolderName: ""
+            DBTag: ""
+            DBUrl: ""
+         }
+         DefaultCollMean: 400
+         DefaultCollRms: 3e-1
+         DefaultIndMean: 2048
+         DefaultIndRms: 3e-1
+         DefaultMeanErr: 0
+         DefaultRmsErr: 0
+         UseDB: false
+         UseFile: false
+      }
+      service_provider: "SIOVDetPedestalService"
+      service_type: "DetPedestalService"
+   }
+   DetectorClocksService: {
+      ClockSpeedExternal: 3.125e1
+      ClockSpeedOptical: 500
+      ClockSpeedTPC: 2.5
+      ClockSpeedTrigger: 16
+      DefaultBeamTime: 1500
+      DefaultTrigTime: 1500
+      FramePeriod: 1.6384e3
+      G4RefTime: -1500
+      InheritClockConfig: false
+      TrigModuleName: ""
+      TriggerOffsetTPC: -340
+      service_provider: "DetectorClocksServiceStandard"
+      service_type: "DetectorClocksService"
+   }
+   DetectorPropertiesService: {
+      DriftVelFudgeFactor: 1
+      Efield: [
+         4.938e-1,
+         7.33e-1,
+         9.33e-1
+      ]
+      Electronlifetime: 3500
+      ElectronsToADC: 1.208041e-3
+      InheritNumberTimeSamples: false
+      NumberTimeSamples: 4096
+      ReadOutWindowSize: 4096
+      SimpleBoundaryProcess: false
+      SternheimerA: 1.956e-1
+      SternheimerCbar: 5.2146
+      SternheimerK: 3
+      SternheimerX0: 2e-1
+      SternheimerX1: 3
+      Temperature: 8.75e1
+      TimeOffsetU: 0
+      TimeOffsetV: 0
+      TimeOffsetY: 0
+      TimeOffsetZ: 0
+      UseIcarusMicrobooneDriftModel: true
+      service_provider: "DetectorPropertiesServiceStandard"
+      service_type: "DetectorPropertiesService"
+   }
+   DuplicateEventTracker: {
+      service_type: "DuplicateEventTracker"
+   }
+   ExptGeoHelperInterface: {
+      Mapper: {
+         WirelessChannels: {
+            CollectionEvenPostChannels: 96
+            CollectionEvenPreChannels: 64
+            CollectionOddPostChannels: 64
+            CollectionOddPreChannels: 96
+            FirstInductionPostChannels: 96
+            FirstInductionPreChannels: 0
+            SecondInductionEvenPostChannels: 64
+            SecondInductionEvenPreChannels: 96
+            SecondInductionOddPostChannels: 96
+            SecondInductionOddPreChannels: 64
+         }
+         tool_type: "ICARUSsplitInductionChannelMapSetupTool"
+      }
+      service_provider: "IcarusGeometryHelper"
+      service_type: "ExptGeoHelperInterface"
+   }
+   FileCatalogMetadata: {
+      fileType: "mc"
+      group: "icarus"
+      runType: "physics"
+      service_type: "FileCatalogMetadata"
+   }
+   FileTransfer: {
+      service_provider: "TrivialFileTransfer"
+      service_type: "FileTransfer"
+   }
+   Geometry: {
+      ChannelMapping: {
+         WirelessChannels: {
+            CollectionEvenPostChannels: 96
+            CollectionEvenPreChannels: 64
+            CollectionOddPostChannels: 64
+            CollectionOddPreChannels: 96
+            FirstInductionPostChannels: 96
+            FirstInductionPreChannels: 0
+            SecondInductionEvenPostChannels: 64
+            SecondInductionEvenPreChannels: 96
+            SecondInductionOddPostChannels: 96
+            SecondInductionOddPreChannels: 64
+         }
+         tool_type: "ICARUSsplitInductionChannelMapSetupTool"
+      }
+      DisableWiresInG4: true
+      GDML: "icarus_complete_20210527_no_overburden.gdml"
+      Name: "icarus_v3"
+      ROOT: "icarus_complete_20210527_no_overburden.gdml"
+      SurfaceY: 690
+      service_type: "Geometry"
+   }
+   GeometryConfigurationWriter: {
+      service_type: "GeometryConfigurationWriter"
+   }
+   LArPropertiesService: {
+      AbsLengthEnergies: [
+         4,
+         5,
+         6,
+         7,
+         8,
+         9,
+         10,
+         11
+      ]
+      AbsLengthSpectrum: [
+         2000,
+         2000,
+         2000,
+         2000,
+         2000,
+         2000,
+         2000,
+         2000
+      ]
+      AlphaScintYield: 16800
+      AlphaScintYieldRatio: 5.6e-1
+      Argon39DecayRate: 0
+      AtomicMass: 3.9948e1
+      AtomicNumber: 18
+      ElectronScintYield: 20000
+      ElectronScintYieldRatio: 2.7e-1
+      EnableCerenkovLight: false
+      ExcitationEnergy: 188
+      FastScintEnergies: [
+         7.2,
+         7.9,
+         8.3,
+         8.6,
+         8.9,
+         9.1,
+         9.3,
+         9.6,
+         9.7,
+         9.8,
+         10,
+         1.02e1,
+         1.03e1,
+         1.06e1,
+         11,
+         1.16e1,
+         1.19e1
+      ]
+      FastScintSpectrum: [
+         0,
+         4e-2,
+         1.2e-1,
+         2.7e-1,
+         4.4e-1,
+         6.2e-1,
+         8e-1,
+         9.1e-1,
+         9.2e-1,
+         8.5e-1,
+         7e-1,
+         5e-1,
+         3.1e-1,
+         1.3e-1,
+         4e-2,
+         1e-2,
+         0
+      ]
+      KaonScintYield: 24000
+      KaonScintYieldRatio: 2.3e-1
+      LoadExtraMatProperties: false
+      MuonScintYield: 24000
+      MuonScintYieldRatio: 2.3e-1
+      PionScintYield: 24000
+      PionScintYieldRatio: 2.3e-1
+      ProtonScintYield: 19200
+      ProtonScintYieldRatio: 2.9e-1
+      RIndexEnergies: [
+         1.18626,
+         1.68626,
+         2.18626,
+         2.68626,
+         3.18626,
+         3.68626,
+         4.18626,
+         4.68626,
+         5.18626,
+         5.68626,
+         6.18626,
+         6.68626,
+         7.18626,
+         7.68626,
+         8.18626,
+         8.68626,
+         9.18626,
+         9.68626,
+         1.01863e1,
+         1.06863e1,
+         1.11863e1
+      ]
+      RIndexSpectrum: [
+         1.24664,
+         1.2205,
+         1.22694,
+         1.22932,
+         1.23124,
+         1.23322,
+         1.23545,
+         1.23806,
+         1.24116,
+         1.24489,
+         1.24942,
+         1.25499,
+         1.26197,
+         1.2709,
+         1.28263,
+         1.29865,
+         1.32169,
+         1.35747,
+         1.42039,
+         1.56011,
+         2.16626
+      ]
+      RadiationLength: 1.955e1
+      RayleighEnergies: [
+         1.18626,
+         1.68626,
+         2.18626,
+         2.68626,
+         3.18626,
+         3.68626,
+         4.18626,
+         4.68626,
+         5.18626,
+         5.68626,
+         6.18626,
+         6.68626,
+         7.18626,
+         7.68626,
+         8.18626,
+         8.68626,
+         9.18626,
+         9.68626,
+         1.01863e1,
+         1.06863e1,
+         1.11863e1
+      ]
+      RayleighSpectrum: [
+         1.2008e6,
+         390747,
+         128633,
+         5.49691e4,
+         2.71918e4,
+         1.48537e4,
+         8.7169e3,
+         5.39742e3,
+         3.48137e3,
+         2.31651e3,
+         1.57763e3,
+         1.09202e3,
+         7.63045e2,
+         5.34232e2,
+         3.71335e2,
+         2.52942e2,
+         1.6538e2,
+         9.99003e1,
+         5.12653e1,
+         1.7495e1,
+         9.64341e-1
+      ]
+      ReflectiveSurfaceDiffuseFractions: [
+         [
+            5e-1,
+            5e-1,
+            5e-1
+         ]
+      ]
+      ReflectiveSurfaceEnergies: [
+         1.77,
+         2.0675,
+         2.481,
+         2.819,
+         2.953,
+         3.1807,
+         3.54,
+         4.135,
+         4.962,
+         5.39,
+         7,
+         15
+      ]
+      ReflectiveSurfaceNames: [
+         "STEEL_STAINLESS_Fe7Cr2Ni",
+         "copper",
+         "G10",
+         "vm2000",
+         "ALUMINUM_Al",
+         "ALUMINUM_PMT",
+         "ALUMINUM_CRYO"
+      ]
+      ReflectiveSurfaceReflectances: [
+         [
+            6.6e-1,
+            6.4e-1,
+            6.2e-1,
+            6e-1,
+            5.9e-1,
+            5.7e-1,
+            5.3e-1,
+            4.7e-1,
+            3.9e-1,
+            3.6e-1,
+            2.7e-1,
+            2.5e-1
+         ],
+         [
+            9.02e-1,
+            8.41e-1,
+            4.64e-1,
+            3.79e-1,
+            3.45e-1,
+            2.99e-1,
+            2.87e-1,
+            2.64e-1,
+            3.37e-1,
+            3e-1,
+            0,
+            0
+         ],
+         [
+            3.93e-1,
+            4.05e-1,
+            4.04e-1,
+            3.52e-1,
+            3.23e-1,
+            2.43e-1,
+            1.27e-1,
+            6.5e-2,
+            6.8e-2,
+            6.8e-2,
+            0,
+            0
+         ],
+         [
+            9.3e-1,
+            9.3e-1,
+            9.3e-1,
+            9.3e-1,
+            9.3e-1,
+            9.3e-1,
+            1e-1,
+            1e-1,
+            7e-1,
+            3e-1,
+            0,
+            0
+         ],
+         [
+            9e-1,
+            9e-1,
+            9e-1,
+            9e-1,
+            9e-1,
+            9e-1,
+            9e-1,
+            4.7e-1,
+            3.9e-1,
+            3.6e-1,
+            2.7e-1,
+            2.5e-1
+         ],
+         [
+            9e-1,
+            9e-1,
+            9e-1,
+            9e-1,
+            9e-1,
+            9e-1,
+            9e-1,
+            4.7e-1,
+            3.9e-1,
+            3.6e-1,
+            2.7e-1,
+            2.5e-1
+         ],
+         [
+            9e-1,
+            9e-1,
+            9e-1,
+            9e-1,
+            9e-1,
+            9e-1,
+            9e-1,
+            4.7e-1,
+            3.9e-1,
+            3.6e-1,
+            2.7e-1,
+            2.5e-1
+         ]
+      ]
+      ScintBirksConstant: 6.9e-2
+      ScintByParticleType: true
+      ScintFastTimeConst: 6
+      ScintPreScale: 1.21e-1
+      ScintResolutionScale: 1
+      ScintSlowTimeConst: 1590
+      ScintYield: 24000
+      ScintYieldRatio: 2.3e-1
+      SlowScintEnergies: [
+         7.2,
+         7.9,
+         8.3,
+         8.6,
+         8.9,
+         9.1,
+         9.3,
+         9.6,
+         9.7,
+         9.8,
+         10,
+         1.02e1,
+         1.03e1,
+         1.06e1,
+         11,
+         1.16e1,
+         1.19e1
+      ]
+      SlowScintSpectrum: [
+         0,
+         4e-2,
+         1.2e-1,
+         2.7e-1,
+         4.4e-1,
+         6.2e-1,
+         8e-1,
+         9.1e-1,
+         9.2e-1,
+         8.5e-1,
+         7e-1,
+         5e-1,
+         3.1e-1,
+         1.3e-1,
+         4e-2,
+         1e-2,
+         0
+      ]
+      TpbAbsorptionEnergies: [
+         5e-2,
+         1.77,
+         2.0675,
+         7.42,
+         7.75,
+         8.16,
+         8.73,
+         9.78,
+         1.069e1,
+         5.039e1
+      ]
+      TpbAbsorptionSpectrum: [
+         100000,
+         100000,
+         100000,
+         1e-3,
+         1e-11,
+         1e-11,
+         1e-11,
+         1e-11,
+         1e-11,
+         1e-11
+      ]
+      TpbEmmisionEnergies: [
+         5e-2,
+         1,
+         1.5,
+         2.25,
+         2.481,
+         2.819,
+         2.952,
+         2.988,
+         3.024,
+         3.1,
+         3.14,
+         3.1807,
+         3.54,
+         5.5,
+         5.039e1
+      ]
+      TpbEmmisionSpectrum: [
+         0,
+         0,
+         0,
+         5.88e-2,
+         2.35e-1,
+         8.53e-1,
+         1,
+         1,
+         9.259e-1,
+         7.04e-1,
+         2.96e-2,
+         1.1e-2,
+         0,
+         0,
+         0
+      ]
+      TpbTimeConstant: 2.5
+      service_provider: "LArPropertiesServiceStandard"
+      service_type: "LArPropertiesService"
+   }
+   MemoryTracker: {
+      dbOutput: {
+         filename: "MemoryReport.db"
+         overwrite: true
+      }
+      service_type: "MemoryTracker"
+   }
+   ParticleInventoryService: {
+      ParticleInventory: {
+         EveIdCalculator: "EmEveIdCalculator"
+         G4ModuleLabel: "largeant"
+      }
+      service_type: "ParticleInventoryService"
+   }
+   SignalShapingICARUSService: {
+      DeconNorm: 1
+      InitialFFTSize: 4096
+      NoiseFactVec: [
+         [
+            2.3,
+            2.3,
+            2.3,
+            2.3
+         ],
+         [
+            2.3,
+            2.3,
+            2.3,
+            2.3
+         ],
+         [
+            2.3,
+            2.3,
+            2.3,
+            2.3
+         ]
+      ]
+      PlaneForNormalization: 2
+      PrintResponses: "false"
+      ResponseTools: {
+         ResponsePlane0: {
+            Correction3D: 1
+            ElectronicsResponse: {
+               ADCPerPCAtLowestASICGain: 5500
+               ASICShapingTime: 1.3
+               FCperADCMicroS: 2.7e-2
+               Plane: 0
+               TimeOffset: 0
+               tool_type: "ElectronicsResponseBesselApprox"
+            }
+            FieldResponse: {
+               FieldResponseAmplitude: 1
+               FieldResponseFileName: "t600_response"
+               FieldResponseFileVersion: "v0.0"
+               FieldResponseHistName: "t600_response"
+               Plane: 0
+               ResponseType: 0
+               SignalType: 0
+               TimeCorrectionFactor: 1000
+               tool_type: "FieldResponse"
+            }
+            Filter: {
+               FilterFunction: "(x>0.0) ? ((1. - gaus(0)) * gaus(3)) : 0.0"
+               FilterParametersVec: [
+                  1,
+                  0,
+                  4,
+                  1,
+                  0,
+                  100
+               ]
+               FilterWidthCorrectionFactor: 1
+               Plane: 0
+               tool_type: "Filter"
+            }
+            Plane: 0
+            TimeScaleFactor: 1
+            tool_type: "Response"
+         }
+         ResponsePlane1: {
+            Correction3D: 1
+            ElectronicsResponse: {
+               ADCPerPCAtLowestASICGain: 5500
+               ASICShapingTime: 1.3
+               FCperADCMicroS: 2.7e-2
+               Plane: 1
+               TimeOffset: 0
+               tool_type: "ElectronicsResponseBesselApprox"
+            }
+            FieldResponse: {
+               FieldResponseAmplitude: 1
+               FieldResponseFileName: "t600_response"
+               FieldResponseFileVersion: "v0.0"
+               FieldResponseHistName: "t600_response"
+               Plane: 1
+               ResponseType: 1
+               SignalType: 0
+               TimeCorrectionFactor: 1000
+               tool_type: "FieldResponse"
+            }
+            Filter: {
+               FilterFunction: "(x>0.0) ? ((1. - gaus(0)) * gaus(3)) : 0.0"
+               FilterParametersVec: [
+                  1,
+                  0,
+                  4,
+                  1,
+                  0,
+                  100
+               ]
+               FilterWidthCorrectionFactor: 1
+               Plane: 1
+               tool_type: "Filter"
+            }
+            Plane: 1
+            TimeScaleFactor: 1
+            tool_type: "Response"
+         }
+         ResponsePlane2: {
+            Correction3D: 1
+            ElectronicsResponse: {
+               ADCPerPCAtLowestASICGain: 5500
+               ASICShapingTime: 1.3
+               FCperADCMicroS: 2.7e-2
+               Plane: 2
+               TimeOffset: 0
+               tool_type: "ElectronicsResponseBesselApprox"
+            }
+            FieldResponse: {
+               FieldResponseAmplitude: 1
+               FieldResponseFileName: "t600_response"
+               FieldResponseFileVersion: "v0.0"
+               FieldResponseHistName: "t600_response"
+               Plane: 2
+               ResponseType: 2
+               SignalType: 1
+               TimeCorrectionFactor: 1000
+               tool_type: "FieldResponse"
+            }
+            Filter: {
+               FilterFunction: "(x>0.0) ? gaus(0) : 0.0"
+               FilterParametersVec: [
+                  1,
+                  0,
+                  100
+               ]
+               FilterWidthCorrectionFactor: 1
+               Plane: 2
+               tool_type: "Filter"
+            }
+            Plane: 2
+            TimeScaleFactor: 1
+            tool_type: "Response"
+         }
+      }
+      StoreHistograms: true
+      service_type: "SignalShapingICARUSService"
+   }
+   SpaceChargeService: {
+      EnableCalEfieldSCE: false
+      EnableCalSpatialSCE: false
+      EnableCorrSCE: false
+      EnableSimEfieldSCE: false
+      EnableSimSpatialSCE: false
+      InputFilename: "SCEoffsets/SCEoffsets_ICARUS_E500_voxelTH3.root"
+      RepresentationType: "Voxelized_TH3"
+      service_provider: "SpaceChargeServiceICARUS"
+      service_type: "SpaceChargeService"
+   }
+   TFileService: {
+      fileName: "Supplemental-%ifb_%tc-%p.root"
+      service_type: "TFileService"
+   }
+   TimeTracker: {
+      dbOutput: {
+         filename: "TimingReport.db"
+         overwrite: true
+      }
+      printSummary: true
+      service_type: "TimeTracker"
+   }
+   message: {
+      destinations: {
+         STDCOUT: {
+            categories: {
+               Cluster3D: {
+                  limit: -1
+                  reportEvery: 1
+               }
+               MTdiagnostics: {
+                  limit: 0
+               }
+               PMAlgTracker: {
+                  limit: -1
+                  reportEvery: 1
+               }
+               default: {
+                  limit: 0
+                  reportEvery: 0
+               }
+            }
+            threshold: "DEBUG"
+            type: "cout"
+         }
+      }
+   }
+   scheduler: {
+      debug: {
+         fileName: "reco1.fcl"
+         option: "debug-config"
+         printMode: "raw"
+      }
+      defaultExceptions: false
+      errorOnMissingConsumes: false
+      errorOnSIGINT: true
+      num_schedules: 1
+      num_threads: 1
+      pruneConfig: true
+      reportUnused: true
+   }
+}
+source: {
+   fileNames: [
+      "icarus"
+   ]
+   maxEvents: 1
+   module_label: "source"
+   module_type: "HepnosInput"
+   processName: "Pandora"
+   saveMemoryObjectThreshold: 0
+}
+trigger_paths: {
+   trigger_paths: [
+      "0:reco"
+   ]
+}
