@@ -77,6 +77,10 @@ add_executable(test_track test_track.cc main.cc)
 target_link_libraries(test_track Core cetlib_except cetlib lardataobj_RecoBase Boost::serialization)
 add_test(test_track test_track)
 
+add_executable(test_trackhitmeta test_trackhitmeta.cc main.cc)
+target_link_libraries(test_trackhitmeta Core cetlib_except cetlib lardataobj_RecoBase Boost::serialization)
+add_test(test_trackhitmeta test_trackhitmeta)
+
 add_executable(test_pcaxis test_pcaxis.cc main.cc)
 target_link_libraries(test_pcaxis Core cetlib_except cetlib Boost::serialization lardataobj_RecoBase)
 add_test(test_pcaxis test_pcaxis) 
