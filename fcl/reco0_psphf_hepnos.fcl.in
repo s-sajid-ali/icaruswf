@@ -5,6 +5,7 @@ outputs: {
       fileName: "icarus"
       module_label: "outBNB"
       module_type: "HepnosSPOutput"
+      forwardProducts: false
       streamName: "outBNB"
    }
 }
@@ -1478,13 +1479,6 @@ physics: {
       "mcophit",
       "opflashCryoE",
       "opflashCryoW",
-      "MCDecodeTPCROI",
-      "decon1droi",
-      "roifinder",
-      "gaushitTPCEW",
-      "gaushitTPCEE",
-      "gaushitTPCWW",
-      "gaushitTPCWE",
       "purityana0",
       "purityana1",
       "crttruehit",
@@ -2261,7 +2255,6 @@ source: {
    module_type: "HepnosInput"
    fileNames: ['icarus']
    processName: "HitFinding"
-   saveMemoryObjectThreshold: 0
 }
 trigger_paths: {
    trigger_paths: [

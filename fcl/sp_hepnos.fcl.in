@@ -4,7 +4,7 @@ outputs: {
       module_label: "outBNB"
       module_type: "HepnosSPOutput"
       fileName: "icarus"
-      forwardProducts: false
+      eorwardProducts: false
       outputCommands: [
          "keep *_*_*_*",
          "drop *_MCDecodeTPCROI_*_*",
