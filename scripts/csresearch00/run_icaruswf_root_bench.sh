@@ -50,11 +50,13 @@ do
       echo "%%% after icaruswf-root-sigproc with $THREADS threads, run number $RUN at $(date)"
 
       echo "%%% before icaruswf-root-hit-find with $THREADS threads, run number $RUN at $(date)"
-      art --nschedules 1 --nthreads ${NUM_CLIENT_THREADS_PER_RANK} -c hf_root.fcl &> hf_out
+      infile=$(find .  -name "prodcorsika*SignalProcessing\.root")
+      art --nschedules 1 --nthreads ${NUM_CLIENT_THREADS_PER_RANK} -c hf_root.fcl -s $infile &> hf_out
       echo "%%% after icaruswf-root-hit-find with $THREADS threads, run number $RUN at $(date)"
 
       echo "%%% before icaruswf-root-pandora with $THREADS threads, run number $RUN at $(date)"
-      art --nschedules 1 --nthreads ${NUM_CLIENT_THREADS_PER_RANK} -c p_root.fcl &> p_out
+      infile=$(find .  -name "prodcorsika*HitFinding\.root")
+      art --nschedules 1 --nthreads ${NUM_CLIENT_THREADS_PER_RANK} -c p_root.fcl -s $infile &> p_out
       echo "%%% after icaruswf-root-pandora with $THREADS threads, run number $RUN at $(date)"
 
   done
