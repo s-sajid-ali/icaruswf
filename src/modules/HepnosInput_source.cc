@@ -172,12 +172,11 @@ namespace hepnos {
       auto hits1 = hepnos::read_product<recob::Hit>(event, "gaushitTPCEW", "", "HitFinding", strict);
       auto hits2 = hepnos::read_product<recob::Hit>(event, "gaushitTPCWE", "", "HitFinding", strict);
       auto hits3 = hepnos::read_product<recob::Hit>(event, "gaushitTPCWW", "", "HitFinding", strict);
-      auto detwave = hepnos::read_product<raw::OpDetWaveform>(event, "opdaq", "", "HitFinding", strict);
       art::put_product_in_principal(std::move(hits0), *outE, "gaushitTPCEE", "");
       art::put_product_in_principal(std::move(hits1), *outE, "gaushitTPCEW", "");
       art::put_product_in_principal(std::move(hits2), *outE, "gaushitTPCWE", "");
       art::put_product_in_principal(std::move(hits3), *outE, "gaushitTPCWW", "");
-      art::put_product_in_principal(std::move(detwave), *outE, "opdaq", "");
+      //art::put_product_in_principal(std::move(detwave), *outE, "opdaq", "");
       return true;
     }
 
@@ -234,7 +233,6 @@ namespace icaruswf {
           rh.reconstitutes<std::vector<recob::Hit>, art::InEvent>("gaushitTPCEW", "");
           rh.reconstitutes<std::vector<recob::Hit>, art::InEvent>("gaushitTPCWE", "");
           rh.reconstitutes<std::vector<recob::Hit>, art::InEvent>("gaushitTPCWW", "");
-          rh.reconstitutes<std::vector<raw::OpDetWaveform>, art::InEvent>("opdaq", "");
           rh.reconstitutes<art::Assns<recob::Hit, recob::Wire, void>, art::InEvent>("gaushitTPCEE", "");
           rh.reconstitutes<art::Assns<recob::Hit, recob::Wire, void>, art::InEvent>("gaushitTPCEW", "");
           rh.reconstitutes<art::Assns<recob::Hit, recob::Wire, void>, art::InEvent>("gaushitTPCWE", "");
