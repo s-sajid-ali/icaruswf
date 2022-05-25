@@ -28,7 +28,7 @@ sleep 30
 hepnos-list-databases ofi+tcp -s hepnos.ssg > connection.json
 
 # Store data (raw::RawDigits) to hepnos for the first step, signal processing
-art -c storedata.fcl -s /scratch/cerati/icaruscode-v09_37_01_02p02/icaruscode-09_37_01_02p02-samples/prodcorsika_bnb_genie_protononly_overburden_icarus_20220118T213827-GenBNBbkgr_100evt_G4_DetSim.root -n 1
+art -c storedata.fcl -s /scratch/cerati/icaruscode-v09_37_01_02p02/icaruscode-09_37_01_02p02-samples/prodcorsika_bnb_genie_protononly_overburden_icarus_20220118T213827-GenBNBbkgr_100evt_G4_DetSim.root -n 10
 
 export BASEDIR=$(pwd)
 # Create all the directories!
@@ -47,8 +47,6 @@ do
   done
 done
 cd $BASEDIR
-
-
 
 # run the benchmark
 for RUN in 1
