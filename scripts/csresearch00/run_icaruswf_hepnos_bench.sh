@@ -19,6 +19,8 @@ export FHICL_FILE_PATH=${ICARUSWF_BUILD}/fcl:${FHICL_FILE_PATH}
 export DATA_DIR=/scratch/cerati/icaruscode-v09_37_01_02p02/icaruscode-09_37_01_02p02-samples
 # for geometry files!
 export FW_SEARCH_PATH=${FW_SEARCH_PATH}:/scratch/gartung/spack/opt/spack/linux-scientific7-x86_64_v2/gcc-9.3.0/icarusalg-09.37.01-gz6rajahmifzikivvlrnufwz5z2hugn4/gdml
+# for pandora xml file
+export FW_SEARCH_PATH=${FW_SEARCH_PATH}:/scratch/gartung/spack/var/spack/environments/icaruscode-09_37_01_03_p02-hepnos/.spack-env/view/fw
 
 # start the hepnos server
 mpirun -np 2 bedrock ofi+tcp -c ${ICARUSWF_BUILD}/test/hepnos.json &
