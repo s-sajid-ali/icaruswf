@@ -11,6 +11,7 @@
 #include "canvas/Persistency/Provenance/canonicalProductName.h"
 
 #include <algorithm>
+#include <chrono>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -31,7 +32,7 @@
 #include "../serialization/slice_serialization.h"
 //#include "../serialization/shower_serialization.h"
 #include "../serialization/spacepoint_serialization.h"
-#include "../serialization/track_serialization.h"
+//#include "../serialization/track_serialization.h"
 #include "../serialization/vertex_serialization.h"
 #include "../serialization/wire_serialization.h"
 
@@ -147,7 +148,7 @@ namespace {
     }
 
   std::map<art::ProductID, hepnos::ProductID>
-    update_map_aevent(EventPrincipal& a_e, hepnos::Event h_e) {
+    update_map_aevent(EventPrincipal& a_e, hepnos::Event h_e, hepnos::WriteBatch &batch) {
       std::map<art::ProductID, hepnos::ProductID> translator;
       for (auto const& pr : a_e) {
         auto const& g = *pr.second;
@@ -158,17 +159,22 @@ namespace {
         EDProduct const* product = oh.isValid() ? oh.wrapper() : nullptr;
         if (auto pwt = prodWithType<std::vector<raw::RawDigit>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "DetSim");
-          translator[pd.productID()] = h_e.store(inputtag, *pwt);
+          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt);
         }
         // For wires as output of signal processing and input for hit finding
         if (auto pwt = prodWithType<std::vector<recob::Wire>>(product, pd)) {
-          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "SignalProcessing");
-          translator[pd.productID()] = h_e.store(inputtag, *pwt);
+          auto inputtag = art::InputTag("roifinder", pd.inputTag().instance(), "SignalProcessing");
+          auto begin = std::chrono::high_resolution_clock::now();
+          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt);
+          auto end = std::chrono::high_resolution_clock::now();
+          auto dur = end - begin;
+          auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
+          std::cout << "Time for recob::Wire: " << ms << std::endl;
         }
         // For hits as output of hit finding
         // Hits are also output of Pandora?
         if (auto pwt = prodWithType<std::vector<recob::Hit>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(pd.inputTag(), *pwt);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag(), *pwt);
         }
         // For SpacePoints as output of Pandora and MCstage1
         if (auto pwt = prodWithType<std::vector<recob::SpacePoint>>(product, pd)) {
@@ -213,20 +219,20 @@ namespace {
           translator[pd.productID()] = h_e.store(pd.inputTag(), *pwt);
         }
         //For OpHits as output of MCstage0
-        if (auto pwt = prodWithType<std::vector<recob::OpHit>>(product, pd)) {
-          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage0");
-          translator[pd.productID()] = h_e.store(inputtag, *pwt);
-        }
-        //For OpFlashs as output of MCstage0
-        if (auto pwt = prodWithType<std::vector<recob::OpFlash>>(product, pd)) {
-          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage0");
-          translator[pd.productID()] = h_e.store(inputtag, *pwt);
-        }
-        //For Tracks as output of MCstage1
-        if (auto pwt = prodWithType<std::vector<recob::Track>>(product, pd)) {
-          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage1");
-          translator[pd.productID()] = h_e.store(inputtag, *pwt);
-        }
+    //    if (auto pwt = prodWithType<std::vector<recob::OpHit>>(product, pd)) {
+    //      auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage0");
+    //      translator[pd.productID()] = h_e.store(inputtag, *pwt);
+    //    }
+    //    //For OpFlashs as output of MCstage0
+    //    if (auto pwt = prodWithType<std::vector<recob::OpFlash>>(product, pd)) {
+    //      auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage0");
+    //      translator[pd.productID()] = h_e.store(inputtag, *pwt);
+    //    }
+    //    //For Tracks as output of MCstage1
+    //    if (auto pwt = prodWithType<std::vector<recob::Track>>(product, pd)) {
+    //      auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage1");
+    //      translator[pd.productID()] = h_e.store(inputtag, *pwt);
+    //    }
      //   //For TrackHitMeta as output of MCstage1
      //   if (auto pwt = prodWithType<std::vector<recob::TrackHitMeta>>(product, pd)) {
      //     auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage1");
@@ -294,21 +300,21 @@ namespace {
         if (auto pwt = prodWithType<art::Assns<recob::Cluster, recob::Hit,void>>(product, pd)) {
           storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
         }
-        if (auto pwt = prodWithType<art::Assns<recob::OpFlash, recob::OpHit, void>>(product, pd)) {
-          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-        }
-        if (auto pwt = prodWithType<art::Assns<recob::Hit, recob::Track, void>>(product, pd)) {
-          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-        }
+    //    if (auto pwt = prodWithType<art::Assns<recob::OpFlash, recob::OpHit, void>>(product, pd)) {
+    //      storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+    //    }
+    //    if (auto pwt = prodWithType<art::Assns<recob::Hit, recob::Track, void>>(product, pd)) {
+   //       storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+    //    }
     //    if (auto pwt = prodWithType<art::Assns<recob::Hit, recob::Track, recob::TrackHitMeta>>(product, pd)) {
     //      storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
     //    }
        if (auto pwt = prodWithType<art::Assns<recob::PCAxis, recob::PFParticle, void>>(product, pd)) {
           storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
         }
-        if (auto pwt = prodWithType<art::Assns<recob::PFParticle, recob::Track, void>>(product, pd)) {
-          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-        }
+    //    if (auto pwt = prodWithType<art::Assns<recob::PFParticle, recob::Track, void>>(product, pd)) {
+    //      storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+    //    }
         //all Association collections with Shower
      //  if (auto pwt = prodWithType<art::Assns<recob::Shower, recob::Track, void>>(product, pd)) {
      //     storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
@@ -358,6 +364,8 @@ class HepnosSPOutput : public OutputModule {
     hepnos::Run r_;
     hepnos::SubRun sr_;
     hepnos::DataStore & datastore_;
+    hepnos::AsyncEngine async_;
+    hepnos::WriteBatch batch_;
     hepnos::DataSet dataset_;
     std::map<art::ProductID, hepnos::ProductID> translator_;
 }; // HepnosSPOutput
@@ -366,6 +374,8 @@ HepnosSPOutput::HepnosSPOutput(Parameters const& ps)
   : OutputModule{ps().omConfig, ps.get_PSet()}
   , wantForwardProducts_{ps().forwardProducts()}
   , datastore_{art::ServiceHandle<icaruswf::HepnosDataStore>()->getStore()}
+  , async_{datastore_, 8}
+  , batch_{async_, 2048}
   , dataset_{datastore_.root().createDataSet(ps().omConfig().fileName())}
 {
 }
@@ -389,12 +399,29 @@ HepnosSPOutput::write(EventPrincipal& p)
   if (!p.size())
     return;
   hepnos::Event h_e = sr_.createEvent(p.event());
+  
+  auto begin = std::chrono::high_resolution_clock::now();
   auto map1 = update_map_hevent(h_e);
   translator_.insert(map1.begin(), map1.end());
-  auto map2 = update_map_aevent(p, h_e);
-  translator_.insert(map2.begin(), map2.end());
-  store_aassns(p, datastore_, h_e, translator_);
+  auto end = std::chrono::high_resolution_clock::now();
+  auto dur = end - begin;
+  auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
+  std::cout << "hepnos event products time in ms: " << ms << std::endl;
 
+  begin = std::chrono::high_resolution_clock::now();
+  auto map2 = update_map_aevent(p, h_e, batch_);
+  translator_.insert(map2.begin(), map2.end());
+  end = std::chrono::high_resolution_clock::now();
+  dur = end - begin;
+  ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
+  std::cout << "art event products time in ms: " << ms << std::endl;
+  
+  begin = std::chrono::high_resolution_clock::now();
+  store_aassns(p, datastore_, h_e, translator_);
+  end = std::chrono::high_resolution_clock::now();
+  dur = end - begin;
+  ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
+  std::cout << "art assns time in ms: " << ms << std::endl;
 }
 
 
