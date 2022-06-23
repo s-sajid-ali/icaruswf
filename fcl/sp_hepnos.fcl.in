@@ -396,7 +396,7 @@ services: {
       ChannelMappingTool: {
          DBFileName: "ChannelMapICARUS.db"
          CalibDBFileName: "crt_gain_reco_data"
-	 Tag: "v1r0"
+         Tag: "v1r0"
          tool_type: "ChannelMapSQLite"
       }
       DiagnosticOutput: false
