@@ -1,13 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
-export MPICH_GNI_NDREG_ENTRIES=1024
 export MPICH_MAX_THREAD_SAFETY=multiple
 
 # activate spack environment
 . /scratch/gartung/spack/share/spack/setup-env.sh
 spack load gcc@9.3.0
-spack env activate icaruscode-09_37_01_03_p02-hepnos
+spack env activate icaruscode-09_37_02_03-hepnos-0_6_5
 
 export ICARUSWF_SRC=/nashome/s/sasyed/packages/icaruswf
 . ${ICARUSWF_SRC}/envvariable.sh
@@ -20,16 +19,21 @@ export DATA_DIR=/scratch/cerati/icaruscode-v09_37_01_02p02/icaruscode-09_37_01_0
 # for geometry files!
 export FW_SEARCH_PATH=${FW_SEARCH_PATH}:/scratch/gartung/spack/opt/spack/linux-scientific7-x86_64_v2/gcc-9.3.0/icarusalg-09.37.01-gz6rajahmifzikivvlrnufwz5z2hugn4/gdml
 # for pandora xml file
-export FW_SEARCH_PATH=${FW_SEARCH_PATH}:/scratch/gartung/spack/var/spack/environments/icaruscode-09_37_01_03_p02-hepnos/.spack-env/view/fw
+export FW_SEARCH_PATH=${FW_SEARCH_PATH}:/scratch/gartung/spack/var/spack/environments/icaruscode-09_37_02_03-hepnos-0_6_4-debug/.spack-env/view/fw
+
+# collect diagnostic profiles
+export MARGO_ENABLE_DIAGNOSTICS=1
+export MARGO_ENABLE_PROFILING=1
 
 # start the hepnos server
-mpirun -np 2 bedrock ofi+tcp -c ${ICARUSWF_BUILD}/test/hepnos.json &
+mpirun -np 1 bedrock ofi+tcp -c hepnos.json -v trace &> server-log &
 sleep 30
 hepnos-list-databases ofi+tcp -s hepnos.ssg > connection.json
 
 # Store data (raw::RawDigits) to hepnos for the first step, signal processing
-art -c storedata.fcl -s /scratch/cerati/icaruscode-v09_37_01_02p02/icaruscode-09_37_01_02p02-samples/prodcorsika_bnb_genie_protononly_overburden_icarus_20220118T213827-GenBNBbkgr_100evt_G4_DetSim.root -n 10
+art -c storedata.fcl -s /scratch/cerati/icaruscode-v09_37_01_02p02/icaruscode-09_37_01_02p02-samples/prodcorsika_bnb_genie_protononly_overburden_icarus_20220118T213827-GenBNBbkgr_100evt_G4_DetSim.root -n 10 &> loading_log
 
+# for geometry files!
 export BASEDIR=$(pwd)
 # Create all the directories!
 for THREADS in 1
@@ -39,8 +43,9 @@ do
   mkdir -p threads_$THREADS
   cd threads_$THREADS
 
-  for RUN in {1..5}
+  for RUN in 1
   do
+    cd $BASEDIR/threads_$THREADS
     mkdir -p run_$RUN
     cd run_$RUN
     cp $BASEDIR/connection.json .
@@ -71,3 +76,5 @@ do
 
   done
 done
+export FW_SEARCH_PATH=${FW_SEARCH_PATH}://scratch/gartung/spack/opt/spack/linux-scientific7-x86_64_v2/gcc-9.3.0/icarusalg-09.37.02.01-24uyymplbwvalzi36hbosaumhvlnp4ql/gdml
+
