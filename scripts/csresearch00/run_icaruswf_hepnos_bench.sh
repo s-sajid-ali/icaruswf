@@ -26,7 +26,7 @@ export MARGO_ENABLE_DIAGNOSTICS=1
 export MARGO_ENABLE_PROFILING=1
 
 # start the hepnos server
-mpirun -np 1 bedrock ofi+tcp -c hepnos.json -v trace &> server-log &
+mpirun -np 1 bedrock ofi+tcp -c ${ICARUSWF_BUILD}/test/hepnos.json -v trace &> server-log &
 sleep 30
 hepnos-list-databases ofi+tcp -s hepnos.ssg > connection.json
 
