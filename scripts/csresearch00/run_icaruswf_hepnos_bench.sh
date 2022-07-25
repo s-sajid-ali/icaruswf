@@ -76,5 +76,3 @@ do
 
   done
 done
-export FW_SEARCH_PATH=${FW_SEARCH_PATH}://scratch/gartung/spack/opt/spack/linux-scientific7-x86_64_v2/gcc-9.3.0/icarusalg-09.37.02.01-24uyymplbwvalzi36hbosaumhvlnp4ql/gdml
-
