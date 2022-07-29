@@ -118,7 +118,7 @@ namespace {
       h_e.store(a_t, h_assns);
       //std::cout << "Assns in art event: " << a_t.process() << ", " << a_t.label() << ", " << a_t.instance() << "\n";
     }
-  
+
   std::map<art::ProductID, hepnos::ProductID>
     update_map_hevent(hepnos::Event h_e)
     {
@@ -178,71 +178,71 @@ namespace {
         }
         // For SpacePoints as output of Pandora and MCstage1
         if (auto pwt = prodWithType<std::vector<recob::SpacePoint>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(pd.inputTag(), *pwt);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag(), *pwt);
         }
         // For Edge as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Edge>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(inputtag, *pwt);
+          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt);
         }
         // For PFParticles as output of Pandora and MCStage1
         if (auto pwt = prodWithType<std::vector<recob::PFParticle>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(pd.inputTag(), *pwt);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag(), *pwt);
         }
         // For Seeds as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Seed>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(inputtag, *pwt);
+          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt);
         }
         // For Slices as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Slice>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(inputtag, *pwt);
+          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt);
         }
         // For Vertices as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Vertex>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(inputtag, *pwt);
+          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt);
         }
         // For Clusters as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Cluster>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(inputtag, *pwt);
+          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt);
         }
         // For PCAxis as output of Pandora and MCstage1
         if (auto pwt = prodWithType<std::vector<recob::PCAxis>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(pd.inputTag(), *pwt);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag(), *pwt);
         }
-        //For OpDetWaveform as output of 
+        //For OpDetWaveform as output of
         if (auto pwt = prodWithType<std::vector<raw::OpDetWaveform>>(product, pd)) {
-         // auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage0");
-          translator[pd.productID()] = h_e.store(pd.inputTag(), *pwt);
+          // auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage0");
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag(), *pwt);
         }
         //For OpHits as output of MCstage0
-    //    if (auto pwt = prodWithType<std::vector<recob::OpHit>>(product, pd)) {
-    //      auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage0");
-    //      translator[pd.productID()] = h_e.store(inputtag, *pwt);
-    //    }
-    //    //For OpFlashs as output of MCstage0
-    //    if (auto pwt = prodWithType<std::vector<recob::OpFlash>>(product, pd)) {
-    //      auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage0");
-    //      translator[pd.productID()] = h_e.store(inputtag, *pwt);
-    //    }
-    //    //For Tracks as output of MCstage1
-    //    if (auto pwt = prodWithType<std::vector<recob::Track>>(product, pd)) {
-    //      auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage1");
-    //      translator[pd.productID()] = h_e.store(inputtag, *pwt);
-    //    }
-     //   //For TrackHitMeta as output of MCstage1
-     //   if (auto pwt = prodWithType<std::vector<recob::TrackHitMeta>>(product, pd)) {
-     //     auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage1");
-     //     translator[pd.productID()] = h_e.store(inputtag, *pwt);
-     //   }
-     //   //For Shower as output of MCstage1
-     //   if (auto pwt = prodWithType<std::vector<recob::Shower>>(product, pd)) {
-     //     auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage1");
-     //     translator[pd.productID()] = h_e.store(inputtag, *pwt);
-     //   }
+        //    if (auto pwt = prodWithType<std::vector<recob::OpHit>>(product, pd)) {
+        //      auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage0");
+        //      translator[pd.productID()] = h_e.store(inputtag, *pwt);
+        //    }
+        //    //For OpFlashs as output of MCstage0
+        //    if (auto pwt = prodWithType<std::vector<recob::OpFlash>>(product, pd)) {
+        //      auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage0");
+        //      translator[pd.productID()] = h_e.store(inputtag, *pwt);
+        //    }
+        //    //For Tracks as output of MCstage1
+        //    if (auto pwt = prodWithType<std::vector<recob::Track>>(product, pd)) {
+        //      auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage1");
+        //      translator[pd.productID()] = h_e.store(inputtag, *pwt);
+        //    }
+        //   //For TrackHitMeta as output of MCstage1
+        //   if (auto pwt = prodWithType<std::vector<recob::TrackHitMeta>>(product, pd)) {
+        //     auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage1");
+        //     translator[pd.productID()] = h_e.store(inputtag, *pwt);
+        //   }
+        //   //For Shower as output of MCstage1
+        //   if (auto pwt = prodWithType<std::vector<recob::Shower>>(product, pd)) {
+        //     auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage1");
+        //     translator[pd.productID()] = h_e.store(inputtag, *pwt);
+        //   }
 
       }
       return translator;
@@ -300,40 +300,40 @@ namespace {
         if (auto pwt = prodWithType<art::Assns<recob::Cluster, recob::Hit,void>>(product, pd)) {
           storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
         }
-    //    if (auto pwt = prodWithType<art::Assns<recob::OpFlash, recob::OpHit, void>>(product, pd)) {
-    //      storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-    //    }
-    //    if (auto pwt = prodWithType<art::Assns<recob::Hit, recob::Track, void>>(product, pd)) {
-   //       storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-    //    }
-    //    if (auto pwt = prodWithType<art::Assns<recob::Hit, recob::Track, recob::TrackHitMeta>>(product, pd)) {
-    //      storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-    //    }
-       if (auto pwt = prodWithType<art::Assns<recob::PCAxis, recob::PFParticle, void>>(product, pd)) {
+        //    if (auto pwt = prodWithType<art::Assns<recob::OpFlash, recob::OpHit, void>>(product, pd)) {
+        //      storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        //    }
+        //    if (auto pwt = prodWithType<art::Assns<recob::Hit, recob::Track, void>>(product, pd)) {
+        //       storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        //    }
+        //    if (auto pwt = prodWithType<art::Assns<recob::Hit, recob::Track, recob::TrackHitMeta>>(product, pd)) {
+        //      storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        //    }
+        if (auto pwt = prodWithType<art::Assns<recob::PCAxis, recob::PFParticle, void>>(product, pd)) {
           storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
         }
-    //    if (auto pwt = prodWithType<art::Assns<recob::PFParticle, recob::Track, void>>(product, pd)) {
-    //      storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-    //    }
+        //    if (auto pwt = prodWithType<art::Assns<recob::PFParticle, recob::Track, void>>(product, pd)) {
+        //      storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        //    }
         //all Association collections with Shower
-     //  if (auto pwt = prodWithType<art::Assns<recob::Shower, recob::Track, void>>(product, pd)) {
-     //     storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-     //   }
-     //  if (auto pwt = prodWithType<art::Assns<recob::PFParticle, recob::Shower, void>>(product, pd)) {
-     //     storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-     //   }
-     //  if (auto pwt = prodWithType<art::Assns<recob::Hit, recob::Shower, void>>(product, pd)) {
-     //     storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-     //   }
-     //  if (auto pwt = prodWithType<art::Assns<recob::PCAxis, recob::Shower, void>>(product, pd)) {
-     //     storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-     //   }
-     //  if (auto pwt = prodWithType<art::Assns<recob::Cluster, recob::Shower, void>>(product, pd)) {
-     //     storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-     //   }
-     //  if (auto pwt = prodWithType<art::Assns<recob::Shower, recob::SpacePoint, void>>(product, pd)) {
-     //    storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-     //  }
+        //  if (auto pwt = prodWithType<art::Assns<recob::Shower, recob::Track, void>>(product, pd)) {
+        //     storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        //   }
+        //  if (auto pwt = prodWithType<art::Assns<recob::PFParticle, recob::Shower, void>>(product, pd)) {
+        //     storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        //   }
+        //  if (auto pwt = prodWithType<art::Assns<recob::Hit, recob::Shower, void>>(product, pd)) {
+        //     storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        //   }
+        //  if (auto pwt = prodWithType<art::Assns<recob::PCAxis, recob::Shower, void>>(product, pd)) {
+        //     storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        //   }
+        //  if (auto pwt = prodWithType<art::Assns<recob::Cluster, recob::Shower, void>>(product, pd)) {
+        //     storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        //   }
+        //  if (auto pwt = prodWithType<art::Assns<recob::Shower, recob::SpacePoint, void>>(product, pd)) {
+        //    storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        //  }
       }
     }
 } // namespace
@@ -399,7 +399,7 @@ HepnosSPOutput::write(EventPrincipal& p)
   if (!p.size())
     return;
   hepnos::Event h_e = sr_.createEvent(p.event());
-  
+
   auto begin = std::chrono::high_resolution_clock::now();
   auto map1 = update_map_hevent(h_e);
   translator_.insert(map1.begin(), map1.end());
@@ -415,7 +415,7 @@ HepnosSPOutput::write(EventPrincipal& p)
   dur = end - begin;
   ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
   std::cout << "art event products time in ms: " << ms << std::endl;
-  
+
   begin = std::chrono::high_resolution_clock::now();
   store_aassns(p, datastore_, h_e, translator_);
   end = std::chrono::high_resolution_clock::now();
