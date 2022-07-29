@@ -5,6 +5,8 @@ process_name : hepnosstore
          module_type: HepnosSPOutput
          fileName: "icarus"
          forwardProducts: true
+         async: "${ENABLE_HEPNOS_ASYNC}"
+         batch: "${ENABLE_HEPNOS_BATCH}"
       }
   }
 
