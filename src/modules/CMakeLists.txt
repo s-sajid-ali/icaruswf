@@ -21,7 +21,7 @@ target_link_libraries(HepnosOutput_module PRIVATE Boost::system hepnos Boost::se
 target_include_directories(HepnosOutput_module PRIVATE  $ENV{ROOT_INC} $ENV{ART_INC} $ENV{HEPNOS_INC} $ENV{CANVAS_INC} $ENV{CETLIB_INC} $ENV{CETLIB_EXCEPT_INC} $ENV{FHICLCPP_INC} $ENV{HEP_CONCURRENCY_INC} $ENV{LARDATAOBJ_INC} $ENV{THALLIUM_INC} $ENV{CEREAL_INC} $ENV{LARCOREOBJ_INC} ${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(HepnosSPOutput_module SHARED HepnosSPOutput_module.cc)
-target_link_libraries(HepnosSPOutput_module PRIVATE ROOT::Core Boost::system hepnos Boost::serialization TBB::tbb)
+target_link_libraries(HepnosSPOutput_module PRIVATE ROOT::Core Boost::system hepnos Boost::serialization TBB::tbb spdlog::spdlog)
 target_include_directories(HepnosSPOutput_module PRIVATE  $ENV{ROOT_INC} $ENV{ART_INC} $ENV{HEPNOS_INC} $ENV{CANVAS_INC} $ENV{CETLIB_INC} $ENV{CETLIB_EXCEPT_INC} $ENV{FHICLCPP_INC} $ENV{HEP_CONCURRENCY_INC} $ENV{LARDATAOBJ_INC} $ENV{THALLIUM_INC} $ENV{CEREAL_INC} $ENV{LARCOREOBJ_INC} ${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(HepnosDataStore_service SHARED HepnosDataStore_service.cc)

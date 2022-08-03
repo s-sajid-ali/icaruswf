@@ -25,9 +25,9 @@ find_package(canvas REQUIRED)
 find_package(hep_concurrency REQUIRED)
 find_package(larcoreobj REQUIRED)
 find_package(lardataobj REQUIRED)
+find_package(spdlog REQUIRED)
 
 add_subdirectory(src)
-
 add_subdirectory(fcl)
 
 enable_testing()
