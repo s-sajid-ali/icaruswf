@@ -73,7 +73,7 @@ namespace hepnos {
     {
       art::InputTag const tag(module_label, instancename, processname);
       std::vector<T> products;
-      auto ret = event.load(tag, products);
+      auto ret = event.load(tag.encode(), products);
       if (ret) return std::make_unique<std::vector<T>>(products);
       if (strict)
       {
@@ -107,7 +107,7 @@ namespace hepnos {
     {
       art::InputTag const tag(a_module_label, "", "");
       std::vector<std::pair<hepnos::Ptr<A>, hepnos::Ptr<B>>> assns;
-      event.load(tag, assns);
+      event.load(tag.encode(), assns);
       auto const a_pid = create_productID<A>(a_col, a_module_label, "");
       auto const b_pid = create_productID<B>(b_col, b_module_label, "");
       art::Assns<A, B> art_assns;

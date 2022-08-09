@@ -94,7 +94,7 @@ namespace {
         auto const B_ptr = datastore.makePtr<B>(a_map.at(b.id()), b.key());
         h_assns.emplace_back(A_ptr, B_ptr);
       }
-      h_e.store(a_t, h_assns);
+      h_e.store(a_t.encode(), h_assns);
       //std::cout << "Assns in art event: " << a_t.process() << ", " << a_t.label() << ", " << a_t.instance() << "\n";
     }
 
@@ -160,13 +160,13 @@ namespace {
         EDProduct const* product = oh.isValid() ? oh.wrapper() : nullptr;
         if (auto pwt = prodWithType<std::vector<raw::RawDigit>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "DetSim");
-          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt, &stats);
+          translator[pd.productID()] = h_e.store(batch, inputtag.encode(), *pwt, &stats);
         }
         // For wires as output of signal processing and input for hit finding
         if (auto pwt = prodWithType<std::vector<recob::Wire>>(product, pd)) {
           auto inputtag = art::InputTag("roifinder", pd.inputTag().instance(), "SignalProcessing");
           auto begin = std::chrono::high_resolution_clock::now();
-          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt, &stats);
+          translator[pd.productID()] = h_e.store(batch, inputtag.encode(), *pwt, &stats);
           auto end = std::chrono::high_resolution_clock::now();
           auto dur = end - begin;
           auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
@@ -175,49 +175,49 @@ namespace {
         // For hits as output of hit finding
         // Hits are also output of Pandora?
         if (auto pwt = prodWithType<std::vector<recob::Hit>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag(), *pwt, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For SpacePoints as output of Pandora and MCstage1
         if (auto pwt = prodWithType<std::vector<recob::SpacePoint>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag(), *pwt, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For Edge as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Edge>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt, &stats);
+          translator[pd.productID()] = h_e.store(batch, inputtag.encode(), *pwt, &stats);
         }
         // For PFParticles as output of Pandora and MCStage1
         if (auto pwt = prodWithType<std::vector<recob::PFParticle>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag(), *pwt, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For Seeds as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Seed>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt, &stats);
+          translator[pd.productID()] = h_e.store(batch, inputtag.encode(), *pwt, &stats);
         }
         // For Slices as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Slice>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt, &stats);
+          translator[pd.productID()] = h_e.store(batch, inputtag.encode(), *pwt, &stats);
         }
         // For Vertices as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Vertex>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt, &stats);
+          translator[pd.productID()] = h_e.store(batch, inputtag.encode(), *pwt, &stats);
         }
         // For Clusters as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Cluster>>(product, pd)) {
           auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt, &stats);
+          translator[pd.productID()] = h_e.store(batch, inputtag.encode(), *pwt, &stats);
         }
         // For PCAxis as output of Pandora and MCstage1
         if (auto pwt = prodWithType<std::vector<recob::PCAxis>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag(), *pwt, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         //For OpDetWaveform as output of
         if (auto pwt = prodWithType<std::vector<raw::OpDetWaveform>>(product, pd)) {
           // auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage0");
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag(), *pwt, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
       }
 
