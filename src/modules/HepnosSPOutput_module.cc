@@ -55,16 +55,13 @@ namespace {
   std::tuple<std::string, std::string, std::string> splitTag(std::string const& inputtag) {
     //InputTag: label = 'daq0', instance = 'PHYSCRATEDATATPCEE', process = 'DetSim'
     //For clarity I am defining all these variables
-    std::string label = "label = '";
-    std::string instance = "instance = '";
-    std::string process = "process = '";
-    auto ll = label.length();
-    auto il = instance.length();
-    auto pl = process.length();
-    auto ls = inputtag.find(label);
-    auto is = inputtag.find(instance);
-    auto ps = inputtag.find(process);
-    return std::make_tuple(inputtag.substr(ls+ll, (is-(ls+ll)-3)), inputtag.substr(is+il, ps-(il+is)-3),inputtag.substr(ps+pl, inputtag.length()-(ps+pl)-1));
+    art::InputTag a_inputtag;
+    decode(inputtag, a_inputtag);
+
+    std::string label = a_inputtag.label();
+    std::string instance = a_inputtag.instance();
+    std::string process = a_inputtag.process();
+    return std::make_tuple(label, instance, process);
   }
 
   template <typename P>
@@ -95,7 +92,7 @@ namespace {
         h_assns.emplace_back(A_ptr, B_ptr);
       }
       h_e.store(a_t.encode(), h_assns);
-      //std::cout << "Assns in art event: " << a_t.process() << ", " << a_t.label() << ", " << a_t.instance() << "\n";
+      //std::cout << "Assns in art event: " << a_t.process() << ", " << a_t.label() << ", " << a_t.encode() << "\n";
     }
 
   template<typename A, typename B, typename D>
@@ -116,7 +113,7 @@ namespace {
         h_assns.emplace_back(A_ptr, B_ptr, d);
       }
       h_e.store(a_t, h_assns);
-      //std::cout << "Assns in art event: " << a_t.process() << ", " << a_t.label() << ", " << a_t.instance() << "\n";
+      //std::cout << "Assns in art event: " << a_t.process() << ", " << a_t.label() << ", " << a_t.encode() << "\n";
     }
 
   std::map<art::ProductID, hepnos::ProductID>
@@ -159,14 +156,12 @@ namespace {
         //dynamic cast to the type we care about is needed here
         EDProduct const* product = oh.isValid() ? oh.wrapper() : nullptr;
         if (auto pwt = prodWithType<std::vector<raw::RawDigit>>(product, pd)) {
-          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "DetSim");
-          translator[pd.productID()] = h_e.store(batch, inputtag.encode(), *pwt, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For wires as output of signal processing and input for hit finding
         if (auto pwt = prodWithType<std::vector<recob::Wire>>(product, pd)) {
-          auto inputtag = art::InputTag("roifinder", pd.inputTag().instance(), "SignalProcessing");
           auto begin = std::chrono::high_resolution_clock::now();
-          translator[pd.productID()] = h_e.store(batch, inputtag.encode(), *pwt, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
           auto end = std::chrono::high_resolution_clock::now();
           auto dur = end - begin;
           auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
@@ -183,8 +178,7 @@ namespace {
         }
         // For Edge as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Edge>>(product, pd)) {
-          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(batch, inputtag.encode(), *pwt, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For PFParticles as output of Pandora and MCStage1
         if (auto pwt = prodWithType<std::vector<recob::PFParticle>>(product, pd)) {
@@ -192,23 +186,19 @@ namespace {
         }
         // For Seeds as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Seed>>(product, pd)) {
-          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(batch, inputtag.encode(), *pwt, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For Slices as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Slice>>(product, pd)) {
-          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(batch, inputtag.encode(), *pwt, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For Vertices as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Vertex>>(product, pd)) {
-          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(batch, inputtag.encode(), *pwt, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For Clusters as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Cluster>>(product, pd)) {
-          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(batch, inputtag.encode(), *pwt, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For PCAxis as output of Pandora and MCstage1
         if (auto pwt = prodWithType<std::vector<recob::PCAxis>>(product, pd)) {
@@ -216,7 +206,6 @@ namespace {
         }
         //For OpDetWaveform as output of
         if (auto pwt = prodWithType<std::vector<raw::OpDetWaveform>>(product, pd)) {
-          // auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage0");
           translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
       }
