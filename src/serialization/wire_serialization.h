@@ -1,5 +1,5 @@
 #if !defined(wire_serialization_h)
-#define wire_serialization_h 
+#define wire_serialization_h
 
 #include <iostream>
 
@@ -44,8 +44,7 @@ namespace boost {
         for (auto i = 0 ; i<sz; ++i) {
           ar >> tmp[i];
         }
-        sv = lar::sparse_vector<float>(tmp, 0);
-
+        sv = std::move(lar::sparse_vector<float>(tmp, 0));
       }
 
     template <class Archive>
@@ -55,7 +54,7 @@ namespace boost {
         ar << c;
         auto v =  wire.View();
         ar <<  v;
-        auto roi = wire.SignalROI();
+        auto& roi = wire.SignalROI();
         ar << roi;
       }
 
@@ -68,8 +67,8 @@ namespace boost {
         ar >> channel;
         ar >> view;
         ar >> rois;
-        recob::Wire w(rois, channel, view);
-        wire = w;
+        recob::Wire w(std::move(rois), std::move(channel), std::move(view));
+        wire = std::move(w);
       }
 
   }
