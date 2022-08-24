@@ -156,12 +156,12 @@ namespace {
         //dynamic cast to the type we care about is needed here
         EDProduct const* product = oh.isValid() ? oh.wrapper() : nullptr;
         if (auto pwt = prodWithType<std::vector<raw::RawDigit>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, 0, -1, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For wires as output of signal processing and input for hit finding
         if (auto pwt = prodWithType<std::vector<recob::Wire>>(product, pd)) {
           auto begin = std::chrono::high_resolution_clock::now();
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, 0, -1, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
           auto end = std::chrono::high_resolution_clock::now();
           auto dur = end - begin;
           auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
@@ -170,43 +170,43 @@ namespace {
         // For hits as output of hit finding
         // Hits are also output of Pandora?
         if (auto pwt = prodWithType<std::vector<recob::Hit>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, 0, -1, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For SpacePoints as output of Pandora and MCstage1
         if (auto pwt = prodWithType<std::vector<recob::SpacePoint>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, 0, -1, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For Edge as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Edge>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, 0, -1, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For PFParticles as output of Pandora and MCStage1
         if (auto pwt = prodWithType<std::vector<recob::PFParticle>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, 0, -1, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For Seeds as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Seed>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, 0, -1, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For Slices as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Slice>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, 0, -1, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For Vertices as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Vertex>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, 0, -1, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For Clusters as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Cluster>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, 0, -1, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For PCAxis as output of Pandora and MCstage1
         if (auto pwt = prodWithType<std::vector<recob::PCAxis>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, 0, -1, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         //For OpDetWaveform as output of
         if (auto pwt = prodWithType<std::vector<raw::OpDetWaveform>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, 0, -1, &stats);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
       }
 
