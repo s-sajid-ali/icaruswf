@@ -51,16 +51,13 @@ namespace hepnos {
   std::tuple<std::string, std::string, std::string> splitTag(std::string const& inputtag) {
     //InputTag: label = 'daq0', instance = 'PHYSCRATEDATATPCEE', process = 'DetSim'
     //For clarity I am defining all these variables
-    std::string label = "label = '";
-    std::string instance = "instance = '";
-    std::string process = "process = '";
-    auto ll = label.length();
-    auto il = instance.length();
-    auto pl = process.length();
-    auto ls = inputtag.find(label);
-    auto is = inputtag.find(instance);
-    auto ps = inputtag.find(process);
-    return std::make_tuple(inputtag.substr(ls+ll, (is-(ls+ll)-3)), inputtag.substr(is+il, ps-(il+is)-3),inputtag.substr(ps+pl, inputtag.length()-(ps+pl)-1));
+    art::InputTag a_inputtag;
+    decode(inputtag, a_inputtag);
+
+    std::string label = a_inputtag.label();
+    std::string instance = a_inputtag.instance();
+    std::string process = a_inputtag.process();
+    return std::make_tuple(label, instance, process);
   }
 
   template <typename T>
@@ -73,7 +70,7 @@ namespace hepnos {
     {
       art::InputTag const tag(module_label, instancename, processname);
       std::vector<T> products;
-      auto ret = event.load(tag, products);
+      auto ret = event.load(tag.encode(), products);
       if (ret) return std::make_unique<std::vector<T>>(products);
       if (strict)
       {
@@ -107,7 +104,7 @@ namespace hepnos {
     {
       art::InputTag const tag(a_module_label, "", "");
       std::vector<std::pair<hepnos::Ptr<A>, hepnos::Ptr<B>>> assns;
-      event.load(tag, assns);
+      event.load(tag.encode(), assns);
       auto const a_pid = create_productID<A>(a_col, a_module_label, "");
       auto const b_pid = create_productID<B>(b_col, b_module_label, "");
       art::Assns<A, B> art_assns;

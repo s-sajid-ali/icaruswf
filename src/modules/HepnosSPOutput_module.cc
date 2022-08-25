@@ -10,6 +10,8 @@
 #include "fhiclcpp/types/ConfigurationTable.h"
 #include "canvas/Persistency/Provenance/canonicalProductName.h"
 
+#include <spdlog/spdlog.h>
+
 #include <algorithm>
 #include <chrono>
 #include <iostream>
@@ -30,9 +32,7 @@
 #include "../serialization/rawdigit_serialization.h"
 #include "../serialization/seed_serialization.h"
 #include "../serialization/slice_serialization.h"
-//#include "../serialization/shower_serialization.h"
 #include "../serialization/spacepoint_serialization.h"
-//#include "../serialization/track_serialization.h"
 #include "../serialization/vertex_serialization.h"
 #include "../serialization/wire_serialization.h"
 
@@ -55,16 +55,13 @@ namespace {
   std::tuple<std::string, std::string, std::string> splitTag(std::string const& inputtag) {
     //InputTag: label = 'daq0', instance = 'PHYSCRATEDATATPCEE', process = 'DetSim'
     //For clarity I am defining all these variables
-    std::string label = "label = '";
-    std::string instance = "instance = '";
-    std::string process = "process = '";
-    auto ll = label.length();
-    auto il = instance.length();
-    auto pl = process.length();
-    auto ls = inputtag.find(label);
-    auto is = inputtag.find(instance);
-    auto ps = inputtag.find(process);
-    return std::make_tuple(inputtag.substr(ls+ll, (is-(ls+ll)-3)), inputtag.substr(is+il, ps-(il+is)-3),inputtag.substr(ps+pl, inputtag.length()-(ps+pl)-1));
+    art::InputTag a_inputtag;
+    decode(inputtag, a_inputtag);
+
+    std::string label = a_inputtag.label();
+    std::string instance = a_inputtag.instance();
+    std::string process = a_inputtag.process();
+    return std::make_tuple(label, instance, process);
   }
 
   template <typename P>
@@ -94,8 +91,8 @@ namespace {
         auto const B_ptr = datastore.makePtr<B>(a_map.at(b.id()), b.key());
         h_assns.emplace_back(A_ptr, B_ptr);
       }
-      h_e.store(a_t, h_assns);
-      //std::cout << "Assns in art event: " << a_t.process() << ", " << a_t.label() << ", " << a_t.instance() << "\n";
+      h_e.store(a_t.encode(), h_assns);
+      //std::cout << "Assns in art event: " << a_t.process() << ", " << a_t.label() << ", " << a_t.encode() << "\n";
     }
 
   template<typename A, typename B, typename D>
@@ -116,7 +113,7 @@ namespace {
         h_assns.emplace_back(A_ptr, B_ptr, d);
       }
       h_e.store(a_t, h_assns);
-      //std::cout << "Assns in art event: " << a_t.process() << ", " << a_t.label() << ", " << a_t.instance() << "\n";
+      //std::cout << "Assns in art event: " << a_t.process() << ", " << a_t.label() << ", " << a_t.encode() << "\n";
     }
 
   std::map<art::ProductID, hepnos::ProductID>
@@ -149,6 +146,7 @@ namespace {
 
   std::map<art::ProductID, hepnos::ProductID>
     update_map_aevent(EventPrincipal& a_e, hepnos::Event h_e, hepnos::WriteBatch &batch) {
+      hepnos::StoreStatistics stats;
       std::map<art::ProductID, hepnos::ProductID> translator;
       for (auto const& pr : a_e) {
         auto const& g = *pr.second;
@@ -158,14 +156,12 @@ namespace {
         //dynamic cast to the type we care about is needed here
         EDProduct const* product = oh.isValid() ? oh.wrapper() : nullptr;
         if (auto pwt = prodWithType<std::vector<raw::RawDigit>>(product, pd)) {
-          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "DetSim");
-          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For wires as output of signal processing and input for hit finding
         if (auto pwt = prodWithType<std::vector<recob::Wire>>(product, pd)) {
-          auto inputtag = art::InputTag("roifinder", pd.inputTag().instance(), "SignalProcessing");
           auto begin = std::chrono::high_resolution_clock::now();
-          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
           auto end = std::chrono::high_resolution_clock::now();
           auto dur = end - begin;
           auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
@@ -174,77 +170,58 @@ namespace {
         // For hits as output of hit finding
         // Hits are also output of Pandora?
         if (auto pwt = prodWithType<std::vector<recob::Hit>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag(), *pwt);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For SpacePoints as output of Pandora and MCstage1
         if (auto pwt = prodWithType<std::vector<recob::SpacePoint>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag(), *pwt);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For Edge as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Edge>>(product, pd)) {
-          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For PFParticles as output of Pandora and MCStage1
         if (auto pwt = prodWithType<std::vector<recob::PFParticle>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag(), *pwt);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For Seeds as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Seed>>(product, pd)) {
-          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For Slices as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Slice>>(product, pd)) {
-          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For Vertices as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Vertex>>(product, pd)) {
-          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For Clusters as output of Pandora
         if (auto pwt = prodWithType<std::vector<recob::Cluster>>(product, pd)) {
-          auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "Pandora");
-          translator[pd.productID()] = h_e.store(batch, inputtag, *pwt);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         // For PCAxis as output of Pandora and MCstage1
         if (auto pwt = prodWithType<std::vector<recob::PCAxis>>(product, pd)) {
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag(), *pwt);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
         //For OpDetWaveform as output of
         if (auto pwt = prodWithType<std::vector<raw::OpDetWaveform>>(product, pd)) {
-          // auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage0");
-          translator[pd.productID()] = h_e.store(batch, pd.inputTag(), *pwt);
+          translator[pd.productID()] = h_e.store(batch, pd.inputTag().encode(), *pwt, &stats);
         }
-        //For OpHits as output of MCstage0
-        //    if (auto pwt = prodWithType<std::vector<recob::OpHit>>(product, pd)) {
-        //      auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage0");
-        //      translator[pd.productID()] = h_e.store(inputtag, *pwt);
-        //    }
-        //    //For OpFlashs as output of MCstage0
-        //    if (auto pwt = prodWithType<std::vector<recob::OpFlash>>(product, pd)) {
-        //      auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage0");
-        //      translator[pd.productID()] = h_e.store(inputtag, *pwt);
-        //    }
-        //    //For Tracks as output of MCstage1
-        //    if (auto pwt = prodWithType<std::vector<recob::Track>>(product, pd)) {
-        //      auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage1");
-        //      translator[pd.productID()] = h_e.store(inputtag, *pwt);
-        //    }
-        //   //For TrackHitMeta as output of MCstage1
-        //   if (auto pwt = prodWithType<std::vector<recob::TrackHitMeta>>(product, pd)) {
-        //     auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage1");
-        //     translator[pd.productID()] = h_e.store(inputtag, *pwt);
-        //   }
-        //   //For Shower as output of MCstage1
-        //   if (auto pwt = prodWithType<std::vector<recob::Shower>>(product, pd)) {
-        //     auto inputtag = art::InputTag(pd.inputTag().label(), pd.inputTag().instance(), "MCstage1");
-        //     translator[pd.productID()] = h_e.store(inputtag, *pwt);
-        //   }
-
       }
+
+      spdlog::info("store times: num={}, avg={}, max={}, min={}",
+          stats.raw_storage_time.num,
+          stats.raw_storage_time.avg,
+          stats.raw_storage_time.max,
+          stats.raw_storage_time.min);
+
+      spdlog::info("serialization times: num={}, avg={}, max={}, min={}",
+          stats.serialization_time.num,
+          stats.serialization_time.avg,
+          stats.serialization_time.max,
+          stats.serialization_time.min);
+
       return translator;
     }
 
