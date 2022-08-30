@@ -1,12 +1,14 @@
 #if !defined(wire_serialization_h)
 #define wire_serialization_h
 
-#include <iostream>
-
 #include <lardataobj/RecoBase/Wire.h>
 
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/split_free.hpp>
+#include <boost/serialization/vector.hpp>
+
+using svf = lar::sparse_vector<float>;
+using svfrange = svf::datarange_t;
 
 namespace recob {
 
@@ -27,24 +29,44 @@ namespace boost {
   namespace serialization {
     template <class Archive>
       void
+      save(Archive& ar, const svfrange& dr, const unsigned int) {
+        ar << dr.begin_index();
+        // there is no need to write end index, it is redundant
+        ar << dr.data();
+      }
+
+    template<class Archive>
+      void
+      load(Archive&ar, svfrange& dr, const unsigned int) {
+        size_t offset{};
+        ar >> offset;
+        std::vector<float> tmp;
+        ar >> tmp; 
+        dr = svfrange(offset, std::move(tmp));
+      }
+
+    template <class Archive>
+      void
       save(Archive& ar, const lar::sparse_vector<float>& sv, const unsigned int) {
-        auto sz = sv.size();
-        ar << sz;
-        for (auto i=0;i<sz; ++i)
-          ar << sv[i];
+        auto nominal_size = sv.size(); 
+        ar << nominal_size;
+        ar << sv.get_ranges();
       }
 
     template<class Archive>
       void
       load(Archive&ar, lar::sparse_vector<float>& sv, const unsigned int) {
-        size_t sz;
-        ar >> sz;
-        std::vector<float> tmp;
-        tmp.resize(sz);
-        for (auto i = 0 ; i<sz; ++i) {
-          ar >> tmp[i];
-        }
-        sv = std::move(lar::sparse_vector<float>(tmp, 0));
+        size_t nominal_size;
+        ar >> nominal_size;
+        if(sv.size() > nominal_size) sv.clear();
+        sv.resize(nominal_size);
+        std::vector<svfrange> tmp;
+        ar >> tmp; 
+        using svfranges = std::vector<svfrange>;
+        // we are casting away the constness because sparse vector 
+        // provides no efficient way to assemble its data
+        svfranges & dest = const_cast<svfranges &>(sv.get_ranges());
+        dest = std::move(tmp);
       }
 
     template <class Archive>
@@ -73,6 +95,7 @@ namespace boost {
 
   }
 }
+BOOST_SERIALIZATION_SPLIT_FREE(lar::sparse_vector<float>::datarange_t);
 BOOST_SERIALIZATION_SPLIT_FREE(lar::sparse_vector<float>);
 BOOST_SERIALIZATION_SPLIT_FREE(recob::Wire);
 #endif

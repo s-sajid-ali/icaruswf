@@ -48,6 +48,10 @@ add_test(test_rawdigit_hepnos test_rawdigit_hepnos)
 add_executable(rawdigit_hepnos rawdigit_hepnos.cc)
 target_link_libraries(rawdigit_hepnos Core cetlib_except cetlib Boost::serialization lardataobj_RawData hepnos)
 
+add_executable(test_sparse_vector test_sparse_vector.cc main.cc)
+target_link_libraries(test_sparse_vector Core cetlib_except cetlib lardataobj_RecoBase Boost::serialization)
+add_test(test_sparse_vector test_sparse_vector)
+
 add_executable(test_wire test_wire.cc main.cc)
 target_link_libraries(test_wire Core cetlib_except cetlib lardataobj_RecoBase Boost::serialization)
 add_test(test_wire test_wire)
