@@ -7,7 +7,7 @@
         "profile_sparkline_timeslice_msec": 1000,
         "argobots": {
             "abt_mem_max_num_stacks": 8,
-            "abt_thread_stacksize": 2097152,
+            "abt_thread_stacksize": 4194304,
             "version": "unknown",
             "pools": [
                 {
