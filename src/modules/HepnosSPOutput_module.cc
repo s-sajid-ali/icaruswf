@@ -151,6 +151,7 @@ namespace {
       for (auto const& pr : a_e) {
         auto const& g = *pr.second;
         auto const& pd = g.productDescription();
+        //if (pd.present()) continue;
         auto const& oh = a_e.getForOutput(pd.productID(), true);
         //std::cout << "art event: " << pd.productID() << ", " << pd.branchName() << ", " << pd.processName()<< "\n";
         //dynamic cast to the type we care about is needed here
