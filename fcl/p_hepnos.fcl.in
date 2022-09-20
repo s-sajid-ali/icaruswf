@@ -3,15 +3,13 @@ outputs: {
       SelectEvents: [
          "reco"
       ]
-#      compressionLevel: 1
       dataTier: "reconstructed"
       fileName: "icarus"
       module_label: "out1"
       module_type: "HepnosSPOutput"
-      outputCommands: [
-         "keep *_*_*_*",
-         "drop *_caloskimCalorimetryCryoE_*_*",
-         "drop *_caloskimCalorimetryCryoW_*_*"
+      dropCommands: [
+         "drop .*_caloskimCalorimetryCryoE_.*_.*",
+         "drop .*_caloskimCalorimetryCryoW_.*_.*"
       ]
       streamName: "out1"
    }

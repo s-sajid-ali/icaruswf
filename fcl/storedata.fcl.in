@@ -4,7 +4,6 @@ process_name : hepnosstore
       hepnos : {
          module_type: HepnosSPOutput
          fileName: "icarus"
-         forwardProducts: true
       }
   }
 

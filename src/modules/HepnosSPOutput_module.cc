@@ -1,3 +1,4 @@
+#include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/Principal/EventPrincipal.h"
@@ -16,6 +17,7 @@
 #include <chrono>
 #include <iostream>
 #include <string>
+#include <regex>
 #include <vector>
 
 #include "hepnos.hpp"
@@ -87,12 +89,14 @@ namespace {
       h_assns.reserve(a_assns.size());
 
       for (auto const & [a,b]: a_assns) {
+      //  std::cout <<"storeassns, art prod keys: " << a.key() << ", " << b.key() << std::endl;
+      //  std::cout << "storeassns, art prod IDs: " << a.id() << ", " << b.id() << std::endl;
         auto const A_ptr = datastore.makePtr<A>(a_map.at(a.id()), a.key());
         auto const B_ptr = datastore.makePtr<B>(a_map.at(b.id()), b.key());
         h_assns.emplace_back(A_ptr, B_ptr);
       }
-      h_e.store(a_t.encode(), h_assns);
-      //std::cout << "Assns in art event: " << a_t.process() << ", " << a_t.label() << ", " << a_t.encode() << "\n";
+     h_e.store(a_t.encode(), h_assns);
+     // std::cout << "Assns in art event: " << a_t.process() << ", " << a_t.label() << ", " << a_t.encode() << "\n";
     }
 
   template<typename A, typename B, typename D>
@@ -106,7 +110,6 @@ namespace {
     {
       hepnos::AssnsD<A, B, D> h_assns;
       h_assns.reserve(a_assns.size());
-
       for (auto const & [a,b, d]: a_assns) {
         auto const A_ptr = datastore.makePtr<A>(a_map.at(a.id()), a.key());
         auto const B_ptr = datastore.makePtr<B>(a_map.at(b.id()), b.key());
@@ -116,8 +119,29 @@ namespace {
       //std::cout << "Assns in art event: " << a_t.process() << ", " << a_t.label() << ", " << a_t.encode() << "\n";
     }
 
+  template <typename A, typename B, typename D=void>
+    bool assnsWithType(art::EDProduct const* product, 
+                       art::BranchDescription const& pd,
+                       hepnos::DataStore ds,
+                       hepnos::Event & h_e,
+                       std::map<art::ProductID, hepnos::ProductID> const& a_map) {
+      using P = art::Assns<A, B, D>;
+      if (product == nullptr) return false;
+      if (pd.friendlyClassName() != art::TypeID{typeid(P)}.friendlyClassName()) return false;
+      if (auto wp = dynamic_cast<art::Wrapper<P> const*>(product)) {
+        storeassns(ds, h_e, a_map, pd.inputTag(), *wp->product());
+        return true;
+        }
+      
+      if (auto wp = dynamic_cast<art::Wrapper<typename P::partner_t> const*>(product)) {
+        storeassns(ds, h_e, a_map, pd.inputTag(), *wp->product());
+        return true;
+        }
+        return false;
+    }
+  
   std::map<art::ProductID, hepnos::ProductID>
-    update_map_hevent(hepnos::Event h_e)
+    update_map_hevent(hepnos::Event h_e, std::string current_processname)
     {
       std::map<art::ProductID, hepnos::ProductID> translator;
       auto prodIds = h_e.listProducts("");
@@ -135,25 +159,28 @@ namespace {
         auto const product_name = art::canonicalProductName(art::friendlyname::friendlyName(t),
             label,
             instance,
-            processname);
+            current_processname);
         auto art_pid = art::ProductID{product_name};
         if (translator.find(art_pid) != translator.cend()) continue;
         translator[art_pid] = p;
-        //std::cout << "hepnos event: " << art_pid << ", " << product_name << "\n";
+     //   std::cout << "hepnos event: " << art_pid << ", " << product_name << ", " << processname << "\n";
       }
       return translator;
     }
 
   std::map<art::ProductID, hepnos::ProductID>
-    update_map_aevent(EventPrincipal& a_e, hepnos::Event h_e, hepnos::WriteBatch &batch) {
+    update_map_aevent(EventPrincipal& a_e, hepnos::Event h_e, hepnos::WriteBatch &batch, bool wantForwardProducts, std::vector<std::regex> const& dropCommands) {
       hepnos::StoreStatistics stats;
       std::map<art::ProductID, hepnos::ProductID> translator;
       for (auto const& pr : a_e) {
         auto const& g = *pr.second;
         auto const& pd = g.productDescription();
-        //if (pd.present()) continue;
-        auto const& oh = a_e.getForOutput(pd.productID(), true);
+        //“ART_2011a”, HepnosSource
         //std::cout << "art event: " << pd.productID() << ", " << pd.branchName() << ", " << pd.processName()<< "\n";
+        //std::cout << "product Tag: " << pd.inputTag() << ", pd.present= " << pd.present() << ", forward: " << wantForwardProducts << std::endl;
+        if (any_of(begin(dropCommands), end(dropCommands), [&pd](auto const& cmd){return regex_search(pd.branchName(), cmd);})) continue; 
+        if (pd.present() && !wantForwardProducts) continue;
+        auto const& oh = a_e.getForOutput(pd.productID(), true);
         //dynamic cast to the type we care about is needed here
         EDProduct const* product = oh.isValid() ? oh.wrapper() : nullptr;
         if (auto pwt = prodWithType<std::vector<raw::RawDigit>>(product, pd)) {
@@ -230,88 +257,64 @@ namespace {
     store_aassns(art::EventPrincipal& p,
         hepnos::DataStore ds,
         hepnos::Event h_e,
-        std::map<art::ProductID, hepnos::ProductID>& translator) {
+        std::map<art::ProductID, hepnos::ProductID>& translator, 
+        std::vector<std::regex> const& dropCommands) {
       // for associaation collections in art event
       for (auto const& pr : p) {
         auto const& g = *pr.second;
         auto const& pd = g.productDescription();
+        //std::cout << "art event assns: " << pd.productID() << ", " << pd.branchName() << ", " << pd.processName()<< "\n";
         if (translator.find(pd.productID()) != translator.cend()) continue;
+        if (any_of(begin(dropCommands), end(dropCommands), [&pd](auto const& cmd){return regex_search(pd.branchName(), cmd);})) continue; 
         auto const& oh = p.getForOutput(pd.productID(), true);
 
         //dynamic cast to the type we care about is needed here
         EDProduct const* product = oh.isValid() ? oh.wrapper() : nullptr;
-        if (auto pwt = prodWithType<art::Assns<raw::RawDigit,recob::Wire,void>>(product, pd))
-          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-        if (auto pwt = prodWithType<art::Assns<recob::Wire,recob::Hit,void>>(product, pd)) {
-          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        if (assnsWithType<raw::RawDigit, recob::Wire>(product, pd, ds, h_e, translator)) {
+          continue;
+          }
+        if (assnsWithType<raw::RawDigit, recob::Hit>(product, pd, ds, h_e, translator)) {
+          continue;
+          }
+        if (assnsWithType<recob::Wire,recob::Hit>(product, pd, ds, h_e, translator)) {
+          continue;
         }
-        if (auto pwt = prodWithType<art::Assns<recob::Hit,recob::SpacePoint,void>>(product, pd)) {
-          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        if (assnsWithType<recob::Seed,recob::Hit>(product, pd, ds, h_e, translator)) {
+          continue;
         }
-        if (auto pwt = prodWithType<art::Assns<recob::PFParticle,recob::SpacePoint,void>>(product, pd)) {
-          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        if (assnsWithType<recob::Cluster, recob::Hit>(product, pd, ds, h_e, translator)) {
+          continue;
         }
-        if (auto pwt = prodWithType<art::Assns<recob::Edge,recob::PFParticle,void>>(product, pd)) {
-          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        if (assnsWithType<recob::Hit,recob::SpacePoint>(product, pd, ds, h_e, translator)) {
+          continue;
         }
-        if (auto pwt = prodWithType<art::Assns<recob::Edge,recob::SpacePoint,void>>(product, pd)) {
-          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        if (assnsWithType<recob::Hit,recob::Slice>(product, pd, ds, h_e, translator)) {
+          continue;
         }
-        if (auto pwt = prodWithType<art::Assns<recob::PFParticle,recob::Seed,void>>(product, pd)) {
-          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        if (assnsWithType<recob::Edge,recob::PFParticle>(product, pd, ds, h_e, translator)) {
+          continue;
         }
-        if (auto pwt = prodWithType<art::Assns<recob::Seed,recob::Hit,void>>(product, pd)) {
-          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        if (assnsWithType<recob::Edge,recob::SpacePoint>(product, pd, ds, h_e, translator)) {
+          continue;
         }
-        if (auto pwt = prodWithType<art::Assns<recob::PFParticle,recob::Slice,void>>(product, pd)) {
-          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        if (assnsWithType<recob::PFParticle,recob::Seed>(product, pd, ds, h_e, translator)) {
+          continue;
         }
-        if (auto pwt = prodWithType<art::Assns<recob::Hit,recob::Slice,void>>(product, pd)) {
-          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        if (assnsWithType<recob::PFParticle,recob::Slice>(product, pd, ds, h_e, translator)) {
+          continue;
         }
-        if (auto pwt = prodWithType<art::Assns<recob::PFParticle,recob::Vertex,void>>(product, pd)) {
-          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        if (assnsWithType<recob::PFParticle,recob::Vertex>(product, pd, ds, h_e, translator)) {
+          continue;
         }
-        if (auto pwt = prodWithType<art::Assns<recob::Cluster, recob::PFParticle, void>>(product, pd)) {
-          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        if (assnsWithType<recob::PFParticle,recob::SpacePoint>(product, pd, ds, h_e, translator)) {
+          continue;
         }
-        if (auto pwt = prodWithType<art::Assns<recob::Cluster, recob::Hit,void>>(product, pd)) {
-          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        if (assnsWithType<recob::PFParticle, recob::Cluster>(product, pd, ds, h_e, translator)) {
+          continue;
         }
-        //    if (auto pwt = prodWithType<art::Assns<recob::OpFlash, recob::OpHit, void>>(product, pd)) {
-        //      storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-        //    }
-        //    if (auto pwt = prodWithType<art::Assns<recob::Hit, recob::Track, void>>(product, pd)) {
-        //       storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-        //    }
-        //    if (auto pwt = prodWithType<art::Assns<recob::Hit, recob::Track, recob::TrackHitMeta>>(product, pd)) {
-        //      storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-        //    }
-        if (auto pwt = prodWithType<art::Assns<recob::PCAxis, recob::PFParticle, void>>(product, pd)) {
-          storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
+        if (assnsWithType<recob::PCAxis, recob::PFParticle>(product, pd, ds, h_e, translator)) {
+          continue;
         }
-        //    if (auto pwt = prodWithType<art::Assns<recob::PFParticle, recob::Track, void>>(product, pd)) {
-        //      storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-        //    }
-        //all Association collections with Shower
-        //  if (auto pwt = prodWithType<art::Assns<recob::Shower, recob::Track, void>>(product, pd)) {
-        //     storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-        //   }
-        //  if (auto pwt = prodWithType<art::Assns<recob::PFParticle, recob::Shower, void>>(product, pd)) {
-        //     storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-        //   }
-        //  if (auto pwt = prodWithType<art::Assns<recob::Hit, recob::Shower, void>>(product, pd)) {
-        //     storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-        //   }
-        //  if (auto pwt = prodWithType<art::Assns<recob::PCAxis, recob::Shower, void>>(product, pd)) {
-        //     storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-        //   }
-        //  if (auto pwt = prodWithType<art::Assns<recob::Cluster, recob::Shower, void>>(product, pd)) {
-        //     storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-        //   }
-        //  if (auto pwt = prodWithType<art::Assns<recob::Shower, recob::SpacePoint, void>>(product, pd)) {
-        //    storeassns(ds, h_e, translator, pd.inputTag(), *pwt);
-        //  }
       }
     }
 } // namespace
@@ -324,7 +327,7 @@ class HepnosSPOutput : public OutputModule {
   public:
     struct Config {
       fhicl::TableFragment<OutputModule::Config> omConfig;
-      fhicl::Atom<bool> forwardProducts{fhicl::Name("forwardProducts"), false};
+      fhicl::Sequence<std::string> dropCommands{fhicl::Name("dropCommands"), {}};
     };
 
     using Parameters =
@@ -338,7 +341,8 @@ class HepnosSPOutput : public OutputModule {
     void writeSubRun(SubRunPrincipal& sr) override{}
     void beginRun(RunPrincipal const& r) override;
     void beginSubRun(SubRunPrincipal const& sr) override;
-    bool const wantForwardProducts_;
+    void respondToOpenInputFile(FileBlock const&) override;
+    bool wantForwardProducts_;
     hepnos::Run r_;
     hepnos::SubRun sr_;
     hepnos::DataStore & datastore_;
@@ -346,16 +350,21 @@ class HepnosSPOutput : public OutputModule {
     hepnos::WriteBatch batch_;
     hepnos::DataSet dataset_;
     std::map<art::ProductID, hepnos::ProductID> translator_;
+    std::vector<std::regex> dropCommands_;
 }; // HepnosSPOutput
 
 HepnosSPOutput::HepnosSPOutput(Parameters const& ps)
   : OutputModule{ps().omConfig, ps.get_PSet()}
-  , wantForwardProducts_{ps().forwardProducts()}
   , datastore_{art::ServiceHandle<icaruswf::HepnosDataStore>()->getStore()}
   , async_{datastore_, 8}
   , batch_{async_, 2048}
   , dataset_{datastore_.root().createDataSet(ps().omConfig().fileName())}
 {
+  auto cmds = ps().dropCommands();
+  dropCommands_.reserve(cmds.size());
+  for (auto cmd: cmds) {
+    dropCommands_.emplace_back(cmd);
+  }
 }
 
 
@@ -371,6 +380,12 @@ HepnosSPOutput::beginSubRun(SubRunPrincipal const& sr)
   sr_ = r_.createSubRun(sr.subRun());
 }
 
+void 
+HepnosSPOutput::respondToOpenInputFile(FileBlock const& fb)
+{
+  wantForwardProducts_ = fb.fileFormatVersion().era_ != "HepnosSource"; 
+}
+
   void
 HepnosSPOutput::write(EventPrincipal& p)
 {
@@ -379,7 +394,7 @@ HepnosSPOutput::write(EventPrincipal& p)
   hepnos::Event h_e = sr_.createEvent(p.event());
 
   auto begin = std::chrono::high_resolution_clock::now();
-  auto map1 = update_map_hevent(h_e);
+  auto map1 = update_map_hevent(h_e, art::Globals::instance()->processName());
   translator_.insert(map1.begin(), map1.end());
   auto end = std::chrono::high_resolution_clock::now();
   auto dur = end - begin;
@@ -387,7 +402,7 @@ HepnosSPOutput::write(EventPrincipal& p)
   std::cout << "hepnos event products time in ms: " << ms << std::endl;
 
   begin = std::chrono::high_resolution_clock::now();
-  auto map2 = update_map_aevent(p, h_e, batch_);
+  auto map2 = update_map_aevent(p, h_e, batch_, wantForwardProducts_, dropCommands_);
   translator_.insert(map2.begin(), map2.end());
   end = std::chrono::high_resolution_clock::now();
   dur = end - begin;
@@ -395,7 +410,7 @@ HepnosSPOutput::write(EventPrincipal& p)
   std::cout << "art event products time in ms: " << ms << std::endl;
 
   begin = std::chrono::high_resolution_clock::now();
-  store_aassns(p, datastore_, h_e, translator_);
+  store_aassns(p, datastore_, h_e, translator_, dropCommands_);
   end = std::chrono::high_resolution_clock::now();
   dur = end - begin;
   ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();

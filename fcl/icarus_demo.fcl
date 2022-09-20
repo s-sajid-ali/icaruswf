@@ -1,0 +1,129 @@
+#include "mchitmodules.fcl"
+#include "mcreco.fcl"
+#include "mctrutht0matching.fcl"
+#include "stage0_icarus_mc_defs.fcl"
+#include "stage0_icarus_defs.fcl"
+#include "stage1_icarus_defs.fcl"
+#include "services_common_icarus.fcl"
+#include "channelmapping_icarus.fcl"
+
+process_name: Demo
+
+
+## Add the MC module to the list of producers
+physics.producers: {  @table::icarus_stage0_producers
+                      @table::icarus_stage0_mc_producers
+                      @table::icarus_stage1_producers
+
+                      mcophit:                        @local::ICARUSMCOpHit
+                      mcopflashTPC0:                  @local::ICARUSMCOpFlashTPC0
+                      mcopflashTPC1:                  @local::ICARUSMCOpFlashTPC1
+                      mcopflashTPC2:                  @local::ICARUSMCOpFlashTPC2
+                      mcopflashTPC3:                  @local::ICARUSMCOpFlashTPC3
+          
+                      cheatopflashTPC0:               @local::ICARUSCheatOpFlashTPC0
+                      cheatopflashTPC1:               @local::ICARUSCheatOpFlashTPC1
+                      cheatopflashTPC2:               @local::ICARUSCheatOpFlashTPC2
+                      cheatopflashTPC3:               @local::ICARUSCheatOpFlashTPC3
+
+                      ### mc producers
+                      mchitfinder:                    @local::standard_mchitfinder
+                      mcassociationsGausCryoE:        @local::standard_mcparticlehitmatching
+                      mcassociationsGausCryoW:        @local::standard_mcparticlehitmatching
+                   }
+
+ physics.filters:
+ {
+     @table::icarus_stage0_filters
+     @table::icarus_stage1_filters
+ }
+
+ physics.analyzers:
+ {
+     @table::icarus_stage0_analyzers
+     @table::icarus_stage1_analyzers
+ }
+
+services:
+{
+  TFileService:           { }
+  IICARUSChannelMap:      @local::icarus_channelmappinggservice
+                          @table::icarus_wirecalibration_minimum_services
+
+   HepnosDataStore: { 
+      protocol: "${MERCURY_TRANSPORT_PROTOCOL}"
+   }
+}
+
+## Use the following to run the full defined stage0 set of modules
+physics.reco: [
+               "MCDecodeTPCROI",
+               "decon1droi",
+               "roifinder",
+               "gaushitTPCEE",
+               "gaushitTPCEW",
+               "gaushitTPCWE",
+               "gaushitTPCWW",
+               "cluster3DCryoE",
+               "pandoraGausCryoE",
+               "cluster3DCryoW",
+               "pandoraGausCryoW"
+              ]
+
+outputs: {
+   out: {
+      dataTier: "reconstructed"
+      module_type: "HepnosSPOutput"
+      fileName: "icarus"
+      dropCommands: [
+         ".*_MCDecodeTPCROI_.*_.*",
+         ".*_decon1droi_.*_.*",
+         "raw::RawDigits_.*_.*_SignalProcessing",
+         ".*_caloskimCalorimetryCryoE_.*_.*",
+         ".*_caloskimCalorimetryCryoW_.*_.*"
+      ]
+      streamName: "out"
+   }
+}
+
+source: {
+   maxEvents: 1
+   module_type: "HepnosInput"
+   fileNames: ['icarus']
+   processName: DetSim
+}
+
+## boiler plate...
+physics.ep: [ out ]
+#physics.trigger_paths: [ reco ]
+#physics.end_paths:     [ out ]
+
+# Set up for the single module mutliple TPC mode...
+physics.producers.MCDecodeTPCROI.FragmentsLabelVec:   ["daq3:PHYSCRATEDATATPCWW","daq2:PHYSCRATEDATATPCWE","daq1:PHYSCRATEDATATPCEW","daq0:PHYSCRATEDATATPCEE"]
+physics.producers.MCDecodeTPCROI.OutInstanceLabelVec: ["PHYSCRATEDATATPCWW",     "PHYSCRATEDATATPCWE",     "PHYSCRATEDATATPCEW",     "PHYSCRATEDATATPCEE"]
+physics.producers.decon1droi.RawDigitLabelVec:        ["MCDecodeTPCROI:PHYSCRATEDATATPCWW","MCDecodeTPCROI:PHYSCRATEDATATPCWE","MCDecodeTPCROI:PHYSCRATEDATATPCEW","MCDecodeTPCROI:PHYSCRATEDATATPCEE"]
+
+physics.producers.roifinder.WireModuleLabelVec: ["decon1droi:PHYSCRATEDATATPCWW","decon1droi:PHYSCRATEDATATPCWE","decon1droi:PHYSCRATEDATATPCEW","decon1droi:PHYSCRATEDATATPCEE"]
+
+# Disabled Space-Charge service for calorimetry
+services.SpaceChargeService: {
+    EnableCalEfieldSCE: false
+    EnableCalSpatialSCE: false
+    EnableCorrSCE: false
+    EnableSimEfieldSCE: false
+    EnableSimSpatialSCE: false
+    InputFilename: "SCEoffsets/SCEoffsets_ICARUS_E500_voxelTH3.root"
+    RepresentationType: "Voxelized_TH3"
+    service_provider: "SpaceChargeServiceICARUS"
+}
+
+services.BackTrackerService:        @erase
+services.ParticleInventoryService:  @erase
+
+services.ChannelStatusService.ChannelStatusProvider.UseDB: false
+services.ChannelStatusService.ChannelStatusProvider.UseFile: false
+services.DetPedestalService.DetPedestalRetrievalAlg.UseDB: false
+services.DetPedestalService.DetPedestalRetrievalAlg.UseFile: false
+services.DetectorClocksService.InheritClockConfig: false
+services.DetectorPropertiesService.InheritNumberTimeSamples: false 
+

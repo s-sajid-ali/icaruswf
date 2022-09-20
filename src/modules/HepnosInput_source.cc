@@ -246,7 +246,7 @@ namespace icaruswf {
       void readFile(std::string const& dsname, art::FileBlock*& fb) {
         auto dataset_name = dsname;
         dataset_ = datastore_.root()[dataset_name];
-        fb = new art::FileBlock{art::FileFormatVersion{1, "SimpleSource 2017"},
+        fb = new art::FileBlock{art::FileFormatVersion{1, "HepnosSource"},
           dsname};
         es_ = dataset_.events();
         ev_ = es_->begin();

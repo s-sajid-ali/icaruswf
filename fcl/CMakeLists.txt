@@ -6,7 +6,7 @@ configure_file(reco0_psphf_hepnos.fcl.in reco0_psphf_hepnos.fcl)
 configure_file(reco1_pp_hepnos.fcl.in reco1_pp_hepnos.fcl)
 configure_file(sp_hepnos.fcl.in sp_hepnos.fcl)
 configure_file(p_hepnos_root.fcl.in p_hepnos_root.fcl)
-
+configure_file(icarus_demo.fcl icarus_demo.fcl)
 configure_file(hf_root.fcl hf_root.fcl)
 configure_file(p_root.fcl p_root.fcl)
 configure_file(sp_root.fcl sp_root.fcl)
