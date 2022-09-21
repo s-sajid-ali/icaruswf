@@ -93,10 +93,7 @@ source: {
    processName: DetSim
 }
 
-## boiler plate...
 physics.ep: [ out ]
-#physics.trigger_paths: [ reco ]
-#physics.end_paths:     [ out ]
 
 # Set up for the single module mutliple TPC mode...
 physics.producers.MCDecodeTPCROI.FragmentsLabelVec:   ["daq3:PHYSCRATEDATATPCWW","daq2:PHYSCRATEDATATPCWE","daq1:PHYSCRATEDATATPCEW","daq0:PHYSCRATEDATATPCEE"]
@@ -105,18 +102,9 @@ physics.producers.decon1droi.RawDigitLabelVec:        ["MCDecodeTPCROI:PHYSCRATE
 
 physics.producers.roifinder.WireModuleLabelVec: ["decon1droi:PHYSCRATEDATATPCWW","decon1droi:PHYSCRATEDATATPCWE","decon1droi:PHYSCRATEDATATPCEW","decon1droi:PHYSCRATEDATATPCEE"]
 
-# Disabled Space-Charge service for calorimetry
-services.SpaceChargeService: {
-    EnableCalEfieldSCE: false
-    EnableCalSpatialSCE: false
-    EnableCorrSCE: false
-    EnableSimEfieldSCE: false
-    EnableSimSpatialSCE: false
-    InputFilename: "SCEoffsets/SCEoffsets_ICARUS_E500_voxelTH3.root"
-    RepresentationType: "Voxelized_TH3"
-    service_provider: "SpaceChargeServiceICARUS"
-}
-
+services.FileCatalogMetadata:       @erase
+services.DuplicateEventTracker:     @erase
+services.SpaceChargeService:        @erase
 services.BackTrackerService:        @erase
 services.ParticleInventoryService:  @erase
 
