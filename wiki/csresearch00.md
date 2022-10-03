@@ -38,3 +38,16 @@
 
 21.  If we want to write output of Pandora step to a root file, run `art -c p_hepnos_root.fcl`
 
+## Specifying options for input source
+
+Three options are added for the HepnosInputSource. One is to specify number of events to read from the store using `-n/--nevts`. The nnext one is to specify the number of events to skip, `--nskip` and the last one is to specify the starting event ID in the following form: `--estart/-e`, `runnumber:subrunnumber:eventnumber`. Both nskip and estart should not be specified together. 
+
+1. `art -c hf_hepnos.fcl -e 1:2:3 -n 1` will run hit finding step on 1 event with run number 1, subrun number 2 and event number 3. If there is no such event the read function will return false and application will exit without running any processing. 
+
+2. `art -c hf_hepnos.fcl --nskip 2 -n 2` will skip two events and process next two events. 
+
+## MPI wrapper application
+
+MPI wrapper application is a simple MPI program to run multiple art instances. It only takes one input argument that is the number of events to process. 
+Currently the application only runs store data and signal processing step. Once the hepnos server is up and running, use 
+`mpirun -np 2 ./../src/modules/mpi_wrapper 2`, this will write 4 events in total, 2 per MPI rank, and run signal processing on all 4 events, with rank 0 processing event 0,1, and rank 1 processing 2 and 3. 
