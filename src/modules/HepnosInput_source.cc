@@ -209,8 +209,15 @@ namespace icaruswf {
 
       HepnosInputSource(fhicl::ParameterSet const& p,
           art::ProductRegistryHelper& rh,
-          art::SourceHelper const& pm) : pm_(pm), datastore_{art::ServiceHandle<HepnosDataStore>()->getStore()}, inputProcessname_(p.get< std::string >("processName"))
-      {
+          art::SourceHelper const& pm) : pm_(pm), 
+                                         datastore_{art::ServiceHandle<HepnosDataStore>()->getStore()}, 
+                                         inputProcessname_(p.get< std::string >("processName")), 
+                                         maxEvents_(p.get<int>("maxEvents", -1)),
+                                         nSkip_(p.get<std::size_t>("skipEvents", -1ull)),
+                                         firstRun_(p.get<unsigned>("firstRun", -1u)),
+                                         firstSubRun_(p.get<unsigned>("firstSubRun", -1u)),
+                                         firstEvent_(p.get<unsigned>("firstEvent", -1u))
+      {  
         if (inputProcessname_ == "DetSim") {
           rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq0", "PHYSCRATEDATATPCEE");
           rh.reconstitutes<std::vector<raw::RawDigit>, art::InEvent>("daq1", "PHYSCRATEDATATPCEW");
@@ -250,6 +257,19 @@ namespace icaruswf {
           dsname};
         es_ = dataset_.events();
         ev_ = es_->begin();
+        size_t i = 0;
+        // both estart and nskip shouldn't be specified together, its either n and nskip Or n and estart
+        //Either we will use nSkip or firstEvent_, 
+        //nSkip is used to determine what firstEvent_would be 
+        if (nSkip_ != -1ull) {
+          while (i<nSkip_) { ++i; ++ev_;}
+        }
+
+        if (firstEvent_ != -1u) {
+          while(ev_->number() != firstEvent_ && 
+                ev_->subrun().number() != firstSubRun_ &&
+                ev_->subrun().run().number() != firstRun_) ++ev_;
+        }
       }
 
       void closeCurrentFile() {}
@@ -263,6 +283,12 @@ namespace icaruswf {
       hepnos::SubRunNumber sr_ = -1ull;
       std::optional<hepnos::EventSet> es_;
       hepnos::EventSet::const_iterator ev_;
+      int maxEvents_;
+      size_t nSkip_;
+      int nEvents_ = 0;
+      unsigned firstRun_;
+      unsigned firstSubRun_;
+      unsigned firstEvent_;
   };
 
   bool
@@ -273,8 +299,9 @@ namespace icaruswf {
         art::EventPrincipal*& outE)
     {
       if (ev_ == es_->end()) return false;
+      if (nEvents_ == maxEvents_) return false;
       art::Timestamp ts;
-      std::cout << ev_->number() << "\n";
+      std::cout << "Event: "<< ev_->number() << "\n";
       auto sr = ev_->subrun().number();
       auto r = ev_->subrun().run().number();
       if (r != r_) {
@@ -301,6 +328,7 @@ namespace icaruswf {
         //  status = hepnos::read_assns_hits_wires(*ev_, strict, outE);
       }
       ++ev_;
+      ++nEvents_;
       return true;
     }
 }
