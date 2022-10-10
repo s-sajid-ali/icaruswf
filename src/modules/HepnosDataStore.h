@@ -47,7 +47,13 @@ namespace icaruswf {
           this->wait();
         }
         this->active = false;
+
+        std::destroy_at(&active);
+        std::destroy_at(&work_to_do);
+        std::destroy_at(&work);
+
         return;
+
       }
 
     private:
