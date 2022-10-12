@@ -38,22 +38,17 @@ namespace icaruswf {
       ~HepnosDataStore(){
         {
           std::function<void(void)> f = [&]() {
-            //delete &(this->dataStore_);
-            std::destroy_at(&(this->dataStore_));
+            this->dataStore_ = hepnos::DataStore{};
             return;
           };
           this->set_work_function(f);
           this->set_work_state();
           this->wait();
         }
+
         this->active = false;
 
-        std::destroy_at(&active);
-        std::destroy_at(&work_to_do);
-        std::destroy_at(&work);
-
         return;
-
       }
 
     private:
