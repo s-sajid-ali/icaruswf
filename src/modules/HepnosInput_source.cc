@@ -121,7 +121,12 @@ namespace hepnos {
   {
     art::InputTag const tag(a_module_label, "", "");
     std::vector<std::pair<hepnos::Ptr<A>, hepnos::Ptr<B>>> assns;
-    event.load(tag.encode(), assns);
+    {
+      std::function<void(void)> f = [&]() { event.load(tag.encode(), assns); };
+      art::ServiceHandle<icaruswf::HepnosDataStore>()->set_work_function(f);
+      art::ServiceHandle<icaruswf::HepnosDataStore>()->set_work_state();
+      art::ServiceHandle<icaruswf::HepnosDataStore>()->wait();
+    }
     auto const a_pid = create_productID<A>(a_col, a_module_label, "");
     auto const b_pid = create_productID<B>(b_col, b_module_label, "");
     art::Assns<A, B> art_assns;
