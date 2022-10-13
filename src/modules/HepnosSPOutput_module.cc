@@ -100,7 +100,14 @@ namespace {
       auto const B_ptr = datastore.makePtr<B>(a_map.at(b.id()), b.key());
       h_assns.emplace_back(A_ptr, B_ptr);
     }
-    h_e.store(a_t.encode(), h_assns);
+
+    {
+      std::function<void(void)> f = [&]() { h_e.store(a_t.encode(), h_assns); };
+      art::ServiceHandle<icaruswf::HepnosDataStore>()->set_work_function(f);
+      art::ServiceHandle<icaruswf::HepnosDataStore>()->set_work_state();
+      art::ServiceHandle<icaruswf::HepnosDataStore>()->wait();
+    }
+
     // std::cout << "Assns in art event: " << a_t.process() << ", " <<
     // a_t.label()
     // << ", " << a_t.encode() << "\n";
@@ -121,7 +128,12 @@ namespace {
       auto const B_ptr = datastore.makePtr<B>(a_map.at(b.id()), b.key());
       h_assns.emplace_back(A_ptr, B_ptr, d);
     }
-    h_e.store(a_t, h_assns);
+    {
+      std::function<void(void)> f = [&]() { h_e.store(a_t, h_assns); };
+      art::ServiceHandle<icaruswf::HepnosDataStore>()->set_work_function(f);
+      art::ServiceHandle<icaruswf::HepnosDataStore>()->set_work_state();
+      art::ServiceHandle<icaruswf::HepnosDataStore>()->wait();
+    }
     // std::cout << "Assns in art event: " << a_t.process() << ", " <<
     // a_t.label()
     // << ", " << a_t.encode() << "\n";
