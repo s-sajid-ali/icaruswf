@@ -22,5 +22,4 @@ target_include_directories(HepnosDataStore_service PRIVATE  $ENV{ROOT_INC} $ENV{
 )
 
 add_executable(mpi_wrapper mpi_wrapper.cc)
-target_include_directories(mpi_wrapper PRIVATE $ENV{MPICH_INC})
-target_link_libraries(mpi_wrapper PRIVATE $ENV{MPICH_LIB}/libmpi.so)
+target_link_libraries(mpi_wrapper PRIVATE MPI::MPI_C)

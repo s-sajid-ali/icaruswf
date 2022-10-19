@@ -6,24 +6,69 @@
 #include <fhiclcpp/types/Atom.h>
 #include <hepnos.hpp>
 
-#include "icaruswf_config.h"
+#include <atomic>
+#include <memory>
+#include <thread>
 
+#include "icaruswf_config.h"
 
 namespace icaruswf {
   class HepnosDataStore {
-    public:
-      struct Config {
-        fhicl::Atom<std::string> protocol{fhicl::Name("protocol"), mercury_transport_protocol};
-        fhicl::Atom<std::string> connection_file{fhicl::Name("connection_file"), "connection.json"};
-      };
-      using Parameters = art::ServiceTable<Config>;
-      explicit HepnosDataStore(Parameters const & ps);
-      hepnos::DataStore& getStore();
+  public:
+    struct Config {
+      fhicl::Atom<std::string> protocol{fhicl::Name("protocol"),
+                                        mercury_transport_protocol};
+      fhicl::Atom<std::string> connection_file{fhicl::Name("connection_file"),
+                                               "connection.json"};
+    };
+    using Parameters = art::ServiceTable<Config>;
+    explicit HepnosDataStore(Parameters const& ps);
+    hepnos::DataStore& getStore();
 
-    private:
-      hepnos::DataStore dataStore_;
+    /* Let the worker thread execute work function */
+    void wait();
+
+    /* Set work state */
+    void set_work_state();
+
+    /* Set work function */
+    void set_work_function(std::function<void(void)> in_work);
+
+    /* Destructor resets the dataStore_
+       and asks the worker thread to stop */
+    ~HepnosDataStore()
+    {
+      {
+        std::function<void(void)> f = [&]() {
+          this->dataStore_ = hepnos::DataStore{};
+          return;
+        };
+        this->set_work_function(f);
+        this->set_work_state();
+        this->wait();
+      }
+
+      this->active = false;
+
+      return;
+    }
+
+  private:
+    hepnos::DataStore dataStore_;
+
+    /* Detached thread which will execute work */
+    std::thread hepnos_exec_thread_;
+
+    /* is the worker thread active? */
+    bool active = true;
+
+    /* Set flag to 1 when there is work to do */
+    std::atomic<int> work_to_do = 0;
+
+    /* Work to be done */
+    std::function<void(void)> work;
   };
-}
+} // namespace icaruswf
 
 DECLARE_ART_SERVICE(icaruswf::HepnosDataStore, SHARED)
 
