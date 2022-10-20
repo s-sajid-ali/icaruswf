@@ -10,6 +10,9 @@
 #include <memory>
 #include <thread>
 
+#include <condition_variable>
+#include <mutex>
+
 #include "icaruswf_config.h"
 
 namespace icaruswf {
@@ -67,6 +70,12 @@ namespace icaruswf {
 
     /* Work to be done */
     std::function<void(void)> work;
+
+    /* Mutex */
+    std::mutex mutex;
+
+    /* Condition Variable to singal work status */
+    std::condition_variable cond_var;
   };
 } // namespace icaruswf
 

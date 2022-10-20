@@ -10,14 +10,13 @@ namespace icaruswf {
 
     hepnos_exec_thread_ = std::thread([this] {
       while (this->active == true) {
-        if (this->work_to_do) {
-          std::cout << "[HEPnOS thread status] working \n";
-          work();
-          this->work_to_do = 0;
-        } else {
-          // std::cout << "[HEPnOS thread status] going back to sleep \n";
-          std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::unique_lock<std::mutex> local_lock(this->mutex);
+        if (!this->work_to_do) {
+          this->cond_var.wait(local_lock);
         }
+        std::cout << "[HEPnOS thread status] working \n";
+        this->work();
+        this->work_to_do = 0;
       }
     });
 
@@ -52,7 +51,9 @@ namespace icaruswf {
   HepnosDataStore::set_work_state()
   {
     if (this->work_to_do == 0) {
+      std::unique_lock<std::mutex> local_lock(this->mutex);
       this->work_to_do = 1;
+      this->cond_var.notify_one();
     } else {
       std::cerr << "[HEPnOS worker thread] set-work-state: trying to set work "
                    "when there is already work to do!";
