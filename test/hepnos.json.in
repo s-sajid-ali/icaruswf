@@ -242,7 +242,8 @@
         }
     ],
     "libraries": {
-        "yokan": "libyokan-bedrock-module.so"
+        "yokan": "libyokan-bedrock-module.so",
+        "hqp" : "libhepnos-queue.so"
     },
     "providers": [
         {
@@ -387,6 +388,11 @@
                     }
                 ]
             }
+        },
+        {
+            "name" : "queues",
+            "type" : "hqp",
+            "config" : {}
         }
     ],
     "bedrock": {

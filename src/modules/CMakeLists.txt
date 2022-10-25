@@ -4,9 +4,6 @@ add_library(MergeDataProds_module SHARED MergeDataProds_module.cc)
 target_link_libraries(MergeDataProds_module PRIVATE Boost::system TBB::tbb)
 target_include_directories(MergeDataProds_module PRIVATE $ENV{ROOT_INC} $ENV{ART_INC} $ENV{CANVAS_INC} $ENV{CETLIB_EXCEPT_INC} $ENV{CETLIB_INC} $ENV{FHICLCPP_INC} $ENV{HEP_CONCURRENCY_INC} $ENV{LARCOREOBJ_INC} $ENV{LARDATAOBJ_INC})
 
-#add_library(HepnosStoreData_module SHARED HepnosStoreData_module.cc)
-#target_link_libraries(HepnosStoreData_module PRIVATE Boost::system hepnos Boost::serialization TBB::tbb)
-#target_include_directories(HepnosStoreData_module PRIVATE  $ENV{ROOT_INC} $ENV{ART_INC} $ENV{HEPNOS_INC} $ENV{CANVAS_INC} $ENV{CETLIB_EXCEPT_INC} $ENV{CETLIB_INC} $ENV{FHICLCPP_INC} $ENV{HEP_CONCURRENCY_INC} $ENV{LARCOREOBJ_INC} $ENV{LARDATAOBJ_INC} $ENV{THALLIUM_INC} $ENV{CEREAL_INC} ${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(HepnosInput_source SHARED HepnosInput_source.cc)
 target_link_libraries(HepnosInput_source PRIVATE Boost::system hepnos Boost::serialization TBB::tbb art::Framework_IO_Sources $ENV{LARDATAOBJ_LIB}/liblardataobj_RecoBase.so)
@@ -23,3 +20,15 @@ target_include_directories(HepnosDataStore_service PRIVATE  $ENV{ROOT_INC} $ENV{
 
 add_executable(mpi_wrapper mpi_wrapper.cc)
 target_link_libraries(mpi_wrapper PRIVATE MPI::MPI_C)
+
+add_executable(cheesyQueue_maker cheesyQueue_maker.cc)
+target_include_directories(cheesyQueue_maker PRIVATE ${CMAKE_SOURCE_DIR} $ENV{HEPNOS_INC})
+target_link_libraries(cheesyQueue_maker PRIVATE hepnos)
+
+add_library(LoadbalancingOutput_module SHARED LoadbalancingOutput_module.cc)
+target_link_libraries(LoadbalancingOutput_module PRIVATE ROOT::Core Boost::system hepnos Boost::serialization TBB::tbb spdlog::spdlog)
+target_include_directories(LoadbalancingOutput_module PRIVATE  $ENV{ROOT_INC} $ENV{ART_INC} $ENV{HEPNOS_INC} $ENV{CANVAS_INC} $ENV{CETLIB_INC} $ENV{CETLIB_EXCEPT_INC} $ENV{FHICLCPP_INC} $ENV{HEP_CONCURRENCY_INC} $ENV{LARDATAOBJ_INC} $ENV{THALLIUM_INC} $ENV{CEREAL_INC} $ENV{LARCOREOBJ_INC} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+
+add_library(LoadbalancingInput_source SHARED LoadbalancingInput_source.cc)
+target_link_libraries(LoadbalancingInput_source PRIVATE Boost::system hepnos Boost::serialization TBB::tbb art::Framework_IO_Sources $ENV{LARDATAOBJ_LIB}/liblardataobj_RecoBase.so)
+target_include_directories(LoadbalancingInput_source PRIVATE  $ENV{ROOT_INC} $ENV{ART_INC} $ENV{HEPNOS_INC} $ENV{LARDATAOBJ_INC} $ENV{THALLIUM_INC} $ENV{CEREAL_INC} $ENV{LARCOREOBJ_INC} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})

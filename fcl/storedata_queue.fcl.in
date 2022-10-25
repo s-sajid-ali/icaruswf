@@ -1,0 +1,16 @@
+process_name : DetSim
+
+  outputs : {
+      hepnos : {
+         module_type: LoadbalancingOutput
+         fileName: "icarus"
+      }
+  }
+
+services.HepnosDataStore: {
+   protocol: "${MERCURY_TRANSPORT_PROTOCOL}"
+}
+
+physics : {
+ end_path : [hepnos]
+ }
