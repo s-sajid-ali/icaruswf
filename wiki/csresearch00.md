@@ -51,3 +51,13 @@ Three options are added for the HepnosInputSource. One is to specify number of e
 MPI wrapper application is a simple MPI program to run multiple art instances. It only takes one input argument that is the number of events to process. 
 Currently the application only runs store data and signal processing step. Once the hepnos server is up and running, use 
 `mpirun -np 2 ./../src/modules/mpi_wrapper 2`, this will write 4 events in total, 2 per MPI rank, and run signal processing on all 4 events, with rank 0 processing event 0,1, and rank 1 processing 2 and 3. 
+
+## Use of the new queue API
+
+A new input source and output modules are added; `LoadbalancingInput_source.cc` and `LoadbalancingOutput_module.cc`. Two new fcl files are added that make use of these modules, i.e. `storedata_queue.fcl` and `icarus_SH_queue.fcl`.   
+1. `hepnos.json.in` is already updated to use the queues. 
+2. Start hepnos server: `mpirun -np 1 bedrock ofi+tcp -c hepnos.json &`, make sure you have hepnos.json, sample will be provided. If successful, hepnos.ssg file will be created. 
+3. `hepnos-list-databases ofi+tcp -s hepnos.ssg > connection.json` 
+4. Run the application to create queues in the hepnos, the application name is `cheesyqueue`. From the test/ directory, we can run the application: `../src/modules/cheesyQueue_maker ofi+tcp connection.json DetSim HitFinding`. This will create two queues names DetSim and HitFinding. 
+5. Store data (raw::RawDigits) to hepnos for the first step. `storedata_queue.fcl` is the fcl file with appropriate changes; `art -c storedata_queue.fcl -s /scratch/cerati/icaruscode-v09_37_01_02p02/icaruscode-09_37_01_02p02-samples/prodcorsika_bnb_genie_protononly_overburden_icarus_20220118T213827-GenBNBbkgr_100evt_G4_DetSim.root -n 1`
+6. Then run the next step that has both signal processing and hit finding. The appropriate fcl file to use is `icarus_SH_queue.fcl`. `art -c icarus_SH_queue.fcl -n 1`.  
