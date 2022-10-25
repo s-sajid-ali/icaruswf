@@ -264,18 +264,6 @@ namespace icaruswf {
         fb = new art::FileBlock{art::FileFormatVersion{1, "HepnosSource"},
           dsname};
         size_t i = 0;
-        // both estart and nskip shouldn't be specified together, its either n and nskip Or n and estart
-        //Either we will use nSkip or firstEvent_, 
-        //nSkip is used to determine what firstEvent_would be 
-        //if (nSkip_ != -1ull) {
-        //  while (i<nSkip_) { ++i; ++ev_;}
-        //}
-
-        //if (firstEvent_ != -1u) {
-        //  while(ev_->number() != firstEvent_ && 
-        //        ev_->subrun().number() != firstSubRun_ &&
-        //        ev_->subrun().run().number() != firstRun_) ++ev_;
-        //}
       }
 
       void closeCurrentFile() {}
