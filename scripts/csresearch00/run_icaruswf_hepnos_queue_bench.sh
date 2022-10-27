@@ -65,22 +65,19 @@ do
       hepnos-list-databases ofi+tcp -s hepnos.ssg > connection.json
       echo "%%% after starting HEPnOS server for run with with $THREADS threads, run number $RUN at $(date)"
 
+      # Create queues
+      echo "%%% before creating queues for run with with $THREADS threads, run number $RUN at $(date)"
+      ${ICARUSWF_BUILD}/src/modules/cheesyQueue_maker ofi+tcp connection.json DetSim HitFinding
+      echo "%%% after creating queues for run with with $THREADS threads, run number $RUN at $(date)"
+
       # Store data (raw::RawDigits) to hepnos for the first step, signal processing
       echo "%%% before loading data for run with with $THREADS threads, run number $RUN at $(date)"
-      art -c storedata.fcl -s /scratch/cerati/icaruscode-v09_37_01_02p02/icaruscode-09_37_01_02p02-samples/prodcorsika_bnb_genie_protononly_overburden_icarus_20220118T213827-GenBNBbkgr_100evt_G4_DetSim.root -n ${NUM_EVENTS} &> loading_log
+      art -c storedata_queue.fcl -s /scratch/cerati/icaruscode-v09_37_01_02p02/icaruscode-09_37_01_02p02-samples/prodcorsika_bnb_genie_protononly_overburden_icarus_20220118T213827-GenBNBbkgr_100evt_G4_DetSim.root -n ${NUM_EVENTS} &> loading_log
       echo "%%% after loading data for run with with $THREADS threads, run number $RUN at $(date)"
 
       echo "%%% before icaruswf-hepnos-sigproc-hitfind with $THREADS threads, run number $RUN at $(date)"
-      art --nschedules 1 --nthreads ${NUM_CLIENT_THREADS_PER_RANK} -c icarus_SH.fcl -n ${NUM_EVENTS} &> sp_hf_out
+      art --nschedules 1 --nthreads ${NUM_CLIENT_THREADS_PER_RANK} -c icarus_SH_queue.fcl -n ${NUM_EVENTS} &> sp_out
       echo "%%% after icaruswf-hepnos-sigproc-hitfind with $THREADS threads, run number $RUN at $(date)"
-
-      #echo "%%% before icaruswf-hepnos-sigproc with $THREADS threads, run number $RUN at $(date)"
-      #art --nschedules 1 --nthreads ${NUM_CLIENT_THREADS_PER_RANK} -c sp_hepnos.fcl -n ${NUM_EVENTS} &> sp_out
-      #echo "%%% after icaruswf-hepnos-sigproc with $THREADS threads, run number $RUN at $(date)"
-
-      #echo "%%% before icaruswf-hepnos-hit-find with $THREADS threads, run number $RUN at $(date)"
-      #art --nschedules 1 --nthreads ${NUM_CLIENT_THREADS_PER_RANK} -c hf_hepnos.fcl -n ${NUM_EVENTS} &> hf_out
-      #echo "%%% after icaruswf-hepnos-hit-find with $THREADS threads, run number $RUN at $(date)"
 
       echo "%%% before shutting down HEPnOS server for run with $THREADS threads, run number $RUN at $(date)"
       hepnos-shutdown ofi+tcp connection.json
