@@ -9,14 +9,20 @@ namespace icaruswf {
   {
 
     hepnos_exec_thread_ = std::thread([this] {
-      while (this->active == true) {
+      while (true) {
         std::unique_lock<std::mutex> local_lock(this->mutex);
         if (!this->work_to_do) {
           this->cond_var.wait(local_lock);
         }
-        std::cout << "[HEPnOS thread status] working \n";
-        this->work();
-        this->work_to_do = 0;
+        if (this->active == true) {
+          std::cout << "[HEPnOS thread status] working \n";
+          this->work();
+          this->work_to_do = 0;
+          continue;
+        } else {
+          std::cout << "[HEPnOS thread status] exiting \n";
+          return;
+        }
       }
     });
 
@@ -74,6 +80,26 @@ namespace icaruswf {
     }
     return;
   };
+
+  void
+  HepnosDataStore::finalize()
+  {
+    {
+      std::function<void(void)> f = [&]() {
+        this->dataStore_ = hepnos::DataStore{};
+        return;
+      };
+      this->set_work_function(f);
+      this->set_work_state();
+      this->wait();
+    }
+
+    this->active = false;
+    this->work_to_do = 1;
+    this->cond_var.notify_one();
+
+    return;
+  }
 
   hepnos::DataStore&
   HepnosDataStore::getStore()

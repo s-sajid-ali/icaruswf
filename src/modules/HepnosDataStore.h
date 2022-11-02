@@ -35,24 +35,8 @@ namespace icaruswf {
     /* Set work function */
     void set_work_function(std::function<void(void)> in_work);
 
-    /* Destructor resets the dataStore_
-       and asks the worker thread to stop */
-    ~HepnosDataStore()
-    {
-      {
-        std::function<void(void)> f = [&]() {
-          this->dataStore_ = hepnos::DataStore{};
-          return;
-        };
-        this->set_work_function(f);
-        this->set_work_state();
-        this->wait();
-      }
-
-      this->active = false;
-
-      return;
-    }
+    /* Cleanup, reset the dataStore_ instruct the worker thread to stop */
+    void finalize();
 
   private:
     hepnos::DataStore dataStore_;

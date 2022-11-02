@@ -183,7 +183,6 @@ public:
     fhicl::WrappedTable<Config, OutputModule::Config::KeysToIgnore>;
 
   explicit LoadbalancingOutput(Parameters const&);
-  ~LoadbalancingOutput();
 
   std::map<art::ProductID, hepnos::ProductID>
   update_map_hevent(hepnos::Event h_e, std::string current_processname)
@@ -500,18 +499,6 @@ private:
   std::vector<std::regex> dropCommands_;
 }; // LoadbalancingOutput
 
-LoadbalancingOutput::~LoadbalancingOutput()
-{
-  {
-    std::function<void(void)> f = [&]() {
-      batch_.flush();
-      return;
-    };
-    this->run_hepnos_func(f);
-  }
-  return;
-}
-
 LoadbalancingOutput::LoadbalancingOutput(Parameters const& ps)
   : OutputModule{ps().omConfig, ps.get_PSet()}
   , datastore_{art::ServiceHandle<icaruswf::HepnosDataStore>()->getStore()}
@@ -573,12 +560,23 @@ LoadbalancingOutput::beginJob()
 void
 LoadbalancingOutput::endJob()
 {
-  std::function<void(void)> f = [&]() {
-    queue_.close();
+  {
+    std::function<void(void)> f = [&]() {
+      batch_.flush();
+      return;
+    };
+    this->run_hepnos_func(f);
+  }
 
-    return;
-  };
-  this->run_hepnos_func(f);
+  {
+    std::function<void(void)> f = [&]() {
+      queue_.close();
+      return;
+    };
+    this->run_hepnos_func(f);
+  }
+
+  art::ServiceHandle<icaruswf::HepnosDataStore>()->finalize();
 }
 void
 LoadbalancingOutput::beginRun(RunPrincipal const& r)
