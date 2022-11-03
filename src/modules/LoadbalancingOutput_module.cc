@@ -560,17 +560,28 @@ LoadbalancingOutput::beginJob()
 void
 LoadbalancingOutput::endJob()
 {
+  /* flush the batch and close the queue */
   {
     std::function<void(void)> f = [&]() {
       batch_.flush();
+      queue_.close();
       return;
     };
     this->run_hepnos_func(f);
   }
 
+  /* reset all hepnos objects, for they may contain
+     stray shared_ptrs to datastore making destruction
+     tricky */
   {
     std::function<void(void)> f = [&]() {
-      queue_.close();
+      r_ = hepnos::Run{};
+      sr_ = hepnos::SubRun{};
+      async_ = hepnos::AsyncEngine{};
+      batch_ = hepnos::WriteBatch{};
+      dataset_ = hepnos::DataSet{};
+      queue_ = hepnos::Queue{};
+
       return;
     };
     this->run_hepnos_func(f);
