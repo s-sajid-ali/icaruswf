@@ -38,6 +38,14 @@ namespace icaruswf {
     /* Cleanup, reset the dataStore_ instruct the worker thread to stop */
     void finalize();
 
+    /* Destructor resets the dataStore_
+     and asks the worker thread to stop */
+    ~HepnosDataStore()
+    {
+      this->finalize();
+      return;
+    }
+
   private:
     hepnos::DataStore dataStore_;
 

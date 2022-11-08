@@ -587,7 +587,7 @@ LoadbalancingOutput::endJob()
     this->run_hepnos_func(f);
   }
 
-  art::ServiceHandle<icaruswf::HepnosDataStore>()->finalize();
+  // art::ServiceHandle<icaruswf::HepnosDataStore>()->finalize();
 }
 void
 LoadbalancingOutput::beginRun(RunPrincipal const& r)

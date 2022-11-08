@@ -345,11 +345,26 @@ namespace icaruswf {
 
     ~LoadbalancingInput()
     {
-      std::function<void(void)> f = [&]() {
-        queue_.close();
-        return;
-      };
-      this->run_hepnos_func(f);
+      /* close the queue */
+      {
+        std::function<void(void)> f = [&]() {
+          queue_.close();
+          return;
+        };
+        this->run_hepnos_func(f);
+      }
+      /* reset all hepnos objects, for they may contain
+         stray shared_ptrs to datastore making destruction
+         tricky */
+      {
+        std::function<void(void)> f = [&]() {
+          r_ = hepnos::RunNumber{};
+          sr_ = hepnos::SubRunNumber{};
+          dataset_ = hepnos::DataSet{};
+          return;
+        };
+        this->run_hepnos_func(f);
+      }
     }
 
     bool readNext(art::RunPrincipal* const& inR,
