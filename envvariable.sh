@@ -14,7 +14,6 @@ export LARDATAOBJ_DIR=`spack location -i lardataobj`
 export LARCOREOBJ_DIR=`spack location -i larcoreobj`
 export ROOTSYS=`spack location -i root`
 export TRACE_DIR=`spack location -i trace`
-export MPICH_DIR=`spack location -i mpich`
 
 export CEREAL_DIR=`spack location -i cereal`
 export THALLIUM_DIR=`spack location -i mochi-thallium`
@@ -34,7 +33,6 @@ export LARCOREOBJ_INC=${LARCOREOBJ_DIR}/include
 export ROOT_INC=${ROOTSYS}/include
 export THALLIUM_INC=${THALLIUM_DIR}/include
 export TRACE_INC=${TRACE_DIR}/include
-export MPICH_INC=${MPICH_DIR}/include
 
 export ART_LIB=${ART_DIR}/lib
 export ARTDAQ_CORE_LIB=${ARTDAQ_CORE_DIR}/lib
@@ -49,6 +47,5 @@ export HEP_CONCURRENCY_LIB=${HEP_CONCURRENCY_DIR}/lib
 export LARDATAOBJ_LIB=${LARDATAOBJ_DIR}/lib
 export LARCOREOBJ_LIB=${LARCOREOBJ_DIR}/lib
 export THALLIUM_LIB=${THALLIUM_DIR}/lib
-export MPICH_LIB=${MPICH_DIR}/lib
 
 export FW_SEARCH_PATH=${ICARUSALG_DIR}/gdml:${FW_SEARCH_PATH}
