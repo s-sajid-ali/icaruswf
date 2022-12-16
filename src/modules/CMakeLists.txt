@@ -18,8 +18,11 @@ target_link_libraries(HepnosDataStore_service PRIVATE Boost::system hepnos Boost
 target_include_directories(HepnosDataStore_service PRIVATE  $ENV{ROOT_INC} $ENV{ART_INC} $ENV{HEPNOS_INC} $ENV{THALLIUM_INC} $ENV{LARDATAOBJ_INC} $ENV{CEREAL_INC} ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+# TCLAP
+find_package(TCLAP REQUIRED)
 add_executable(mpi_wrapper mpi_wrapper.cc)
 target_link_libraries(mpi_wrapper PRIVATE MPI::MPI_C)
+target_include_directories(mpi_wrapper PRIVATE ${TCLAP_INCLUDE_PATH})
 
 add_executable(cheesyQueue_maker cheesyQueue_maker.cc)
 target_include_directories(cheesyQueue_maker PRIVATE ${CMAKE_SOURCE_DIR} $ENV{HEPNOS_INC})

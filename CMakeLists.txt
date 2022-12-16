@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+# add our cmake module directory to the path
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
+     "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 project(icaruswf LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 17)
