@@ -61,12 +61,20 @@ runSP(int my_rank,
   return true;
 }
 
-int
-main(int argc, char* argv[])
+struct Config {
+  bool valid{false};
+  int64_t nevents{-1};
+  int64_t nthreads{-1};
+  bool load{false};
+  std::string loadPath;
+  bool process{false};
+};
+
+Config
+make_config(int argc, char* argv[])
 {
 
-  const std::string default_root_path = "tmp.root";
-
+  Config config;
   try {
     TCLAP::CmdLine cmd(
       "ICARUSWF with HEPnOS mpi-wrapper for launching art over MPI!");
@@ -74,7 +82,7 @@ main(int argc, char* argv[])
     TCLAP::ValueArg<int64_t> nevtsArg(
       "n",
       "num_evts_per_rank",
-      "total number of events to process, by each MPI rank",
+     "total number of events to process, by each MPI rank",
       true,
       0,
       "int64");
@@ -85,7 +93,7 @@ main(int argc, char* argv[])
       "root_file_path",
       "location of the ROOT file to process",
       false,
-      default_root_path,
+      "",
       "string");
     cmd.add(rootfilepathArg);
 
@@ -114,64 +122,72 @@ main(int argc, char* argv[])
 
     // Parse the argv array.
     cmd.parse(argc, argv);
-
-    Mpi world(argc, argv);
-    auto my_rank = world.rank();
-    auto nranks = world.np();
-
-    int64_t events = nevtsArg.getValue();
-    bool load_events_to_hepnos = loadSwitch.getValue();
-    std::string root_file_path = rootfilepathArg.getValue();
-    if (load_events_to_hepnos) {
-      if (root_file_path == default_root_path) {
-        std::runtime_error(
-          "please provide the path to the root file to load events from!");
-      }
-    }
-    bool process_events_in_hepnos = processSwitch.getValue();
-    int64_t nthreads = threadsArg.getValue();
-
-    // Confidence check regarding execution resources being used
-    constexpr size_t LEN = 1024;
-    std::string hostname;
-    hostname.reserve(LEN);
-    if (gethostname(hostname.data(), LEN) == 0) {
-      std::string init_message("MPI rank ");
-      init_message.append(std::to_string(my_rank));
-      init_message.append(" of total ");
-      init_message.append(std::to_string(nranks));
-      init_message.append(" ranks is running on ");
-      init_message.append(hostname);
-      std::cout << init_message << "\n";
-    } else {
-      std::cout << "could not determine execution resources being used!"
-                << "\n";
-    }
-    std::optional<std::string> env_flags;
-    if (hostname.find("theta") != std::string::npos) {
-      env_flags.emplace("PMI_NO_PREINITIALIZE=1 PMI_NO_FORK=1");
-    }
-
-    if (load_events_to_hepnos) {
-      if (loadData(my_rank, events, root_file_path, env_flags) != true) {
-        std::runtime_error("loading data into HEPnOS failed!");
-      }
-    }
-
-    // is this necessary?
-    world.barrier();
-
-    if (process_events_in_hepnos) {
-      if (runSP(my_rank, events, nthreads, env_flags) != true) {
-        std::runtime_error("processing data in HEPnOS failed!");
-      }
-    }
+    config.valid = true;
+    config.nevents = nevtsArg.getValue();
+    config.load = loadSwitch.getValue();
+    config.loadPath = rootfilepathArg.getValue();
+    config.process = processSwitch.getValue();
+    config.nthreads = threadsArg.getValue();
   }
   catch (TCLAP::ArgException& e) // catch exceptions
   {
     std::cerr << "error: " << e.error() << " for arg " << e.argId()
               << std::endl;
   }
+  return config;
+}
 
-  return 0;
+
+int
+main(int argc, char* argv[])
+{
+  Config config = make_config(argc, argv);
+  if (!config.valid) return 1;
+  // either we will configure this to run the data loading function or event
+  // processing For data loading
+  Mpi world(argc, argv);
+  auto my_rank = world.rank();
+  auto nranks = world.np();
+
+  int64_t events = config.nevents;
+  bool load_events_to_hepnos = config.load;
+  std::string root_file_path = config.loadPath;
+  if (load_events_to_hepnos && root_file_path.empty()) {
+      std::cerr << "please provide the path to the root file to load events from!\n";
+      return 1;
+  }
+  bool process_events_in_hepnos = config.process;
+  int64_t nthreads = config.nthreads;
+
+  // Confidence check regarding execution resources being used
+  constexpr size_t LEN = 1024;
+  char hostname[LEN];
+  if (gethostname(hostname, LEN) == 0) {
+    std::cout << "MPI rank " << my_rank << " of total " << nranks << " ranks is running on " << hostname << '\n';
+  } else {
+    std::cout << "could not determine execution resources being used!"
+              << "\n";
+  }
+  std::optional<std::string> env_flags;
+  //if (std::find(hostname, hostname+LEN, 
+  std::string host{hostname};
+  if (host.find("theta") != std::string::npos) {
+    env_flags.emplace("PMI_NO_PREINITIALIZE=1 PMI_NO_FORK=1");
+  }
+
+  if (load_events_to_hepnos) {
+    if (loadData(my_rank, events, root_file_path, env_flags) != true) {
+      std::runtime_error("loading data into HEPnOS failed!");
+    }
+  }
+
+  // is this necessary?
+  world.barrier();
+
+  if (process_events_in_hepnos) {
+    if (runSP(my_rank, events, nthreads, env_flags) != true) {
+      std::runtime_error("processing data in HEPnOS failed!");
+    }
+  }
+
 }
