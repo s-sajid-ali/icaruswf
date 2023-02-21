@@ -193,7 +193,7 @@ main(int argc, char* argv[])
   // hostname on theta is just nid0000, so check that we are
   // not running on csresearch for now.
   if (hostname.find("csresearch") == std::string::npos) {
-    env_flags.emplace("PMI_NO_PREINITIALIZE=1 PMI_NO_FORK=1");
+    env_flags.emplace("PMI_NO_PREINITIALIZE=1 PMI_NO_FORK=1 ");
   }
 
   // finally either load events
