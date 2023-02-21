@@ -190,7 +190,9 @@ main(int argc, char* argv[])
 
   // Set special flags for running on Theta
   std::optional<std::string> env_flags;
-  if (hostname.find("theta") != std::string::npos) {
+  // hostname on theta is just nid0000, so check that we are
+  // not running on csresearch for now.
+  if (hostname.find("csresearch") == std::string::npos) {
     env_flags.emplace("PMI_NO_PREINITIALIZE=1 PMI_NO_FORK=1");
   }
 
