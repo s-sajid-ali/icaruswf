@@ -120,7 +120,7 @@ runHF(int my_rank,
              " -s sp_output.root");
   std::string outfile = " &> ";
   outfile.append(std::to_string(my_rank));
-  outfile.append("_sp.txt");
+  outfile.append("_hf.txt");
   cmd.append(outfile);
   return std::system(cmd.c_str());
 }
