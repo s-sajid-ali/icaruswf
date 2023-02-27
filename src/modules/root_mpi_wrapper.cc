@@ -136,7 +136,7 @@ get_hostname(int my_rank, int nranks)
   hostname.resize(LEN);
   if (gethostname(hostname.data(), LEN) == 0) {
     std::cout << "MPI rank " << my_rank << " of total " << nranks
-              << " ranks is running on " << host << '\n';
+              << " ranks is running on " << hostname << '\n';
   } else {
     std::cout << "could not determine execution resources being used!\n";
   }
@@ -186,5 +186,5 @@ main(int argc, char* argv[])
     std::cerr << "error when running hit finding with ROOT!";
   }
 
-  return;
+  return 0;
 }
