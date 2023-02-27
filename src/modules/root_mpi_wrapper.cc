@@ -92,8 +92,7 @@ runSP(int my_rank,
              " -c sp_root.fcl " + timedb + memdb + nevts + " -s ");
   cmd.append(path);
   std::string outfile = " &> ";
-  outfile.append(std::to_string(my_rank));
-  outfile.append("_sp.txt");
+  outfile.append("sp_log.txt");
   cmd.append(outfile);
   return std::system(cmd.c_str());
 }
@@ -119,14 +118,12 @@ runHF(int my_rank,
              " -c hf_root.fcl " + timedb + memdb + nevts +
              " -s sp_output.root");
   std::string outfile = " &> ";
-  outfile.append(std::to_string(my_rank));
-  outfile.append("_hf.txt");
+  outfile.append("hf_log.txt");
   cmd.append(outfile);
   return std::system(cmd.c_str());
 }
 
-// retunr hostname along with
-// printout of rank and total ranks
+// return hostname along with printout of rank and total ranks
 // the printout is only relevant for debugging
 std::string
 get_hostname(int my_rank, int nranks)
