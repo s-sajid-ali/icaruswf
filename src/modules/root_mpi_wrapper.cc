@@ -57,7 +57,6 @@ make_config(int argc, char* argv[])
     cmd.parse(argc, argv);
     config.nevents = nevtsArg.getValue();
     config.loadPath = rootfilepathArg.getValue();
-    config.process = processSwitch.getValue();
     config.nthreads = threadsArg.getValue();
   }
   catch (TCLAP::ArgException& e) // catch exceptions
@@ -74,6 +73,7 @@ make_config(int argc, char* argv[])
 int
 runSP(int my_rank,
       int nevents,
+      int nthreads,
       std::string path,
       std::optional<std::string> env_flags)
 {
@@ -101,7 +101,7 @@ runSP(int my_rank,
 int
 runHF(int my_rank,
       int nevents,
-      std::string path,
+      int nthreads,
       std::optional<std::string> env_flags)
 {
   std::string nevts = " -n ";
@@ -179,10 +179,10 @@ main(int argc, char* argv[])
   std::filesystem::create_directory(std::to_string(my_rank));
   std::filesystem::current_path(std::to_string(my_rank));
 
-  if (runSP(my_rank, events, root_file_path, env_flags) != 0) {
+  if (runSP(my_rank, events, nthreads, root_file_path, env_flags) != 0) {
     std::cerr << "error when running signal processing with ROOT!";
   }
-  if (runHF(my_rank, events, root_file_path, env_flags) != 0) {
+  if (runHF(my_rank, events, nthreads, env_flags) != 0) {
     std::cerr << "error when running hit finding with ROOT!";
   }
 
