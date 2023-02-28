@@ -20,13 +20,13 @@
  
 10. enable dynamic linking via `export CRAYPE_LINK_TYPE=dynamic`
 
-11. make a build directory via `mkdir -p build`, run cmake in the build directory: `cd build && cmake -DCMAKE_CXX_COMPILER=CC -DUSE_GNI_TRANSPORT=On ${ICARUSWF_SRC}`; where `CC` is the cray compiler wrapper for the underlying c++ compiler.
+11. make a build directory via `mkdir -p build`, run cmake in the build directory: `cd build && cmake -DCMAKE_CXX_COMPILER=CC -DUSE_GNI_TRANSPORT=ON -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_FLAGS="-O3" ${ICARUSWF_SRC}`; where `CC` is the cray compiler wrapper for the underlying c++ compiler.
 
 12. build the code: `make -j10` 
 
-13. Update the CET_PLUGIN_PATH: `export CET_PLUGIN_PATH=${ICARUSWF_SRC}/build/src/modules:${CET_PLUGIN_PATH}`
+13. Update the `CET_PLUGIN_PATH`: `export CET_PLUGIN_PATH=${ICARUSWF_SRC}/build/src/modules:${CET_PLUGIN_PATH}`
 
-14. Update the FHICL_FILE_PATH: `export FHICL_FILE_PATH=${ICARUSWF_SRC}/build/fcl:${FHICL_FILE_PATH}`
+14. Update the `FHICL_FILE_PATH`: `export FHICL_FILE_PATH=${ICARUSWF_SRC}/build/fcl:${FHICL_FILE_PATH}`
 
 15. define following before starting hepnos server: `export MPICH_GNI_NDREG_ENTRIES=1024 && export MPICH_MAX_THREAD_SAFETY=multiple`
 
