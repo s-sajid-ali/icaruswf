@@ -59,22 +59,6 @@ outputs: {
       streamName: "out"
    }
 
-   outroot: {
-      compressionLevel: 1
-      dataTier: "reconstructed"
-      fileName: "%ifb_%tc-%p.root"
-      module_label: "outBNB"
-      module_type: "RootOutput"
-      outputCommands: [
-         "keep *_*_*_*",
-         "drop *_MCDecodeTPCROI_*_*",
-         "drop *_decon1droi_*_*",
-         "drop raw::RawDigits_*_*_*"
-      ]
-      saveMemoryObjectThreshold: 0
-      streamName: "outBNB"
-   }
-
 }
 
 source: {
@@ -84,7 +68,7 @@ source: {
    processName: DetSim
 }
 
-physics.ep: [ out, outroot ]
+physics.ep: [ out ]
 
 # Set up for the single module mutliple TPC mode...
 physics.producers.MCDecodeTPCROI.FragmentsLabelVec:   ["daq3:PHYSCRATEDATATPCWW","daq2:PHYSCRATEDATATPCWE","daq1:PHYSCRATEDATATPCEW","daq0:PHYSCRATEDATATPCEE"]
