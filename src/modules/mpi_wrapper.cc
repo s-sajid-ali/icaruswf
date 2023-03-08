@@ -167,11 +167,11 @@ main(int argc, char* argv[])
   int64_t events = config.nevents;
   std::string root_file_path = config.loadPath;
   bool load_events_to_hepnos = !root_file_path.empty();
-  if (root_file_path.empty()) {
+  bool process_events_in_hepnos = config.process;
+  if (!process_events_in_hepnos && root_file_path.empty()) {
       std::cerr << "please provide the path to the root file to load events from!\n";
       return 1;
   }
-  bool process_events_in_hepnos = config.process;
   int64_t nthreads = config.nthreads;
 
   //initialize MPI after the configuration is all done and checked
