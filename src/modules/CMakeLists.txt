@@ -24,10 +24,6 @@ add_executable(mpi_wrapper mpi_wrapper.cc)
 target_link_libraries(mpi_wrapper PRIVATE MPI::MPI_C)
 target_include_directories(mpi_wrapper PRIVATE ${TCLAP_INCLUDE_PATH})
 
-add_executable(root_mpi_wrapper root_mpi_wrapper.cc)
-target_link_libraries(root_mpi_wrapper PRIVATE MPI::MPI_C)
-target_include_directories(root_mpi_wrapper PRIVATE ${TCLAP_INCLUDE_PATH})
-
 add_executable(cheesyQueue_maker cheesyQueue_maker.cc)
 target_include_directories(cheesyQueue_maker PRIVATE ${CMAKE_SOURCE_DIR} $ENV{HEPNOS_INC})
 target_link_libraries(cheesyQueue_maker PRIVATE hepnos)

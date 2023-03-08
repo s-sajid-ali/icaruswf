@@ -65,45 +65,41 @@ echo "%%% after_start_list_dbs $(date)"
 while [ ! -f ${CONNECTIONFILE} ]; do sleep 10; done
 sed -i '$ d' ${CONNECTIONFILE} # we have to because aprun adds a line
 
-# set relevant env var
-export ICARUSWF_BUILD=/projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build
-
 # Create Queues
 aprun -n 1 -N 1 -p ${PDOMAIN} ${ICARUSWF_BUILD}/src/modules/cheesyQueue_maker ofi+gni connection.json DetSim HitFinding &> queue-creation-log
 
 export DATA_DIR=/projects/HEP_on_HPC/icarus_data/icaruscode-v09_37_01_03p02/icaruscode-09_37_01_03p02-samples
 export CONFIG_DIR=/projects/HEP_on_HPC/icarus_data/icaruscode-v09_37_01_03p02/icaruscode-09_37_01_03p02-configs
 
-export BASEDIR=$(pwd)
 export NUM_CLIENT_NODES=3
-export NUM_CLIENT_TOTAL_RANKS=$(($NUM_CLIENT_NODES*16))
-export NUM_CLIENT_HYPERTHREADS=1
+export NUM_CLIENT_TOTAL_RANKS=$(($NUM_CLIENT_NODES*32))
 export NUM_CLIENT_RANKS_PER_NODE=$(($NUM_CLIENT_TOTAL_RANKS/$NUM_CLIENT_NODES))
-export NUM_CLIENT_THREADS_PER_RANK=$(($NUM_CLIENT_HYPERTHREADS*64/$NUM_CLIENT_RANKS_PER_NODE))
+export NUM_CLIENT_HYPERTHREADS=1
+export NUM_CLIENT_HARDWARE_THREADS_PER_RANK=2
 
-mkdir threads_${NUM_CLIENT_THREADS_PER_RANK}
-cd threads_${NUM_CLIENT_THREADS_PER_RANK}
+mkdir ht_${NUM_CLIENT_HYPERTHREADS}_depth_${NUM_CLIENT_HARDWARE_THREADS_PER_RANK}
+cd ht_${NUM_CLIENT_HYPERTHREADS}_depth_${NUM_CLIENT_HARDWARE_THREADS_PER_RANK}
 cp $CONNECTIONFILE .
 
-echo "%%% before icaruswf-load with $NUM_CLIENT_THREADS_PER_RANK threads, run number $RUN at $(date)"
+echo "%%% before icaruswf-load with $NUM_CLIENT_HARDWARE_THREADS_PER_RANK threads, at $(date)"
 aprun -n $NUM_CLIENT_TOTAL_RANKS \
 	-N $NUM_CLIENT_RANKS_PER_NODE \
-	-d $NUM_CLIENT_THREADS_PER_RANK \
+	-d $NUM_CLIENT_HARDWARE_THREADS_PER_RANK \
 	-j $NUM_CLIENT_HYPERTHREADS \
 	-cc none \
 	-p ${PDOMAIN} \
-	${ICARUSWF_BUILD}/src/modules/mpi_wrapper --num_evts_per_rank 2 --root_file_path /projects/HEP_on_HPC/icarus_data/icaruscode-v09_37_01_02p02/icaruscode-09_37_01_02p02-samples/prodcorsika_bnb_genie_protononly_overburden_icarus_20220118T213827-GenBNBbkgr_100evt_G4_DetSim.root &> load_out
-echo "%%% after icaruswf-load with $NUM_CLIENT_THREADS_PER_RANK threads, run number $RUN at $(date)"
+	${ICARUSWF_BUILD}/src/modules/mpi_wrapper -H --num_evts_per_rank 1 --root_file_path /projects/HEP_on_HPC/icarus_data/icaruscode-v09_37_01_02p02/icaruscode-09_37_01_02p02-samples/prodcorsika_bnb_genie_protononly_overburden_icarus_20220118T213827-GenBNBbkgr_100evt_G4_DetSim.root &> load_out
+echo "%%% after icaruswf-load with $NUM_CLIENT_HARDWARE_THREADS_PER_RANK threads, at $(date)"
 
-echo "%%% before icaruswf-process with $NUM_CLIENT_THREADS_PER_RANK threads, run number $RUN at $(date)"
+echo "%%% before icaruswf-process with $NUM_CLIENT_HARDWARE_THREADS_PER_RANK threads, at $(date)"
 aprun -n $NUM_CLIENT_TOTAL_RANKS \
 	-N $NUM_CLIENT_RANKS_PER_NODE \
-	-d $NUM_CLIENT_THREADS_PER_RANK \
+	-d $NUM_CLIENT_HARDWARE_THREADS_PER_RANK \
 	-j $NUM_CLIENT_HYPERTHREADS \
 	-cc none \
 	-p ${PDOMAIN} \
-	${ICARUSWF_BUILD}/src/modules/mpi_wrapper -p -t 2 --num_evts_per_rank 2 &> process_out
-echo "%%% after icaruswf-process with $NUM_CLIENT_THREADS_PER_RANK threads, run number $RUN at $(date)"
+	${ICARUSWF_BUILD}/src/modules/mpi_wrapper -H -p -t ${NUM_CLIENT_HARDWARE_THREADS_PER_RANK} --num_evts_per_rank 1 &> process_out
+echo "%%% after icaruswf-process with $NUM_CLIENT_HARDWARE_THREADS_PER_RANK threads, at $(date)"
 
 cd ${BASEDIR}
 
