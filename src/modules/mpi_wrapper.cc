@@ -173,6 +173,8 @@ runSP(int my_rank,
       std::string path,
       std::optional<std::string> env_flags)
 {
+  std::string nskip = " --nskip ";
+  nskip += std::to_string(my_rank * nevents);
   std::string nevts = " -n ";
   nevts += std::to_string(nevents);
   std::string memdb =
@@ -185,7 +187,7 @@ runSP(int my_rank,
     cmd.append(env_flags.value());
   }
   cmd.append("art --nschedules 1 --nthreads " + std::to_string(nthreads) +
-             " -c sp_root.fcl " + timedb + memdb + nevts + " -s ");
+             nevts + nskip + " -c sp_root.fcl " + timedb + memdb + " -s ");
   cmd.append(path);
   std::string outfile = " &> ";
   outfile.append("sp_log.txt");
@@ -211,7 +213,7 @@ runHF(int my_rank,
     cmd.append(env_flags.value());
   }
   cmd.append("art --nschedules 1 --nthreads " + std::to_string(nthreads) +
-             " -c hf_root.fcl " + timedb + memdb + nevts +
+             nevts + " -c hf_root.fcl " + timedb + memdb +
              " -s sp_output.root");
   std::string outfile = " &> ";
   outfile.append("hf_log.txt");
