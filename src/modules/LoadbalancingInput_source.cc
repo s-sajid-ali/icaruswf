@@ -43,6 +43,7 @@
 #include "HepnosDataStore.h"
 #include <boost/serialization/utility.hpp>
 #include <tuple>
+#include "Timestamp.h"
 
 using namespace std;
 namespace hepnos {
@@ -84,9 +85,10 @@ namespace hepnos {
           products_uptr = std::make_unique<std::vector<T>>(products);
         return;
       };
-      art::ServiceHandle<icaruswf::HepnosDataStore>()->set_work_function(f);
-      art::ServiceHandle<icaruswf::HepnosDataStore>()->set_work_state();
-      art::ServiceHandle<icaruswf::HepnosDataStore>()->wait();
+      art::ServiceHandle<icaruswf::HepnosDataStore> h;
+      h->set_work_function(f);
+      h->set_work_state();
+      h->wait();
       return products_uptr;
     }
     if (strict) {
@@ -124,9 +126,10 @@ namespace hepnos {
     std::vector<std::pair<hepnos::Ptr<A>, hepnos::Ptr<B>>> assns;
     {
       std::function<void(void)> f = [&]() { event.load(tag.encode(), assns); };
-      art::ServiceHandle<icaruswf::HepnosDataStore>()->set_work_function(f);
-      art::ServiceHandle<icaruswf::HepnosDataStore>()->set_work_state();
-      art::ServiceHandle<icaruswf::HepnosDataStore>()->wait();
+      art::ServiceHandle<icaruswf::HepnosDataStore> h;
+      h->set_work_function(f);
+      h->set_work_state();
+      h->wait();
     }
     auto const a_pid = create_productID<A>(a_col, a_module_label, "");
     auto const b_pid = create_productID<B>(b_col, b_module_label, "");
@@ -145,9 +148,10 @@ namespace hepnos {
     std::vector<ProductID> prodIds;
     {
       std::function<void(void)> f = [&]() { prodIds = event.listProducts(""); };
-      art::ServiceHandle<icaruswf::HepnosDataStore>()->set_work_function(f);
-      art::ServiceHandle<icaruswf::HepnosDataStore>()->set_work_state();
-      art::ServiceHandle<icaruswf::HepnosDataStore>()->wait();
+      art::ServiceHandle<icaruswf::HepnosDataStore> h;
+      h->set_work_function(f);
+      h->set_work_state();
+      h->wait();
     }
 
     hepnos::UUID datasetId;
@@ -337,9 +341,10 @@ namespace icaruswf {
     void
     run_hepnos_func(std::function<void(void)> work)
     {
-      art::ServiceHandle<icaruswf::HepnosDataStore>()->set_work_function(work);
-      art::ServiceHandle<icaruswf::HepnosDataStore>()->set_work_state();
-      art::ServiceHandle<icaruswf::HepnosDataStore>()->wait();
+      art::ServiceHandle<icaruswf::HepnosDataStore> h;
+      h->set_work_function(work);
+      h->set_work_state();
+      h->wait();
       return;
     }
 
@@ -411,6 +416,13 @@ namespace icaruswf {
     unsigned firstEvent_;
   };
 
+  struct TimestampSentry {
+    ~TimestampSentry() {
+      art::ServiceHandle<icaruswf::Timestamp> h;
+      h->updateEndOfRead(); 
+    }
+  };
+  
   bool
   LoadbalancingInput::readNext(art::RunPrincipal* const& inR,
                                art::SubRunPrincipal* const& inSR,
@@ -418,6 +430,7 @@ namespace icaruswf {
                                art::SubRunPrincipal*& outSR,
                                art::EventPrincipal*& outE)
   {
+    TimestampSentry tss;
     if (nEvents_ == maxEvents_)
       return false;
     // pop event ID of the queue
@@ -455,7 +468,6 @@ namespace icaruswf {
         auto run = dataset_.createRun(r);
         auto subrun = run.createSubRun(sr);
         event = subrun.createEvent(ev);
-        return;
       };
       this->run_hepnos_func(f);
     }
@@ -474,7 +486,6 @@ namespace icaruswf {
     {
       std::function<void(void)> f = [&]() {
         ++nEvents_;
-        return;
       };
       this->run_hepnos_func(f);
     }

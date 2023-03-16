@@ -250,6 +250,7 @@ physics: {
 }
 process_name: "SignalProcessing"
 services: {
+   Timestamp: {}
    CatalogInterface: {
       service_provider: "TrivialFileDelivery"
       service_type: "CatalogInterface"
@@ -393,6 +394,8 @@ services: {
    IICARUSChannelMap: {
       ChannelMappingTool: {
          DBFileName: "ChannelMapICARUS.db"
+         CalibDBFileName: "crt_gain_reco_data"
+         Tag: "v1r0"
          tool_type: "ChannelMapSQLite"
       }
       DiagnosticOutput: false
