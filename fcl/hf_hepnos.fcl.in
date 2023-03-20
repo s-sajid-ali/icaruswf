@@ -7,9 +7,10 @@ outputs: {
       module_label: "outBNB"
       module_type: "RootOutput"
       outputCommands: [
-         ".*_MCDecodeTPCROI_.*_.*",
-         ".*_decon1droi_.*_.*",
-         "raw::RawDigits_.*_.*_.*"
+         "keep *_*_*_*",
+         "drop *_MCDecodeTPCROI_*_*",
+         "drop *_decon1droi_*_*",
+         "drop raw::RawDigits_*_*_*"
       ]
       saveMemoryObjectThreshold: 0
       streamName: "outBNB"
