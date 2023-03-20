@@ -1,16 +1,20 @@
 outputs: {
+
    outBNB: {
+      compressionLevel: 1
       dataTier: "reconstructed"
+      fileName: "%ifb_%tc-%p.root"
       module_label: "outBNB"
-      module_type: "ROOTOutput"
-      fileName: "icarus"
-      dropCommands: [
+      module_type: "RootOutput"
+      outputCommands: [
          ".*_MCDecodeTPCROI_.*_.*",
          ".*_decon1droi_.*_.*",
          "raw::RawDigits_.*_.*_.*"
       ]
+      saveMemoryObjectThreshold: 0
       streamName: "outBNB"
    }
+
 }
 physics: {
    end_paths: [
