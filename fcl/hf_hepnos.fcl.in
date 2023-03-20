@@ -2,7 +2,7 @@ outputs: {
    outBNB: {
       dataTier: "reconstructed"
       module_label: "outBNB"
-      module_type: "HepnosSPOutput"
+      module_type: "ROOTOutput"
       fileName: "icarus"
       dropCommands: [
          ".*_MCDecodeTPCROI_.*_.*",
