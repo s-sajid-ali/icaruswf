@@ -272,6 +272,7 @@ main(int argc, char* argv[])
   // nranks and my_rank are only used to print out the rank information
   // they are not needed for getting the hostname
   auto hostname = get_hostname(my_rank, nranks);
+
   // Set special flags for running on Theta
   std::optional<std::string> env_flags;
   // hostname on theta is just nid0000, so check that we are
