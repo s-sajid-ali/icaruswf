@@ -1,9 +1,9 @@
 outputs: {
-   outBNB: {
+   out: {
       compressionLevel: 1
       dataTier: "reconstructed"
       fileName: "%ifb_%tc-%p.root"
-      module_label: "outBNB"
+      module_label: "out"
       module_type: "RootOutput"
       outputCommands: [
          "keep *_*_*_*",
@@ -12,7 +12,7 @@ outputs: {
          "drop raw::RawDigits_*_*_*"
       ]
       saveMemoryObjectThreshold: 0
-      streamName: "outBNB"
+      streamName: "out"
    }
 }
 physics: {
@@ -242,7 +242,7 @@ physics: {
       "roifinder"
    ]
    streamBNB: [
-      "outBNB"
+      "out"
    ]
    trigger_paths: [
       "reco"

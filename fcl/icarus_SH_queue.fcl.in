@@ -26,6 +26,7 @@ physics.producers: {  @table::icarus_stage0_producers
 
 services:
 {
+  Timestamp:           { }
   TFileService:           { }
   IICARUSChannelMap:      @local::icarus_channelmappinggservice
                           @table::icarus_wirecalibration_minimum_services
