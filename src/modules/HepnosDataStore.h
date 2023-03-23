@@ -1,10 +1,10 @@
 #ifndef HEPNOSDATASTORE_H
 #define HEPNOSDATASTORE_H
 
-#include <art/Framework/Services/Registry/ServiceDeclarationMacros.h>
-#include <art/Framework/Services/Registry/ServiceTable.h>
-#include <fhiclcpp/types/Atom.h>
-#include <hepnos.hpp>
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
+#include "art/Framework/Services/Registry/ServiceTable.h"
+#include "fhiclcpp/types/Atom.h"
+#include "hepnos.hpp"
 
 #include <atomic>
 #include <condition_variable>

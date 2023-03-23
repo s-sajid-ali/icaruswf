@@ -49,3 +49,7 @@ export LARCOREOBJ_LIB=${LARCOREOBJ_DIR}/lib
 export THALLIUM_LIB=${THALLIUM_DIR}/lib
 
 export FW_SEARCH_PATH=${ICARUSALG_DIR}/gdml:${FW_SEARCH_PATH}
+
+export NUMA_DIR=`spack location -i numactl`
+export NUMA_INC=${NUMA_DIR}/include
+export NUMA_LIB=${NUMA_DIR}/lib
