@@ -59,7 +59,6 @@ outputs: {
       ]
       streamName: "out"
    }
-
 }
 
 source: {
