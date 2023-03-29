@@ -62,10 +62,12 @@ namespace icaruswf {
     std::function<void(void)> work;
 
     /* Mutex */
-    std::mutex mutex;
+    std::mutex mutex_hepnos_thread;
+    std::mutex mutex_calling_thread_resume;
 
     /* Condition Variable to singal work status */
-    std::condition_variable cond_var;
+    std::condition_variable cond_var_work_status;
+    std::condition_variable cond_var_resume_execution;
   };
 } // namespace icaruswf
 

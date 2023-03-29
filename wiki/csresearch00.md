@@ -8,7 +8,7 @@
 
 4. setup spack: `source /scratch/gartung/spack/share/spack/setup-env.sh`
 
-5. load the compiler via `spack load gcc@9.3.0`; activate spack environment, the current one available on csresearch is: `spack env activate icaruscode-09_37_02_vecmt04-hepnos-0_7_0`
+5. load the compiler via `spack load gcc@9.3.0`; activate spack environment, the current one available on csresearch is: `spack env activate icaruscode-09_37_02_vecmt04-hepnos-0_7_1`
 
 6. set up the environment variables: `source ${ICARUSWF_SRC}/envvariable.sh`
 

@@ -2,7 +2,7 @@ outputs: {
    out: {
       compressionLevel: 1
       dataTier: "reconstructed"
-      fileName: "%ifb_%tc-%p.root"
+      fileName: "sp_output.root"
       module_label: "out"
       module_type: "RootOutput"
       outputCommands: [

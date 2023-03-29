@@ -10,14 +10,20 @@ namespace icaruswf {
 
     hepnos_exec_thread_ = std::thread([this] {
       while (true) {
-        std::unique_lock<std::mutex> local_lock(this->mutex);
+        std::unique_lock<std::mutex> local_lock(this->mutex_hepnos_thread);
         if (!this->work_to_do) {
-          this->cond_var.wait(local_lock);
+          this->cond_var_work_status.wait(local_lock);
         }
         if (this->active == true) {
+          std::unique_lock<std::mutex> lock_resume_caller(
+            this->mutex_calling_thread_resume);
+
+          // execute given work
           std::cout << "[HEPnOS thread status] working \n";
           this->work();
           this->work_to_do = 0;
+
+          this->cond_var_resume_execution.notify_one();
           continue;
         } else {
           std::cout << "[HEPnOS thread status] exiting \n";
@@ -35,13 +41,6 @@ namespace icaruswf {
     };
     this->set_work_function(f);
     this->set_work_state();
-    this->wait();
-  }
-
-  /* Let the worker thread execute work function */
-  void
-  HepnosDataStore::wait()
-  {
     while (true) {
       if (this->work_to_do == 0) {
         break;
@@ -49,6 +48,23 @@ namespace icaruswf {
         continue;
       }
     }
+  }
+
+  /* Let the worker thread execute work function */
+  void
+  HepnosDataStore::wait()
+  {
+
+    std::unique_lock<std::mutex> lock_resume(this->mutex_calling_thread_resume);
+    // in case we have given a small task that has already been completed!
+    if (this->work_to_do == 0) {
+      return;
+    } else {
+      // std::cout << "[calling thread] will wait for resuming \n";
+      this->cond_var_resume_execution.wait(lock_resume);
+      // std::cout << "[calling thread] after being resumed \n";
+    }
+
     return;
   };
 
@@ -57,9 +73,9 @@ namespace icaruswf {
   HepnosDataStore::set_work_state()
   {
     if (this->work_to_do == 0) {
-      std::unique_lock<std::mutex> local_lock(this->mutex);
+      std::unique_lock<std::mutex> local_lock(this->mutex_hepnos_thread);
       this->work_to_do = 1;
-      this->cond_var.notify_one();
+      this->cond_var_work_status.notify_one();
     } else {
       std::cerr << "[HEPnOS worker thread] set-work-state: trying to set work "
                    "when there is already work to do!";
@@ -96,7 +112,7 @@ namespace icaruswf {
 
     this->active = false;
     this->work_to_do = 1;
-    this->cond_var.notify_one();
+    this->cond_var_work_status.notify_one();
 
     return;
   }
