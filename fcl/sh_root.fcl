@@ -1,0 +1,96 @@
+#include "mchitmodules.fcl"
+#include "mcreco.fcl"
+#include "mctrutht0matching.fcl"
+#include "stage0_icarus_mc_defs.fcl"
+#include "stage0_icarus_defs.fcl"
+#include "services_common_icarus.fcl"
+#include "channelmapping_icarus.fcl"
+
+process_name: HitFinding
+
+
+## Add the MC module to the list of producers
+physics.producers: {  @table::icarus_stage0_producers
+                      @table::icarus_stage0_mc_producers
+                   }
+
+ physics.filters:
+ {
+     @table::icarus_stage0_filters
+ }
+
+ physics.analyzers:
+ {
+     @table::icarus_stage0_analyzers
+ }
+
+services:
+{
+  Timestamp:           { }
+  TFileService:           { }
+  IICARUSChannelMap:      @local::icarus_channelmappinggservice
+                          @table::icarus_wirecalibration_minimum_services
+
+   HepnosDataStore: { 
+      protocol: "ofi+tcp"
+   }
+}
+
+## Use the following to run the full defined stage0 set of modules
+physics.reco: [
+               "MCDecodeTPCROI",
+               "decon1droi",
+               "roifinder",
+               "gaushitTPCEE",
+               "gaushitTPCEW",
+               "gaushitTPCWE",
+               "gaushitTPCWW"
+              ]
+
+outputs: {
+   out: {
+      compressionLevel: 1
+      dataTier: "reconstructed"
+      fileName: "sp_output.root"
+      module_label: "out"
+      module_type: "RootOutput"
+      outputCommands: [
+         "keep *_*_*_*",
+         "drop *_MCDecodeTPCROI_*_*",
+         "drop *_decon1droi_*_*",
+         "drop raw::RawDigits_*_*_*"
+      ]
+      saveMemoryObjectThreshold: 0
+      streamName: "out"
+   }
+}
+
+source: {
+   maxEvents: 10
+   module_label: "source"
+   module_type: "RootInput"
+   saveMemoryObjectThreshold: 0
+}
+
+physics.ep: [ out ]
+
+# Set up for the single module mutliple TPC mode...
+physics.producers.MCDecodeTPCROI.FragmentsLabelVec:   ["daq3:PHYSCRATEDATATPCWW","daq2:PHYSCRATEDATATPCWE","daq1:PHYSCRATEDATATPCEW","daq0:PHYSCRATEDATATPCEE"]
+physics.producers.MCDecodeTPCROI.OutInstanceLabelVec: ["PHYSCRATEDATATPCWW",     "PHYSCRATEDATATPCWE",     "PHYSCRATEDATATPCEW",     "PHYSCRATEDATATPCEE"]
+physics.producers.decon1droi.RawDigitLabelVec:        ["MCDecodeTPCROI:PHYSCRATEDATATPCWW","MCDecodeTPCROI:PHYSCRATEDATATPCWE","MCDecodeTPCROI:PHYSCRATEDATATPCEW","MCDecodeTPCROI:PHYSCRATEDATATPCEE"]
+
+physics.producers.roifinder.WireModuleLabelVec: ["decon1droi:PHYSCRATEDATATPCWW","decon1droi:PHYSCRATEDATATPCWE","decon1droi:PHYSCRATEDATATPCEW","decon1droi:PHYSCRATEDATATPCEE"]
+
+services.FileCatalogMetadata:       @erase
+services.DuplicateEventTracker:     @erase
+services.SpaceChargeService:        @erase
+services.BackTrackerService:        @erase
+services.ParticleInventoryService:  @erase
+
+services.ChannelStatusService.ChannelStatusProvider.UseDB: false
+services.ChannelStatusService.ChannelStatusProvider.UseFile: false
+services.DetPedestalService.DetPedestalRetrievalAlg.UseDB: false
+services.DetPedestalService.DetPedestalRetrievalAlg.UseFile: false
+services.DetectorClocksService.InheritClockConfig: false
+services.DetectorPropertiesService.InheritNumberTimeSamples: false 
+

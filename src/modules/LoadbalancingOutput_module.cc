@@ -511,7 +511,7 @@ LoadbalancingOutput::LoadbalancingOutput(Parameters const& ps)
 
   {
     std::function<void(void)> f = [&]() {
-      async_ = hepnos::AsyncEngine(datastore_, 8);
+      async_ = hepnos::AsyncEngine(datastore_, 1);
       return;
     };
     this->run_hepnos_func(f);

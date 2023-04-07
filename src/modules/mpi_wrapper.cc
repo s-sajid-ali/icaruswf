@@ -187,7 +187,7 @@ runSP(int my_rank,
     cmd.append(env_flags.value());
   }
   cmd.append("art --nschedules 1 --nthreads " + std::to_string(nthreads) +
-             nevts + nskip + " -c sp_root.fcl " + timedb + memdb + " -s ");
+             nevts + nskip + " -c sh_root.fcl " + timedb + memdb + " -s ");
   cmd.append(path);
   std::string outfile = " &> ";
   outfile.append("sp_log.txt");
@@ -309,9 +309,9 @@ main(int argc, char* argv[])
     if (runSP(my_rank, events, nthreads, root_file_path, env_flags) != 0) {
       std::cerr << "error when running signal processing with ROOT!";
     }
-    if (runHF(my_rank, events, nthreads, env_flags) != 0) {
-      std::cerr << "error when running hit finding with ROOT!";
-    }
+//    if (runHF(my_rank, events, nthreads, env_flags) != 0) {
+//      std::cerr << "error when running hit finding with ROOT!";
+//    }
   }
 
   return 0;

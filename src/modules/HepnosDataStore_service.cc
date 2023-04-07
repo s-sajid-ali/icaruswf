@@ -19,14 +19,14 @@ namespace icaruswf {
             this->mutex_calling_thread_resume);
 
           // execute given work
-          std::cout << "[HEPnOS thread status] working \n";
+          // std::cout << "[HEPnOS thread status] working \n";
           this->work();
           this->work_to_do = 0;
 
           this->cond_var_resume_execution.notify_one();
           continue;
         } else {
-          std::cout << "[HEPnOS thread status] exiting \n";
+          // std::cout << "[HEPnOS thread status] exiting \n";
           return;
         }
       }
