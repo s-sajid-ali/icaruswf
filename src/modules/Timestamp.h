@@ -17,8 +17,8 @@ namespace art {
 }
 
 namespace icaruswf {
-
-  using time_point = std::chrono::time_point<std::chrono::system_clock>;
+  using clock_type = std::chrono::steady_clock;
+  using time_point = std::chrono::time_point<clock_type>;
 
   struct Record {
     time_point when;

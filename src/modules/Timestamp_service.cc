@@ -48,7 +48,7 @@ makeRecord()
 {
   unsigned int cpu = sched_getcpu();
   unsigned int node = numa_node_of_cpu(cpu);
-  return {std::chrono::system_clock::now(), cpu, node};
+  return {icaruswf::clock_type::now(), cpu, node};
 }
 
 void 
