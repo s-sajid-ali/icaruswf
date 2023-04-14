@@ -6,7 +6,7 @@ import shutil
 
 
 class HEPnOS_server(ApplicationDefinition):
-    site = "balsam_basics"
+    site = "balsam"
 
     environment_variables = {
         "ICARUSWF_BUILD": "/projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build",
@@ -65,7 +65,7 @@ HEPnOS_server.submit(
 
 
 class HEPnOS_list_dbs(ApplicationDefinition):
-    site = "balsam_basics"
+    site = "balsam"
 
     environment_variables = {
         "ICARUSWF_BUILD": "/projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build",
@@ -79,7 +79,7 @@ class HEPnOS_list_dbs(ApplicationDefinition):
 
     def preprocess(self) -> None:
         ssg_src_file = Path(
-            "/projects/HEP_on_HPC/sajid/icarus_hepnos/balsam_basics/data/server/hepnos.ssg"
+            "/projects/HEP_on_HPC/sajid/icarus_hepnos/balsam/data/server/hepnos.ssg"
         )
         while True:
             time.sleep(5)
@@ -147,7 +147,7 @@ HEPnOS_list_dbs.sync()
 
 job_list_dbs = Job.objects.create(
     app_id="HEPnOS_list_dbs",
-    site_name="balsam_basics",
+    site_name="balsam",
     workdir=Path("connection"),
     num_nodes=1,
     ranks_per_node=1,
@@ -158,7 +158,7 @@ job_list_dbs = Job.objects.create(
 job_list_dbs.save()
 
 class HEPnOS_queue(ApplicationDefinition):
-    site = "balsam_basics"
+    site = "balsam"
 
     environment_variables = {
         "ICARUSWF_BUILD": "/projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build",
@@ -172,7 +172,7 @@ class HEPnOS_queue(ApplicationDefinition):
 
     def preprocess(self) -> None:
         connection_src_file = Path(
-            "/projects/HEP_on_HPC/sajid/icarus_hepnos/balsam_basics/data/connection/connection.json"
+            "/projects/HEP_on_HPC/sajid/icarus_hepnos/balsam/data/connection/connection.json"
         )
 
         workdir: PurePath = PurePath(Path.cwd())
@@ -210,7 +210,7 @@ HEPnOS_queue.sync()
 
 job_queue = Job.objects.create(
     app_id=HEPnOS_queue.__app_id__,
-    site_name="balsam_basics",
+    site_name="balsam",
     workdir=Path("queue"),
     num_nodes=1,
     ranks_per_node=1,
@@ -221,7 +221,7 @@ job_queue = Job.objects.create(
 )
 
 class HEPnOS_load(ApplicationDefinition):
-    site = "balsam_basics"
+    site = "balsam"
 
     environment_variables = {
         "ICARUSWF_BUILD": "/projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build",
@@ -235,7 +235,7 @@ class HEPnOS_load(ApplicationDefinition):
 
     def preprocess(self) -> None:
         connection_src_file = Path(
-            "/projects/HEP_on_HPC/sajid/icarus_hepnos/balsam_basics/data/connection/connection.json"
+            "/projects/HEP_on_HPC/sajid/icarus_hepnos/balsam/data/connection/connection.json"
         )
 
         workdir: PurePath = PurePath(Path.cwd())
@@ -281,7 +281,7 @@ for i in range(3):
     input_file = data_dir + f"""detsim_{i:02d}.root"""
     job_load = Job.objects.create(
         app_id=HEPnOS_load.__app_id__,
-        site_name="balsam_basics",
+        site_name="balsam",
         workdir=Path(f"""detsim_{i:02d}"""),
         num_nodes=1,
         ranks_per_node=32,
@@ -294,7 +294,7 @@ for i in range(3):
 
 
 class HEPnOS_process(ApplicationDefinition):
-    site = "balsam_basics"
+    site = "balsam"
 
     environment_variables = {
         "ICARUSWF_BUILD": "/projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build",
@@ -308,7 +308,7 @@ class HEPnOS_process(ApplicationDefinition):
 
     def preprocess(self) -> None:
         connection_src_file = Path(
-            "/projects/HEP_on_HPC/sajid/icarus_hepnos/balsam_basics/data/connection/connection.json"
+            "/projects/HEP_on_HPC/sajid/icarus_hepnos/balsam/data/connection/connection.json"
         )
 
         workdir: PurePath = PurePath(Path.cwd())
@@ -351,13 +351,77 @@ HEPnOS_process.sync()
 
 job_process = Job.objects.create(
     app_id=HEPnOS_process.__app_id__,
-    site_name="balsam_basics",
+    site_name="balsam",
     workdir=Path("process"),
     num_nodes=3,
     ranks_per_node=32,
     threads_per_rank=2,
     threads_per_core=1,
     node_packing_count=1,
-    parent_ids=[job_list_dbs.id],
+    parent_ids=[job_load.id],
     parameters={"client_hwthreads_perrank": 2},
 )
+
+class HEPnOS_shutdown(ApplicationDefinition):
+    site = "balsam"
+
+    environment_variables = {
+        "ICARUSWF_BUILD": "/projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build",
+        "MPICH_GNI_NDREG_ENTRIES": "1024",
+        "MPICH_MAX_THREAD_SAFETY": "multiple",
+        "MARGO_ENABLE_PROFILING": "0",
+        "MARGO_ENABLE_DIAGNOSTICS": "0",
+        "PDOMAIN": "hepnos-sajid",
+        "SSGFILE": "hepnos.ssg",
+    }
+
+    def preprocess(self) -> None:
+        connection_src_file = Path(
+            "/projects/HEP_on_HPC/sajid/icarus_hepnos/balsam/data/connection/connection.json"
+        )
+
+        workdir: PurePath = PurePath(Path.cwd())
+        connection_dst_file = Path(workdir.joinpath("connection.json"))
+        shutil.copyfile(connection_src_file, connection_dst_file)
+
+        # Ready to run
+        self.job.state = JobState.preprocessed
+
+        return
+
+    def shell_preamble(self):
+        preamble = str(
+            """
+        module unload darshan
+        module swap PrgEnv-intel PrgEnv-gnu
+        module load gcc/9.3.0 
+        module swap cray-mpich/7.7.14 cray-mpich-abi/7.7.14
+        # activate spack environment
+        . /projects/HEP_on_HPC/icaruscode/spack/share/spack/setup-env.sh
+        spack env activate icaruscode-09_37_02_vecmt04-hepnos-0_7_2
+        # set relevant env vars
+        export CET_PLUGIN_PATH=${ICARUSWF_BUILD}/src/modules:${CET_PLUGIN_PATH}
+        export FHICL_FILE_PATH=${ICARUSWF_BUILD}/fcl:${FHICL_FILE_PATH}
+        export FW_SEARCH_PATH=${FW_SEARCH_PATH}:/lus/theta-fs0/projects/HEP_on_HPC/icaruscode/spack/var/spack/environments/icaruscode-09_37_02_vecmt04-hepnos-0_7_2/.spack-env/view/gdml
+        # Setting up protection domain
+        apstat -P | grep ${PDOMAIN} || apmgr pdomain -c -u ${PDOMAIN}
+        """
+        )
+        return preamble
+
+    command_template = "-p hepnos-sajid hepnos-shutdown ofi+gni connection.json"
+
+HEPnOS_shutdown.sync()
+
+job_shutdown = Job.objects.create(
+    app_id=HEPnOS_shutdown.__app_id__,
+    site_name="balsam",
+    workdir=Path("shutdown"),
+    num_nodes=1,
+    ranks_per_node=1,
+    threads_per_rank=1,
+    threads_per_core=1,
+    node_packing_count=1,
+    parent_ids=[job_process.id],
+)
+
