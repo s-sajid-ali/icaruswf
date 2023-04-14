@@ -31,9 +31,9 @@ services:
   IICARUSChannelMap:      @local::icarus_channelmappinggservice
                           @table::icarus_wirecalibration_minimum_services
 
-   HepnosDataStore: { 
-      protocol: "ofi+tcp"
-   }
+
+
+
 }
 
 ## Use the following to run the full defined stage0 set of modules
