@@ -41,9 +41,9 @@
 
 #include "EID.h"
 #include "HepnosDataStore.h"
+#include "Timestamp.h"
 #include <boost/serialization/utility.hpp>
 #include <tuple>
-#include "Timestamp.h"
 
 using namespace std;
 namespace hepnos {
@@ -416,13 +416,6 @@ namespace icaruswf {
     unsigned firstEvent_;
   };
 
-  struct TimestampSentry {
-    ~TimestampSentry() {
-      art::ServiceHandle<icaruswf::Timestamp> h;
-      h->updateEndOfRead(); 
-    }
-  };
-  
   bool
   LoadbalancingInput::readNext(art::RunPrincipal* const& inR,
                                art::SubRunPrincipal* const& inSR,
@@ -430,7 +423,6 @@ namespace icaruswf {
                                art::SubRunPrincipal*& outSR,
                                art::EventPrincipal*& outE)
   {
-    TimestampSentry tss;
     if (nEvents_ == maxEvents_)
       return false;
     // pop event ID of the queue
@@ -484,11 +476,12 @@ namespace icaruswf {
     }
 
     {
-      std::function<void(void)> f = [&]() {
-        ++nEvents_;
-      };
+      std::function<void(void)> f = [&]() { ++nEvents_; };
       this->run_hepnos_func(f);
     }
+
+    art::ServiceHandle<icaruswf::Timestamp> h;
+    h->updateEndOfRead();
 
     return true;
   }
