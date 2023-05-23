@@ -157,6 +157,7 @@ job_list_dbs = Job.objects.create(
 )
 job_list_dbs.save()
 
+
 class HEPnOS_queue(ApplicationDefinition):
     site = "balsam"
 
@@ -206,6 +207,7 @@ class HEPnOS_queue(ApplicationDefinition):
 
     command_template = "-p hepnos-sajid /projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build/src/modules/cheesyQueue_maker ofi+gni connection.json DetSim HitFinding"
 
+
 HEPnOS_queue.sync()
 
 job_queue = Job.objects.create(
@@ -219,6 +221,7 @@ job_queue = Job.objects.create(
     node_packing_count=1,
     parent_ids=[job_list_dbs.id],
 )
+
 
 class HEPnOS_load(ApplicationDefinition):
     site = "balsam"
@@ -277,9 +280,9 @@ class HEPnOS_load(ApplicationDefinition):
 HEPnOS_load.sync()
 
 data_dir = "/projects/HEP_on_HPC/sajid/icarus_hepnos/data/"
-for i in range(3):
-    input_file = data_dir + f"""detsim_{i:02d}.root"""
-    job_load = Job.objects.create(
+
+job_load = [
+    Job(
         app_id=HEPnOS_load.__app_id__,
         site_name="balsam",
         workdir=Path(f"""detsim_{i:02d}"""),
@@ -289,8 +292,12 @@ for i in range(3):
         threads_per_core=1,
         node_packing_count=1,
         parent_ids=[job_queue.id],
-        parameters={"input_filename": input_file},
+        parameters={"input_filename": data_dir + f"""detsim_{i:02d}.root"""},
     )
+    for i in range(3)
+]
+
+job_load = Job.objects.bulk_create(job_load)
 
 
 class HEPnOS_process(ApplicationDefinition):
@@ -358,9 +365,10 @@ job_process = Job.objects.create(
     threads_per_rank=2,
     threads_per_core=1,
     node_packing_count=1,
-    parent_ids=[job_load.id],
+    parent_ids= [job.id for job in job_load],
     parameters={"client_hwthreads_perrank": 2},
 )
+
 
 class HEPnOS_shutdown(ApplicationDefinition):
     site = "balsam"
@@ -411,6 +419,7 @@ class HEPnOS_shutdown(ApplicationDefinition):
 
     command_template = "-p hepnos-sajid hepnos-shutdown ofi+gni connection.json"
 
+
 HEPnOS_shutdown.sync()
 
 job_shutdown = Job.objects.create(
@@ -424,4 +433,3 @@ job_shutdown = Job.objects.create(
     node_packing_count=1,
     parent_ids=[job_process.id],
 )
-
