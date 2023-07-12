@@ -1,12 +1,13 @@
-from balsam.api import ApplicationDefinition, Job
+from balsam.api import ApplicationDefinition
 from pathlib import Path, PurePath
 from balsam.schemas import JobState
 import time
 import shutil
+import site_def
 
 
 class HEPnOS_server(ApplicationDefinition):
-    site = "balsam"
+    site = site_def.SITE_NAME
 
     environment_variables = {
         "ICARUSWF_BUILD": "/projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build",
@@ -14,7 +15,6 @@ class HEPnOS_server(ApplicationDefinition):
         "MPICH_MAX_THREAD_SAFETY": "multiple",
         "MARGO_ENABLE_PROFILING": "0",
         "MARGO_ENABLE_DIAGNOSTICS": "0",
-        "PDOMAIN": "hepnos-sajid",
         "SSGFILE": "hepnos.ssg",
     }
 
@@ -32,40 +32,25 @@ class HEPnOS_server(ApplicationDefinition):
         export CET_PLUGIN_PATH=${ICARUSWF_BUILD}/src/modules:${CET_PLUGIN_PATH}
         export FHICL_FILE_PATH=${ICARUSWF_BUILD}/fcl:${FHICL_FILE_PATH}
         export FW_SEARCH_PATH=${FW_SEARCH_PATH}:/lus/theta-fs0/projects/HEP_on_HPC/icaruscode/spack/var/spack/environments/icaruscode-09_37_02_vecmt04-hepnos-0_7_2/.spack-env/view/gdml
-        # Setting up protection domain
-        apstat -P | grep ${PDOMAIN} || apmgr pdomain -c -u ${PDOMAIN}
         """
         )
         return preamble
 
     command_template = (
-        "-p hepnos-sajid bedrock ofi+gni -c {{ hepnos_config }} -v info &> server-log"
+        "-p {{ pdomain }} bedrock ofi+gni -c {{ hepnos_config }} -v info &> server-log"
     )
 
     parameters = {
+        "pdomain": {"required": True},
         "hepnos_config": {"required": True},
     }
 
 
 HEPnOS_server.sync()
 
-hepnos_config_file: str = (
-    "/projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build/test/hepnos.json"
-)
-
-HEPnOS_server.submit(
-    workdir=Path("server"),
-    num_nodes=1,
-    ranks_per_node=32,
-    threads_per_rank=2,
-    threads_per_core=1,
-    node_packing_count=1,
-    hepnos_config=hepnos_config_file,
-)
-
 
 class HEPnOS_list_dbs(ApplicationDefinition):
-    site = "balsam"
+    site = site_def.SITE_NAME
 
     environment_variables = {
         "ICARUSWF_BUILD": "/projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build",
@@ -73,13 +58,16 @@ class HEPnOS_list_dbs(ApplicationDefinition):
         "MPICH_MAX_THREAD_SAFETY": "multiple",
         "MARGO_ENABLE_PROFILING": "0",
         "MARGO_ENABLE_DIAGNOSTICS": "0",
-        "PDOMAIN": "hepnos-sajid",
         "SSGFILE": "hepnos.ssg",
     }
 
     def preprocess(self) -> None:
         ssg_src_file = Path(
-            "/projects/HEP_on_HPC/sajid/icarus_hepnos/balsam/data/server/hepnos.ssg"
+            "/projects/HEP_on_HPC/sajid/icarus_hepnos/"
+            + site_def.SITE_NAME
+            + "/data/server_"
+            + str(site_def.PDOMAIN)
+            + "/hepnos.ssg"
         )
         while True:
             time.sleep(5)
@@ -109,15 +97,16 @@ class HEPnOS_list_dbs(ApplicationDefinition):
         export CET_PLUGIN_PATH=${ICARUSWF_BUILD}/src/modules:${CET_PLUGIN_PATH}
         export FHICL_FILE_PATH=${ICARUSWF_BUILD}/fcl:${FHICL_FILE_PATH}
         export FW_SEARCH_PATH=${FW_SEARCH_PATH}:/lus/theta-fs0/projects/HEP_on_HPC/icaruscode/spack/var/spack/environments/icaruscode-09_37_02_vecmt04-hepnos-0_7_2/.spack-env/view/gdml
-        # Setting up protection domain
-        apstat -P | grep ${PDOMAIN} || apmgr pdomain -c -u ${PDOMAIN}
         """
         )
         return preamble
 
     command_template = (
-        "-p hepnos-sajid hepnos-list-databases ofi+gni -s hepnos.ssg > out.json"
+        "-p {{ pdomain }} hepnos-list-databases ofi+gni -s hepnos.ssg > out.json"
     )
+    parameters = {
+        "pdomain": {"required": True},
+    }
 
     def postprocess(self) -> None:
         workdir: PurePath = PurePath(Path.cwd())
@@ -145,21 +134,9 @@ class HEPnOS_list_dbs(ApplicationDefinition):
 
 HEPnOS_list_dbs.sync()
 
-job_list_dbs = Job.objects.create(
-    app_id="HEPnOS_list_dbs",
-    site_name="balsam",
-    workdir=Path("connection"),
-    num_nodes=1,
-    ranks_per_node=1,
-    threads_per_rank=1,
-    threads_per_core=1,
-    node_packing_count=1,
-)
-job_list_dbs.save()
-
 
 class HEPnOS_queue(ApplicationDefinition):
-    site = "balsam"
+    site = site_def.SITE_NAME
 
     environment_variables = {
         "ICARUSWF_BUILD": "/projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build",
@@ -167,13 +144,16 @@ class HEPnOS_queue(ApplicationDefinition):
         "MPICH_MAX_THREAD_SAFETY": "multiple",
         "MARGO_ENABLE_PROFILING": "0",
         "MARGO_ENABLE_DIAGNOSTICS": "0",
-        "PDOMAIN": "hepnos-sajid",
         "SSGFILE": "hepnos.ssg",
     }
 
     def preprocess(self) -> None:
         connection_src_file = Path(
-            "/projects/HEP_on_HPC/sajid/icarus_hepnos/balsam/data/connection/connection.json"
+            "/projects/HEP_on_HPC/sajid/icarus_hepnos/"
+            + site_def.SITE_NAME
+            + "/data/connection_"
+            + str(site_def.PDOMAIN)
+            + "/connection.json"
         )
 
         workdir: PurePath = PurePath(Path.cwd())
@@ -199,32 +179,21 @@ class HEPnOS_queue(ApplicationDefinition):
         export CET_PLUGIN_PATH=${ICARUSWF_BUILD}/src/modules:${CET_PLUGIN_PATH}
         export FHICL_FILE_PATH=${ICARUSWF_BUILD}/fcl:${FHICL_FILE_PATH}
         export FW_SEARCH_PATH=${FW_SEARCH_PATH}:/lus/theta-fs0/projects/HEP_on_HPC/icaruscode/spack/var/spack/environments/icaruscode-09_37_02_vecmt04-hepnos-0_7_2/.spack-env/view/gdml
-        # Setting up protection domain
-        apstat -P | grep ${PDOMAIN} || apmgr pdomain -c -u ${PDOMAIN}
         """
         )
         return preamble
 
-    command_template = "-p hepnos-sajid /projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build/src/modules/cheesyQueue_maker ofi+gni connection.json DetSim HitFinding"
+    command_template = "-p {{ pdomain }} /projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build/src/modules/cheesyQueue_maker ofi+gni connection.json DetSim HitFinding"
+    parameters = {
+        "pdomain": {"required": True},
+    }
 
 
 HEPnOS_queue.sync()
 
-job_queue = Job.objects.create(
-    app_id=HEPnOS_queue.__app_id__,
-    site_name="balsam",
-    workdir=Path("queue"),
-    num_nodes=1,
-    ranks_per_node=1,
-    threads_per_rank=1,
-    threads_per_core=1,
-    node_packing_count=1,
-    parent_ids=[job_list_dbs.id],
-)
-
 
 class HEPnOS_load(ApplicationDefinition):
-    site = "balsam"
+    site = site_def.SITE_NAME
 
     environment_variables = {
         "ICARUSWF_BUILD": "/projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build",
@@ -232,13 +201,16 @@ class HEPnOS_load(ApplicationDefinition):
         "MPICH_MAX_THREAD_SAFETY": "multiple",
         "MARGO_ENABLE_PROFILING": "0",
         "MARGO_ENABLE_DIAGNOSTICS": "0",
-        "PDOMAIN": "hepnos-sajid",
         "SSGFILE": "hepnos.ssg",
     }
 
     def preprocess(self) -> None:
         connection_src_file = Path(
-            "/projects/HEP_on_HPC/sajid/icarus_hepnos/balsam/data/connection/connection.json"
+            "/projects/HEP_on_HPC/sajid/icarus_hepnos/"
+            + site_def.SITE_NAME
+            + "/data/connection_"
+            + str(site_def.PDOMAIN)
+            + "/connection.json"
         )
 
         workdir: PurePath = PurePath(Path.cwd())
@@ -264,44 +236,23 @@ class HEPnOS_load(ApplicationDefinition):
         export CET_PLUGIN_PATH=${ICARUSWF_BUILD}/src/modules:${CET_PLUGIN_PATH}
         export FHICL_FILE_PATH=${ICARUSWF_BUILD}/fcl:${FHICL_FILE_PATH}
         export FW_SEARCH_PATH=${FW_SEARCH_PATH}:/lus/theta-fs0/projects/HEP_on_HPC/icaruscode/spack/var/spack/environments/icaruscode-09_37_02_vecmt04-hepnos-0_7_2/.spack-env/view/gdml
-        # Setting up protection domain
-        apstat -P | grep ${PDOMAIN} || apmgr pdomain -c -u ${PDOMAIN}
         """
         )
         return preamble
 
-    command_template = "-p hepnos-sajid /projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build/src/modules/mpi_wrapper -H --num_evts_per_rank 1 --root_file_path {{ input_filename }}"
+    command_template = "-p {{ pdomain }} /projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build/src/modules/mpi_wrapper -H --num_evts_per_rank 1 --root_file_path {{ input_filename }}"
 
     parameters = {
+        "pdomain": {"required": True},
         "input_filename": {"required": True},
     }
 
 
 HEPnOS_load.sync()
 
-data_dir = "/projects/HEP_on_HPC/sajid/icarus_hepnos/data/"
-
-job_load = [
-    Job(
-        app_id=HEPnOS_load.__app_id__,
-        site_name="balsam",
-        workdir=Path(f"""detsim_{i:02d}"""),
-        num_nodes=1,
-        ranks_per_node=32,
-        threads_per_rank=2,
-        threads_per_core=1,
-        node_packing_count=1,
-        parent_ids=[job_queue.id],
-        parameters={"input_filename": data_dir + f"""detsim_{i:02d}.root"""},
-    )
-    for i in range(3)
-]
-
-job_load = Job.objects.bulk_create(job_load)
-
 
 class HEPnOS_process(ApplicationDefinition):
-    site = "balsam"
+    site = site_def.SITE_NAME
 
     environment_variables = {
         "ICARUSWF_BUILD": "/projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build",
@@ -309,13 +260,16 @@ class HEPnOS_process(ApplicationDefinition):
         "MPICH_MAX_THREAD_SAFETY": "multiple",
         "MARGO_ENABLE_PROFILING": "0",
         "MARGO_ENABLE_DIAGNOSTICS": "0",
-        "PDOMAIN": "hepnos-sajid",
         "SSGFILE": "hepnos.ssg",
     }
 
     def preprocess(self) -> None:
         connection_src_file = Path(
-            "/projects/HEP_on_HPC/sajid/icarus_hepnos/balsam/data/connection/connection.json"
+            "/projects/HEP_on_HPC/sajid/icarus_hepnos/"
+            + site_def.SITE_NAME
+            + "/data/connection_"
+            + str(site_def.PDOMAIN)
+            + "/connection.json"
         )
 
         workdir: PurePath = PurePath(Path.cwd())
@@ -341,37 +295,23 @@ class HEPnOS_process(ApplicationDefinition):
         export CET_PLUGIN_PATH=${ICARUSWF_BUILD}/src/modules:${CET_PLUGIN_PATH}
         export FHICL_FILE_PATH=${ICARUSWF_BUILD}/fcl:${FHICL_FILE_PATH}
         export FW_SEARCH_PATH=${FW_SEARCH_PATH}:/lus/theta-fs0/projects/HEP_on_HPC/icaruscode/spack/var/spack/environments/icaruscode-09_37_02_vecmt04-hepnos-0_7_2/.spack-env/view/gdml
-        # Setting up protection domain
-        apstat -P | grep ${PDOMAIN} || apmgr pdomain -c -u ${PDOMAIN}
         """
         )
         return preamble
 
-    command_template = "-p hepnos-sajid /projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build/src/modules/mpi_wrapper -H -p -t {{client_hwthreads_perrank}} --num_evts_per_rank 1"
+    command_template = "-p {{ pdomain }} /projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build/src/modules/mpi_wrapper -H -p -t {{client_hwthreads_perrank}} --num_evts_per_rank 1"
 
     parameters = {
+        "pdomain": {"required": True},
         "client_hwthreads_perrank": {"required": True},
     }
 
 
 HEPnOS_process.sync()
 
-job_process = Job.objects.create(
-    app_id=HEPnOS_process.__app_id__,
-    site_name="balsam",
-    workdir=Path("process"),
-    num_nodes=3,
-    ranks_per_node=32,
-    threads_per_rank=2,
-    threads_per_core=1,
-    node_packing_count=1,
-    parent_ids= [job.id for job in job_load],
-    parameters={"client_hwthreads_perrank": 2},
-)
-
 
 class HEPnOS_shutdown(ApplicationDefinition):
-    site = "balsam"
+    site = site_def.SITE_NAME
 
     environment_variables = {
         "ICARUSWF_BUILD": "/projects/HEP_on_HPC/sajid/icarus_hepnos/icaruswf/build",
@@ -379,13 +319,16 @@ class HEPnOS_shutdown(ApplicationDefinition):
         "MPICH_MAX_THREAD_SAFETY": "multiple",
         "MARGO_ENABLE_PROFILING": "0",
         "MARGO_ENABLE_DIAGNOSTICS": "0",
-        "PDOMAIN": "hepnos-sajid",
         "SSGFILE": "hepnos.ssg",
     }
 
     def preprocess(self) -> None:
         connection_src_file = Path(
-            "/projects/HEP_on_HPC/sajid/icarus_hepnos/balsam/data/connection/connection.json"
+            "/projects/HEP_on_HPC/sajid/icarus_hepnos/"
+            + site_def.SITE_NAME
+            + "/data/connection_"
+            + str(site_def.PDOMAIN)
+            + "/connection.json"
         )
 
         workdir: PurePath = PurePath(Path.cwd())
@@ -411,25 +354,12 @@ class HEPnOS_shutdown(ApplicationDefinition):
         export CET_PLUGIN_PATH=${ICARUSWF_BUILD}/src/modules:${CET_PLUGIN_PATH}
         export FHICL_FILE_PATH=${ICARUSWF_BUILD}/fcl:${FHICL_FILE_PATH}
         export FW_SEARCH_PATH=${FW_SEARCH_PATH}:/lus/theta-fs0/projects/HEP_on_HPC/icaruscode/spack/var/spack/environments/icaruscode-09_37_02_vecmt04-hepnos-0_7_2/.spack-env/view/gdml
-        # Setting up protection domain
-        apstat -P | grep ${PDOMAIN} || apmgr pdomain -c -u ${PDOMAIN}
         """
         )
         return preamble
 
-    command_template = "-p hepnos-sajid hepnos-shutdown ofi+gni connection.json"
+    command_template = "-p {{ pdomain }} hepnos-shutdown ofi+gni connection.json"
+    parameters = {"pdomain": {"required": True}}
 
 
 HEPnOS_shutdown.sync()
-
-job_shutdown = Job.objects.create(
-    app_id=HEPnOS_shutdown.__app_id__,
-    site_name="balsam",
-    workdir=Path("shutdown"),
-    num_nodes=1,
-    ranks_per_node=1,
-    threads_per_rank=1,
-    threads_per_core=1,
-    node_packing_count=1,
-    parent_ids=[job_process.id],
-)
