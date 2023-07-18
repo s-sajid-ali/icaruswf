@@ -4,7 +4,7 @@
 ```
 # environment variables for current versions of icarus code and hepnos.
 export ICARUS_VERSION=09_37_02_vecmt04
-export HEPNOS_VERSION=0_7_1
+export HEPNOS_VERSION=0_7_2
 export MERCURY_TRANSPORT_PROTOCOL="ofi+tcp"
 
 # cd into the directory where you want to work and clone the repository:
@@ -37,7 +37,7 @@ cmake -DCMAKE_CXX_COMPILER=$(which g++) -DMERCURY_TRANSPORT_PROTOCOL="${MERCURY_
 ```
 # environment variables for current versions of icarus code and hepnos, and source and build directories.
 export ICARUS_VERSION=09_37_02_vecmt04
-export HEPNOS_VERSION=0_7_1
+export HEPNOS_VERSION=0_7_2
 export MERCURY_TRANSPORT_PROTOCOL="ofi+tcp"
 export TOP_DIR=$PWD
 export ICARUSWF_SRC=${TOP_DIR}/icaruswf
@@ -56,8 +56,10 @@ spack env activate icaruscode-${ICARUS_VERSION}-hepnos-${HEPNOS_VERSION}
 
 # Set up the environment variables
 source ${ICARUSWF_SRC}/envvariable.sh
+```
 
-# Build the code
+## Build the code
+```
 cd ${ICARUSWF_BUILD}
 make -j10 all
 ```
