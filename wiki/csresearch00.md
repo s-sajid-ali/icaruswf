@@ -1,32 +1,75 @@
 # Using spack environment with icarus code and hepnos to build new code on csresearch00.fnal.gov
 
-1. clone the repository: `git clone git@github.com:HEPonHPC/icaruswf.git`
+## Establishing a new working directory 
+```
+# environment variables for current versions of icarus code and hepnos.
+export ICARUS_VERSION=09_37_02_vecmt04
+export HEPNOS_VERSION=0_7_1
 
-2. `export ICARUSWF_SRC=<path to cloned repository>`
+# cd into the directory where you want to work and clone the repository:
+export TOP_DIR=$PWD
+git clone git@github.com:HEPonHPC/icaruswf.git
+export ICARUSWF_SRC=${TOP_DIR}/icaruswf
 
-3. make a build directory for out of source build and cd into it. `export ICARUSWF_BUILD=<path to the build dir>`
+# Make a build directory for out of source build and cd into it.
+mkdir -p ${TOP_DIR}/icaruswf_build
+export ICARUSWF_BUILD=${TOP_DIR}/icaruswf_build
 
-4. setup spack: `source /scratch/gartung/spack/share/spack/setup-env.sh`
+# Setup spack:
+source /scratch/gartung/spack/share/spack/setup-env.sh
 
-5. load the compiler via `spack load gcc@9.3.0`; activate spack environment, the current one available on csresearch is: `spack env activate icaruscode-09_37_02_vecmt04-hepnos-0_7_1`
+# Load the compiler
+spack load gcc@9.3.0
 
-6. set up the environment variables: `source ${ICARUSWF_SRC}/envvariable.sh`
+# activate spack environment
+spack env activate icaruscode-${ICARUS_VERSION}-hepnos-${HEPNOS_VERSION}
 
-7. run cmake in the build directory: `cmake -DCMAKE_CXX_COMPILER=$(which g++) ${ICARUSWF_SRC}`
+# Set up the environment variables
+source ${ICARUSWF_SRC}/envvariable.sh
 
-10. build the code: `make -j10 all`
+# Run cmake in the build directory
+cd ${ICARUSWF_BUILD}
+cmake -DCMAKE_CXX_COMPILER=$(which g++) ${ICARUSWF_SRC}
+```
 
-11. Update the CET_PLUGIN_PATH: `export CET_PLUGIN_PATH=${ICARUSWF_BUILD}/src/modules:${CET_PLUGIN_PATH}`
+## Establishing a new working session
+```
+# environment variables for current versions of icarus code and hepnos, and source and build directories.
+export ICARUS_VERSION=09_37_02_vecmt04
+export HEPNOS_VERSION=0_7_1
+export TOP_DIR=$PWD
+export ICARUSWF_SRC=${TOP_DIR}/icaruswf
+export ICARUSWF_BUILD=${TOP_DIR}/icaruswf_build
+export CET_PLUGIN_PATH=${ICARUSWF_BUILD}/src/modules:${CET_PLUGIN_PATH}
+export FHICL_FILE_PATH=${ICARUSWF_BUILD}/fcl:${FHICL_FILE_PATH}
 
-12. Update the FHICL_FILE_PATH: `export FHICL_FILE_PATH=${ICARUSWF_BUILD}/fcl:${FHICL_FILE_PATH}`
+# Setup spack:
+source /scratch/gartung/spack/share/spack/setup-env.sh
 
-13. For running the icarus workflow to store and load data from hepnos via an art job, do the following: 
+# Load the compiler
+spack load gcc@9.3.0
 
-14. Move to the test sub-directory `cd ${ICARUSWF_BUILD}/test`
+# activate spack environment
+spack env activate icaruscode-${ICARUS_VERSION}-hepnos-${HEPNOS_VERSION}
 
-14.  Start hepnos server: `mpirun -np 2 bedrock ofi+tcp -c hepnos.json &`, make sure you have hepnos.json, sample will be provided. If successful, hepnos.ssg file will be created. 
+# Set up the environment variables
+source ${ICARUSWF_SRC}/envvariable.sh
 
-16.  `hepnos-list-databases ofi+tcp -s hepnos.ssg > connection.json` 
+# Build the code
+cd ${ICARUSWF_BUILD}
+make -j10 all
+```
+
+## An example of running icarus workflow to store and load data from hepnos using art
+```
+cd ${ICARUSWF_BUILD}/test
+
+#Start hepnos server
+mpirun -np 2 bedrock ofi+tcp -c hepnos.json &
+
+# make sure you have hepnos.json, sample will be provided. If successful, hepnos.ssg file will be created. 
+cp ${ICARUS_SRC}/hepnos.json .
+hepnos-list-databases ofi+tcp -s hepnos.ssg > connection.json 
 
 17.  Store data (raw::RawDigits) to hepnos for the first step, signal processing; `art -c storedata.fcl -s /scratch/cerati/icaruscode-v09_37_01_02p02/icaruscode-09_37_01_02p02-samples/prodcorsika_bnb_genie_protononly_overburden_icarus_20220118T213827-GenBNBbkgr_100evt_G4_DetSim.root -n 1`
 
