@@ -71,7 +71,6 @@ make -j10 all
 cd ${ICARUSWF_BUILD}/test
 
 #Start hepnos server using two mpi ranks.
-cp ${ICARUSWF_SRC}/test/hepnos.json hepnos.json
 mpirun -np 2 bedrock "${MERCURY_TRANSPORT_PROTOCOL}" -c hepnos.json &
 
 # If the above mpirun is successful, a hepnos.ssg file will be created. 
