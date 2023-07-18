@@ -5,6 +5,7 @@
 # environment variables for current versions of icarus code and hepnos.
 export ICARUS_VERSION=09_37_02_vecmt04
 export HEPNOS_VERSION=0_7_1
+export MERCURY_TRANSPORT_PROTOCOL="ofi+tcp"
 
 # cd into the directory where you want to work and clone the repository:
 export TOP_DIR=$PWD
@@ -29,7 +30,7 @@ source ${ICARUSWF_SRC}/envvariable.sh
 
 # Run cmake in the build directory
 cd ${ICARUSWF_BUILD}
-cmake -DCMAKE_CXX_COMPILER=$(which g++) ${ICARUSWF_SRC}
+cmake -DCMAKE_CXX_COMPILER=$(which g++) -DMERCURY_TRANSPORT_PROTOCOL="${MERCURY_TRANSPORT_PROTOCOL}" ${ICARUSWF_SRC} 
 ```
 
 ## Establishing a new working session
@@ -37,6 +38,7 @@ cmake -DCMAKE_CXX_COMPILER=$(which g++) ${ICARUSWF_SRC}
 # environment variables for current versions of icarus code and hepnos, and source and build directories.
 export ICARUS_VERSION=09_37_02_vecmt04
 export HEPNOS_VERSION=0_7_1
+export MERCURY_TRANSPORT_PROTOCOL="ofi+tcp"
 export TOP_DIR=$PWD
 export ICARUSWF_SRC=${TOP_DIR}/icaruswf
 export ICARUSWF_BUILD=${TOP_DIR}/icaruswf_build
@@ -60,26 +62,26 @@ cd ${ICARUSWF_BUILD}
 make -j10 all
 ```
 
-## An example of running icarus workflow to store and load data from hepnos using art
+## An example of running icarus workflow to store and process data from hepnos using art
 ```
 cd ${ICARUSWF_BUILD}/test
 
-#Start hepnos server
-mpirun -np 2 bedrock ofi+tcp -c hepnos.json &
+#Start hepnos server using two mpi ranks.
+cp ${ICARUSWF_SRC}/test/hepnos.json hepnos.json
+mpirun -np 2 bedrock "${MERCURY_TRANSPORT_PROTOCOL}" -c hepnos.json &
 
-# make sure you have hepnos.json, sample will be provided. If successful, hepnos.ssg file will be created. 
-cp ${ICARUS_SRC}/hepnos.json .
-hepnos-list-databases ofi+tcp -s hepnos.ssg > connection.json 
+# If the above mpirun is successful, a hepnos.ssg file will be created. 
+hepnos-list-databases "${MERCURY_TRANSPORT_PROTOCOL} -s hepnos.ssg > connection.json 
 
-17.  Store data (raw::RawDigits) to hepnos for the first step, signal processing; `art -c storedata.fcl -s /scratch/cerati/icaruscode-v09_37_01_02p02/icaruscode-09_37_01_02p02-samples/prodcorsika_bnb_genie_protononly_overburden_icarus_20220118T213827-GenBNBbkgr_100evt_G4_DetSim.root -n 1`
+# Store data (raw::RawDigits) to hepnos for the first step, followed by running signal processing, hit finding and  pandora. 
+art -c storedata.fcl -s /scratch/cerati/icaruscode-v09_37_01_02p02/icaruscode-09_37_01_02p02-samples/prodcorsika_bnb_genie_protononly_overburden_icarus_20220118T213827-GenBNBbkgr_100evt_G4_DetSim.root -n 1
+art -c sp_hepnos.fcl
+art -c hf_hepnos.fcl
+art -c p_hepnos.fcl
 
-19.  Run Signal processing step: `art -c sp_hepnos.fcl`
-
-21.  Run Hit finding step: `art -c hf_hepnos.fcl`
-
-22.  Run Pandora step: `art -c p_hepnos.fcl`
-
-21.  If we want to write output of Pandora step to a root file, run `art -c p_hepnos_root.fcl`
+# If we want to write output of Pandora step to a root file:
+art -c p_hepnos_root.fcl
+```
 
 ## Specifying options for input source
 
