@@ -34,6 +34,8 @@ cmake -DCMAKE_CXX_COMPILER=$(which g++) -DMERCURY_TRANSPORT_PROTOCOL="${MERCURY_
 ```
 
 ## Establishing a new working session
+
+Make sure to cd into the directory where you cloned the repository. 
 ```
 # environment variables for current versions of icarus code and hepnos, and source and build directories.
 export ICARUS_VERSION=09_37_02_vecmt04
