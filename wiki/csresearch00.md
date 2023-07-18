@@ -74,7 +74,7 @@ cd ${ICARUSWF_BUILD}/test
 mpirun -np 2 bedrock "${MERCURY_TRANSPORT_PROTOCOL}" -c hepnos.json &
 
 # If the above mpirun is successful, a hepnos.ssg file will be created. 
-hepnos-list-databases "${MERCURY_TRANSPORT_PROTOCOL} -s hepnos.ssg > connection.json 
+hepnos-list-databases "${MERCURY_TRANSPORT_PROTOCOL}" -s hepnos.ssg > connection.json 
 
 # Store data (raw::RawDigits) to hepnos for the first step, followed by running signal processing, hit finding and  pandora. 
 art -c storedata.fcl -s /scratch/cerati/icaruscode-v09_37_01_02p02/icaruscode-09_37_01_02p02-samples/prodcorsika_bnb_genie_protononly_overburden_icarus_20220118T213827-GenBNBbkgr_100evt_G4_DetSim.root -n 1
