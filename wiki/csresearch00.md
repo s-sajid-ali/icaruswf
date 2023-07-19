@@ -46,6 +46,7 @@ export ICARUSWF_SRC=${TOP_DIR}/icaruswf
 export ICARUSWF_BUILD=${TOP_DIR}/icaruswf_build
 export CET_PLUGIN_PATH=${ICARUSWF_BUILD}/src/modules:${CET_PLUGIN_PATH}
 export FHICL_FILE_PATH=${ICARUSWF_BUILD}/fcl:${FHICL_FILE_PATH}
+export FW_SEARCH_PATH=`spack location -i icaruscode`/fw:${FW_SEARCH_PATH}
 
 # Setup spack:
 source /scratch/gartung/spack/share/spack/setup-env.sh
