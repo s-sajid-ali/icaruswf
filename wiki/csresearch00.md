@@ -34,6 +34,8 @@ cmake -DCMAKE_CXX_COMPILER=$(which g++) -DMERCURY_TRANSPORT_PROTOCOL="${MERCURY_
 ```
 
 ## Establishing a new working session
+
+Make sure to cd into the directory in which you executed the `git clone` command. 
 ```
 # environment variables for current versions of icarus code and hepnos, and source and build directories.
 export ICARUS_VERSION=09_37_02_vecmt04
@@ -44,6 +46,7 @@ export ICARUSWF_SRC=${TOP_DIR}/icaruswf
 export ICARUSWF_BUILD=${TOP_DIR}/icaruswf_build
 export CET_PLUGIN_PATH=${ICARUSWF_BUILD}/src/modules:${CET_PLUGIN_PATH}
 export FHICL_FILE_PATH=${ICARUSWF_BUILD}/fcl:${FHICL_FILE_PATH}
+export FW_SEARCH_PATH=`spack location -i icaruscode`/fw:${FW_SEARCH_PATH}
 
 # Setup spack:
 source /scratch/gartung/spack/share/spack/setup-env.sh
@@ -69,11 +72,10 @@ make -j10 all
 cd ${ICARUSWF_BUILD}/test
 
 #Start hepnos server using two mpi ranks.
-cp ${ICARUSWF_SRC}/test/hepnos.json hepnos.json
 mpirun -np 2 bedrock "${MERCURY_TRANSPORT_PROTOCOL}" -c hepnos.json &
 
 # If the above mpirun is successful, a hepnos.ssg file will be created. 
-hepnos-list-databases "${MERCURY_TRANSPORT_PROTOCOL} -s hepnos.ssg > connection.json 
+hepnos-list-databases "${MERCURY_TRANSPORT_PROTOCOL}" -s hepnos.ssg > connection.json 
 
 # Store data (raw::RawDigits) to hepnos for the first step, followed by running signal processing, hit finding and  pandora. 
 art -c storedata.fcl -s /scratch/cerati/icaruscode-v09_37_01_02p02/icaruscode-09_37_01_02p02-samples/prodcorsika_bnb_genie_protononly_overburden_icarus_20220118T213827-GenBNBbkgr_100evt_G4_DetSim.root -n 1
