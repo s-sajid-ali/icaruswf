@@ -7,17 +7,22 @@
 #include <string>
 #include <vector>
 
+// parameters to be passed to the art command line
 struct art_params {
   std::string input_file;
   int nskip = 0;
   int nevents = 0;
 };
 
+// information for each file needed to determine MPI process allocation
 struct file_record {
   std::string input_file;
   int nevents = 0;
 };
 
+// extract a file record from the stream,
+// if the reading of a record fails, the record can be in a partly modified
+// state
 std::istream&
 operator>>(std::istream& in, file_record& e)
 {
@@ -36,39 +41,26 @@ operator>>(std::istream& in, file_record& e)
   return in;
 }
 
-struct mpi_record {
-  int index = 0;
-};
-
+// This is information for a single MPI rank.
 struct skip_info {
   int nskip = 0;
   int nevents = 0;
 };
 
-std::vector<file_record>
-read_file_records(std::string const& fname)
-{
-  std::ifstream in(fname);
-  std::vector<file_record> res;
-
-  while (in.good()) {
-    file_record rec;
-    in >> rec;
-    if (in)
-      res.push_back(rec);
-  }
-  return res;
-}
-
+// This is to determine how many events to skip and how many to read for a rank
+// out of all the ranks that will read a file given nevents
 skip_info
-skip_for_rank(int my_rank, int ranks, int nevents)
+skip_for_rank(int my_rank, int nranks, int nevents)
 {
-  auto [q, r] = std::div(nevents, ranks);
+  auto [q, r] = std::div(nevents, nranks);
   if (my_rank < r)
     return {(q + 1) * my_rank, q + 1};
   return {(q * my_rank) + r, q};
 }
 
+// For a program with nranks processing nfiles,
+// return the index of the file to be read by rank my_rank.
+// Note that nranks must be greater than or equal to nfiles.
 int
 calculate_index(std::size_t nfiles, int my_rank, int nranks)
 {
@@ -92,6 +84,28 @@ calculate_index(std::size_t nfiles, int my_rank, int nranks)
   return result;
 }
 
+// This function reads a text file in the format specified below
+// and returns a vector of one recrod per line.
+// detsim_00.root_0        1       1       31      0
+// detsim_00.root_1        2       3       31      0
+// detsim_00.root_2        3       4       30      0
+std::vector<file_record>
+read_file_records(std::string const& fname)
+{
+  std::ifstream in(fname);
+  std::vector<file_record> res;
+
+  while (in.good()) {
+    file_record rec;
+    in >> rec;
+    if (in)
+      res.push_back(rec);
+  }
+  return res;
+}
+
+// calculate parameters to be passed to the art command line
+// note this is done for each MPI rank
 art_params
 art_parameters_for_rank(std::string const& events_file)
 {
@@ -128,6 +142,8 @@ load_data(std::string const& fcl_file,
   // std::cout << my_rank << ": " << cmd << std::endl;
 }
 
+// Each MPI rank will execute art once to process 0 or more events from a given
+// file
 int
 main(int argc, char* argv[])
 {
