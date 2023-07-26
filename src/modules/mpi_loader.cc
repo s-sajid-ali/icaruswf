@@ -18,18 +18,22 @@ struct file_record {
   int nevents = 0;
 };
 
-std::istream & operator>>(std::istream & in, file_record & e)
+std::istream&
+operator>>(std::istream& in, file_record& e)
 {
-   if (!in) return in;
-   in >> e.input_file;
-   if (!in) return in;
-   int x;
-   in >> x;
-   in >> x;
-   in >> e.nevents;
-   if (!in) return in;
-   in >> x;
-   return in;
+  if (!in)
+    return in;
+  in >> e.input_file;
+  if (!in)
+    return in;
+  int x;
+  in >> x;
+  in >> x;
+  in >> e.nevents;
+  if (!in)
+    return in;
+  in >> x;
+  return in;
 }
 
 struct mpi_record {
@@ -46,11 +50,12 @@ read_file_records(std::string const& fname)
 {
   std::ifstream in(fname);
   std::vector<file_record> res;
-  
+
   while (in.good()) {
     file_record rec;
     in >> rec;
-    if (in) res.push_back(rec);
+    if (in)
+      res.push_back(rec);
   }
   return res;
 }
@@ -64,8 +69,7 @@ skip_for_rank(int my_rank, int ranks, int nevents)
   return {(q * my_rank) + r, q};
 }
 
-
-int 
+int
 calculate_index(std::size_t nfiles, int my_rank, int nranks)
 {
   if (nfiles > nranks) {
@@ -73,12 +77,12 @@ calculate_index(std::size_t nfiles, int my_rank, int nranks)
   }
   auto [q, r] = std::div(nranks, nfiles);
   std::vector<int> ranks_for_file(nfiles, q);
-  for ( int i = 0; i < r; ++i) {
+  for (int i = 0; i < r; ++i) {
     ranks_for_file[i] = q + 1;
-  } 
+  }
   int ranks_so_far = 0;
   int result = -1;
-  for ( int i = 0; i < nfiles; ++i) {
+  for (int i = 0; i < nfiles; ++i) {
     ranks_so_far += ranks_for_file[i];
     if (my_rank < ranks_so_far) {
       result = i;
@@ -119,17 +123,16 @@ load_data(std::string const& fcl_file,
   std::string const cmd = fmt::format(
     "art -c {} --nskip {} -n {} -s {}", fcl_file, nskip, nevents, input_file);
   std::system(cmd.c_str());
- // int my_rank;
- //  MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
- // std::cout << my_rank << ": " << cmd << std::endl;
+  // int my_rank;
+  //  MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+  // std::cout << my_rank << ": " << cmd << std::endl;
 }
 
 int
 main(int argc, char* argv[])
 {
   if (argc != 3) {
-    std::cerr
-      << "Please specify fcl file and events file names\n";
+    std::cerr << "Please specify fcl file and events file names\n";
     return 1;
   }
   std::vector<std::string> args(argv + 1, argv + argc);
