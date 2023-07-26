@@ -29,6 +29,7 @@ find_package(hep_concurrency REQUIRED)
 find_package(larcoreobj REQUIRED)
 find_package(lardataobj REQUIRED)
 find_package(spdlog REQUIRED)
+find_package(fmt REQUIRED)
 
 add_subdirectory(src)
 add_subdirectory(fcl)
