@@ -35,8 +35,12 @@ cmake -DCMAKE_CXX_COMPILER=$(which g++) -DMERCURY_TRANSPORT_PROTOCOL="${MERCURY_
 
 ## Establishing a new working session
 
-Make sure to cd into the directory in which you executed the `git clone` command. 
 ```
+# Setup spack:
+source /scratch/gartung/spack/share/spack/setup-env.sh
+
+# Make sure to cd into the directory in which you executed the `git clone` command. 
+
 # environment variables for current versions of icarus code and hepnos, and source and build directories.
 export ICARUS_VERSION=09_37_02_vecmt04
 export HEPNOS_VERSION=0_7_2
@@ -47,9 +51,6 @@ export ICARUSWF_BUILD=${TOP_DIR}/icaruswf_build
 export CET_PLUGIN_PATH=${ICARUSWF_BUILD}/src/modules:${CET_PLUGIN_PATH}
 export FHICL_FILE_PATH=${ICARUSWF_BUILD}/fcl:${FHICL_FILE_PATH}
 export FW_SEARCH_PATH=`spack location -i icaruscode`/fw:${FW_SEARCH_PATH}
-
-# Setup spack:
-source /scratch/gartung/spack/share/spack/setup-env.sh
 
 # Load the compiler
 spack load gcc@9.3.0
