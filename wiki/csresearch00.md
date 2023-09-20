@@ -50,13 +50,15 @@ export ICARUSWF_SRC=${TOP_DIR}/icaruswf
 export ICARUSWF_BUILD=${TOP_DIR}/icaruswf_build
 export CET_PLUGIN_PATH=${ICARUSWF_BUILD}/src/modules:${CET_PLUGIN_PATH}
 export FHICL_FILE_PATH=${ICARUSWF_BUILD}/fcl:${FHICL_FILE_PATH}
-export FW_SEARCH_PATH=`spack location -i icaruscode`/fw:${FW_SEARCH_PATH}
 
 # Load the compiler
 spack load gcc@9.3.0
 
 # activate spack environment
 spack env activate icaruscode-${ICARUS_VERSION}-hepnos-${HEPNOS_VERSION}
+
+#update the FW_SEARCH_PATH
+export FW_SEARCH_PATH=`spack location -i icaruscode`/fw:${FW_SEARCH_PATH}
 
 # Set up the environment variables
 source ${ICARUSWF_SRC}/envvariable.sh
