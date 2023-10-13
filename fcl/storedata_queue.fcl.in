@@ -3,12 +3,12 @@ process_name : DetSim
   outputs : {
       hepnos : {
          module_type: LoadbalancingOutput
+         # fileName here corresponds to the HEPnOS dataset name
          fileName: "icarus"
       }
   }
 
 services.HepnosDataStore: {
-   protocol: "${MERCURY_TRANSPORT_PROTOCOL}"
 }
 
 physics : {
