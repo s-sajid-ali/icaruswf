@@ -61,8 +61,8 @@ outputs: {
    }
 }
 
+# do not set maxEvents because it will disable the loadbalancing feature
 source: {
-   maxEvents: 1
    module_type: "LoadbalancingInput"
    fileNames: ['icarus']
    processName: DetSim
