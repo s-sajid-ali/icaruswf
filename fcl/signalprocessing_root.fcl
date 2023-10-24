@@ -1,0 +1,10 @@
+#include "signalprocessing.fcl"
+#
+outputs: {
+  out: {
+    module_type: RootOutput
+    outputCommands: ["keep *_*_*_*", "drop *_MCDecodeTPCROI_*_*", "drop *_decon1droi_*_*","drop raw::RawDigits_*_*_*" ]
+  }
+}
+
+physics.outStream: [out]

@@ -88,11 +88,17 @@ export NUM_CLIENT_HARDWARE_THREADS_PER_RANK=2
 dirname=job_${$COBALT_JOBID}
 mkdir dirname
 cd dirname
-printenv > environment.txt
+export PROCESS_1_FCL=signalprocessing_hepnos.fcl
+export PROCESS_2_FCL=hitfinding_hepnos.fcl
+export PROCESS_3_FCL=pandora_hepnos.fcl
+
+
 cp $CONNECTION_FILE .
 
 export EVENTS_FILE=${ICARUSWF_SRC}/events.txt
 export LOADER_FCL_FILE=storedata_queue.fcl #this file is on FHICL_FILE_PATH 
+printenv > environment.txt
+
 echo "%%% before icaruswf-load with $NUM_CLIENT_HARDWARE_THREADS_PER_RANK threads, at $(date)"
 aprun -n $NUM_CLIENT_TOTAL_RANKS \
       -N $NUM_CLIENT_RANKS_PER_NODE \
@@ -110,7 +116,7 @@ aprun -n $NUM_CLIENT_TOTAL_RANKS \
 	-j $NUM_CLIENT_HYPERTHREADS \
 	-cc none \
 	-p ${PDOMAIN} \
-	${ICARUSWF_BUILD}/src/modules/mpi_processor ${PROCESS_1_FCL} ${PROCESS_2_FCL} ${PROCESS_3_FCL} &> process_out
+	${ICARUSWF_BUILD}/src/modules/mpi_hepnos_processor ${PROCESS_1_FCL} ${PROCESS_2_FCL} ${PROCESS_3_FCL} &> process_out
 echo "%%% after icaruswf-process with $NUM_CLIENT_HARDWARE_THREADS_PER_RANK threads, at $(date)"
 
 cd ${BASEDIR}
