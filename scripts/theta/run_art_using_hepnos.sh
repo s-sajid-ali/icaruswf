@@ -77,7 +77,8 @@ sed -i '$ d' ${CONNECTION_FILE} # we have to because aprun adds a line
 aprun -n 1 \
       -N 1 \
       -p ${PDOMAIN} \
-      ${ICARUSWF_BUILD}/src/modules/cheesyQueue_maker ${MERCURY_TRANSPORT_PROTOCOL} ${CONNECTION_FILE} DetSim HitFinding &> queue-creation-log
+      ${ICARUSWF_BUILD}/src/modules/cheesyQueue_maker ${MERCURY_TRANSPORT_PROTOCOL} ${CONNECTION_FILE} DetSim
+      SignalProcessing HitFinding Pandora &> queue-creation-log
 
 export NUM_CLIENT_NODES=3
 export NUM_CLIENT_TOTAL_RANKS=$(($NUM_CLIENT_NODES*32))

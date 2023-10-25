@@ -1,14 +1,9 @@
-#include "signalprocessing.fcl"
+#include "hitfinding.fcl"
 
 outputs: {
   out: {
     module_type: "LoadbalancingOutput"
     fileName: "icarus"
-    dropCommands: [
-       ".*_MCDecodeTPCROI_.*_.*",
-       ".*_decon1droi_.*_.*",
-       "raw::RawDigits_.*_.*_.*"
-    ]
   }
 }
 
@@ -16,7 +11,7 @@ outputs: {
 source: {
    module_type: "LoadbalancingInput"
    fileNames: ['icarus']
-   processToRead: DetSim
+   processToRead: SignalProcessing
 }
 
 physics.outStream: [out]
