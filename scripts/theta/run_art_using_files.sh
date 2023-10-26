@@ -5,12 +5,6 @@
 #COBALT -t 6:00:00
 #COBALT --mode script
 
-export NUM_DAEMON_NODES=1
-export NUM_DAEMON_TOTAL_RANKS=$(($NUM_DAEMON_NODES*16))
-export NUM_DAEMON_HYPERTHREADS=1
-export NUM_DAEMON_RANKS_PER_NODE=$(($NUM_DAEMON_TOTAL_RANKS/$NUM_DAEMON_NODES))
-export NUM_DAEMON_THREADS_PER_RANK=$(($NUM_DAEMON_HYPERTHREADS*64/$NUM_DAEMON_RANKS_PER_NODE))
-
 #please update these to point to the correct directories that you have permissions to
 export ICARUSWF_SRC=/projects/HEP_on_HPC/sehrish/icaruswf/ #need to check where is the checked out repository 
 export ICARUSWF_BUILD=/projects/HEP_on_HPC/sehrish/icaruswf_build
