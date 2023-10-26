@@ -9,6 +9,10 @@
 export ICARUSWF_SRC=/projects/HEP_on_HPC/sehrish/icaruswf/ #need to check where is the checked out repository 
 export ICARUSWF_BUILD=/projects/HEP_on_HPC/sehrish/icaruswf_build
 
+# -----------------------------------------------------------------------------
+# NOTHING BELOW THIS SHOULD NEED MODIFICATION.
+# -----------------------------------------------------------------------------
+#
 export MPICH_GNI_NDREG_ENTRIES=1024
 export MPICH_MAX_THREAD_SAFETY=multiple
 export CET_PLUGIN_PATH=${ICARUSWF_BUILD}/src/modules:${CET_PLUGIN_PATH}
@@ -42,6 +46,8 @@ export NUM_CLIENT_HARDWARE_THREADS_PER_RANK=2
 export BASEDIR=job_${COBALT_JOBID}
 mkdir ${BASEDIR}
 cd ${BASEDIR}
+export BASEDIR=${PWD}
+
 export PATHS_FILE=${ICARUSWF_SRC}/root_file_paths_on_theta.txt
 export PROCESS_1_FCL=signalprocessing_root.fcl
 export PROCESS_2_FCL=hitfinding_root.fcl
