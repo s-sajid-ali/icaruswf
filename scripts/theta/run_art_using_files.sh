@@ -45,8 +45,7 @@ export NUM_CLIENT_HARDWARE_THREADS_PER_RANK=2
 
 export BASEDIR=job_${COBALT_JOBID}
 mkdir ${BASEDIR}
-cd ${BASEDIR}
-export BASEDIR=${PWD}
+pushd ${BASEDIR}
 
 export PATHS_FILE=${ICARUSWF_SRC}/root_file_paths_on_theta.txt
 export PROCESS_1_FCL=signalprocessing_root.fcl
@@ -64,8 +63,6 @@ aprun -n $NUM_CLIENT_TOTAL_RANKS \
 	${ICARUSWF_BUILD}/src/modules/mpi_files_processor ${PATHS_FILE} ${PROCESS_1_FCL} ${PROCESS_2_FCL} ${PROCESS_3_FCL} &> process_out
 echo "%%% after icaruswf-process-with-files with $NUM_CLIENT_HARDWARE_THREADS_PER_RANK threads, at $(date)"
 
-cd ${BASEDIR}
-
 rm */*.root
-cd ../
+popd
 tar zcvf ${BASEDIR}.tar.gz ${BASEDIR}/ 
