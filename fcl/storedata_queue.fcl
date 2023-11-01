@@ -1,0 +1,16 @@
+process_name : DetSim
+
+  outputs : {
+      hepnos : {
+         module_type: LoadbalancingOutput
+         # fileName here corresponds to the HEPnOS dataset name
+         fileName: "icarus"
+      }
+  }
+
+services.HepnosDataStore: {
+}
+
+physics : {
+ end_path : [hepnos]
+ }
