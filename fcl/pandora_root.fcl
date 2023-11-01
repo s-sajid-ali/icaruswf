@@ -1,1 +1,3 @@
 #include "pandora.fcl"
+
+source.maxEvents: -1
