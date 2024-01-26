@@ -1,0 +1,24 @@
+#include "signalprocessing.fcl"
+
+outputs: {
+  out: {
+    module_type: "LoadbalancingOutput"
+    fileName: "icarus"
+    dropCommands: [
+       ".*_MCDecodeTPCROI_.*_.*",
+       ".*_decon1droi_.*_.*",
+       "raw::RawDigits_.*_.*_.*"
+    ]
+  }
+}
+
+# do not set maxEvents because it will disable the loadbalancing feature
+source: {
+   module_type: "LoadbalancingInput"
+   fileNames: ['icarus']
+   processToRead: DetSim
+}
+
+physics.outStream: [out]
+
+services.HepnosDataStore: {}

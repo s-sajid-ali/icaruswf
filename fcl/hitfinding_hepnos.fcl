@@ -1,0 +1,19 @@
+#include "hitfinding.fcl"
+
+outputs: {
+  out: {
+    module_type: "LoadbalancingOutput"
+    fileName: "icarus"
+  }
+}
+
+# do not set maxEvents because it will disable the loadbalancing feature
+source: {
+   module_type: "LoadbalancingInput"
+   fileNames: ['icarus']
+   processToRead: SignalProcessing
+}
+
+physics.outStream: [out]
+
+services.HepnosDataStore: {}

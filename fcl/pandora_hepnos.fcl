@@ -1,0 +1,16 @@
+#include "pandora.fcl"
+outputs: {
+  out1: {
+    module_type: "LoadbalancingOutput"
+    fileName: "icarus"
+  }
+}
+
+# do not set maxEvents because it will disable the loadbalancing feature
+source: {
+   module_type: "LoadbalancingInput"
+   fileNames: ['icarus']
+   processToRead: HitFinding
+}
+
+services.HepnosDataStore: {}

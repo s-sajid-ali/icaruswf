@@ -27,55 +27,17 @@ physics.producers: {  @table::icarus_stage0_producers
 services:
 {
   Timestamp:           { }
-  TFileService:           { }
   IICARUSChannelMap:      @local::icarus_channelmappinggservice
                           @table::icarus_wirecalibration_minimum_services
-
-   HepnosDataStore: { 
-      protocol: "${MERCURY_TRANSPORT_PROTOCOL}"
-   }
 }
 
 ## Use the following to run the full defined stage0 set of modules
 physics.reco: [
-               "MCDecodeTPCROI",
-               "decon1droi",
-               "roifinder",
                "gaushitTPCEE",
                "gaushitTPCEW",
                "gaushitTPCWE",
                "gaushitTPCWW"
               ]
-
-outputs: {
-   out: {
-      dataTier: "reconstructed"
-      module_type: "LoadbalancingOutput"
-      fileName: "icarus"
-      dropCommands: [
-         ".*_MCDecodeTPCROI_.*_.*",
-         ".*_decon1droi_.*_.*",
-         "raw::RawDigits_.*_.*_.*"
-      ]
-      streamName: "out"
-   }
-}
-
-# do not set maxEvents because it will disable the loadbalancing feature
-source: {
-   module_type: "LoadbalancingInput"
-   fileNames: ['icarus']
-   processName: DetSim
-}
-
-physics.ep: [ out ]
-
-# Set up for the single module mutliple TPC mode...
-physics.producers.MCDecodeTPCROI.FragmentsLabelVec:   ["daq3:PHYSCRATEDATATPCWW","daq2:PHYSCRATEDATATPCWE","daq1:PHYSCRATEDATATPCEW","daq0:PHYSCRATEDATATPCEE"]
-physics.producers.MCDecodeTPCROI.OutInstanceLabelVec: ["PHYSCRATEDATATPCWW",     "PHYSCRATEDATATPCWE",     "PHYSCRATEDATATPCEW",     "PHYSCRATEDATATPCEE"]
-physics.producers.decon1droi.RawDigitLabelVec:        ["MCDecodeTPCROI:PHYSCRATEDATATPCWW","MCDecodeTPCROI:PHYSCRATEDATATPCWE","MCDecodeTPCROI:PHYSCRATEDATATPCEW","MCDecodeTPCROI:PHYSCRATEDATATPCEE"]
-
-physics.producers.roifinder.WireModuleLabelVec: ["decon1droi:PHYSCRATEDATATPCWW","decon1droi:PHYSCRATEDATATPCWE","decon1droi:PHYSCRATEDATATPCEW","decon1droi:PHYSCRATEDATATPCEE"]
 
 services.FileCatalogMetadata:       @erase
 services.DuplicateEventTracker:     @erase
@@ -90,3 +52,8 @@ services.DetPedestalService.DetPedestalRetrievalAlg.UseFile: false
 services.DetectorClocksService.InheritClockConfig: false
 services.DetectorPropertiesService.InheritNumberTimeSamples: false 
 
+services.TimeTracker.printSummary: false
+services.TimeTracker.dbOutput.filename: "timing.db"
+services.MemoryTracker: @erase
+
+services.scheduler.num_threads: 4

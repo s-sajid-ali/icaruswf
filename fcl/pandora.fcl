@@ -1,0 +1,85 @@
+#include "geometry_icarus.fcl"
+#include "mchitmodules.fcl"
+#include "mcreco.fcl"
+#include "mctrutht0matching.fcl"
+#include "services_common_icarus.fcl"
+#include "backtrackerservice.fcl"
+#include "particleinventoryservice.fcl"
+#include "calibrationservices_icarus.fcl"
+#include "stage1_icarus_driver_common.fcl"
+
+process_name: Pandora
+
+## Add the MC module to the list of producers
+physics.producers: {
+            @table::icarus_stage1_producers
+
+            mcophit:                        @local::ICARUSMCOpHit
+            mcopflashTPC0:                  @local::ICARUSMCOpFlashTPC0
+            mcopflashTPC1:                  @local::ICARUSMCOpFlashTPC1
+            mcopflashTPC2:                  @local::ICARUSMCOpFlashTPC2
+            mcopflashTPC3:                  @local::ICARUSMCOpFlashTPC3
+          
+            cheatopflashTPC0:               @local::ICARUSCheatOpFlashTPC0
+            cheatopflashTPC1:               @local::ICARUSCheatOpFlashTPC1
+            cheatopflashTPC2:               @local::ICARUSCheatOpFlashTPC2
+            cheatopflashTPC3:               @local::ICARUSCheatOpFlashTPC3
+
+            ### mc producers
+            mchitfinder:                    @local::standard_mchitfinder
+            mcassociationsGausCryoE:        @local::standard_mcparticlehitmatching
+            mcassociationsGausCryoW:        @local::standard_mcparticlehitmatching
+}
+
+physics.reco: [ 
+                "cluster3DCryoE",
+                "pandoraGausCryoE",
+                "cluster3DCryoW",
+                "pandoraGausCryoW"
+              ]
+
+physics.trigger_paths:     [ reco ]
+
+services:
+{
+    Timestamp:           { }
+    ChannelStatusService:           @local::icarus_channelstatusservice
+    DetPedestalService:             @local::icarus_detpedestalservice
+    DetectorClocksService:          @local::icarus_detectorclocks
+    DetectorPropertiesService:     @local::icarus_detproperties
+    LArPropertiesService:      @local::icarus_properties
+    @table::icarus_geometry_services
+    TFileService: {
+      fileName: "Supplemental-%ifb_%tc-%p.root"
+    } 
+}
+# Disabled Space-Charge service for calorimetry
+services.SpaceChargeService: {
+    EnableCalEfieldSCE: false
+    EnableCalSpatialSCE: false
+    EnableCorrSCE: false
+    EnableSimEfieldSCE: false
+    EnableSimSpatialSCE: false
+    InputFilename: "SCEoffsets/SCEoffsets_ICARUS_E500_voxelTH3.root"
+    RepresentationType: "Voxelized_TH3"
+    service_provider: "SpaceChargeServiceICARUS"
+}
+
+
+services.FileCatalogMetadata:       @erase
+services.DuplicateEventTracker:     @erase
+services.SpaceChargeService:        @erase
+services.BackTrackerService:        @erase
+services.ParticleInventoryService:  @erase
+
+services.ChannelStatusService.ChannelStatusProvider.UseDB: false
+services.ChannelStatusService.ChannelStatusProvider.UseFile: false
+services.DetPedestalService.DetPedestalRetrievalAlg.UseDB: false
+services.DetPedestalService.DetPedestalRetrievalAlg.UseFile: false
+services.DetectorClocksService.InheritClockConfig: false
+services.DetectorPropertiesService.InheritNumberTimeSamples: false 
+
+services.Geometry: @local::icarus_geometry
+services.TimeTracker.printSummary: false
+services.TimeTracker.dbOutput.filename: "timing.db"
+services.MemoryTracker: @erase

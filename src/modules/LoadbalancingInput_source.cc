@@ -278,7 +278,7 @@ namespace icaruswf {
                        art::SourceHelper const& pm)
       : pm_(pm)
       , datastore_{art::ServiceHandle<HepnosDataStore>()->getStore()}
-      , inputProcessname_(p.get<std::string>("processName"))
+      , inputProcessname_(p.get<std::string>("processToRead"))
       , maxEvents_(p.get<int>("maxEvents", -1))
       , nSkip_(p.get<std::size_t>("skipEvents", -1ull))
       , firstRun_(p.get<unsigned>("firstRun", -1u))
@@ -305,8 +305,7 @@ namespace icaruswf {
           "daq3", "PHYSCRATEDATATPCWW");
         rh.reconstitutes<std::vector<raw::OpDetWaveform>, art::InEvent>("opdaq",
                                                                         "");
-      }
-      if (inputProcessname_ == "SignalProcessing") {
+      } else if (inputProcessname_ == "SignalProcessing") {
         rh.reconstitutes<std::vector<recob::Wire>, art::InEvent>(
           "roifinder", "PHYSCRATEDATATPCEE");
         rh.reconstitutes<std::vector<recob::Wire>, art::InEvent>(
@@ -317,8 +316,7 @@ namespace icaruswf {
           "roifinder", "PHYSCRATEDATATPCWW");
         rh.reconstitutes<std::vector<raw::OpDetWaveform>, art::InEvent>("opdaq",
                                                                         "");
-      }
-      if (inputProcessname_ == "HitFinding") {
+      } else if (inputProcessname_ == "HitFinding") {
         rh.reconstitutes<std::vector<recob::Hit>, art::InEvent>("gaushitTPCEE",
                                                                 "");
         rh.reconstitutes<std::vector<recob::Hit>, art::InEvent>("gaushitTPCEW",
@@ -335,6 +333,11 @@ namespace icaruswf {
                          art::InEvent>("gaushitTPCWE", "");
         rh.reconstitutes<art::Assns<recob::Hit, recob::Wire, void>,
                          art::InEvent>("gaushitTPCWW", "");
+      } else {
+        throw art::Exception(art::errors::Configuration)
+          << "Incorrect value of processToRead supplied: " << inputProcessname_
+          << '\n';
+        ;
       }
     }
 
@@ -467,14 +470,18 @@ namespace icaruswf {
     auto const strict = true;
     // check whats in store
     auto status = true;
-    if (inputProcessname_ == "DetSim")
+    if (inputProcessname_ == "DetSim") {
       status = hepnos::read_daq(event, strict, outE);
-    if (inputProcessname_ == "SignalProcessing")
+    } else if (inputProcessname_ == "SignalProcessing") {
       status = hepnos::read_wires(event, strict, outE);
-    if (inputProcessname_ == "HitFinding") {
+    } else if (inputProcessname_ == "HitFinding") {
       status = hepnos::read_hits(event, strict, outE);
+    } else {
+      throw art::Exception(art::errors::LogicError)
+        << "Impossible value of inputPrcessname_: " << inputProcessname_
+        << '\n';
+      ;
     }
-
     {
       std::function<void(void)> f = [&]() { ++nEvents_; };
       this->run_hepnos_func(f);

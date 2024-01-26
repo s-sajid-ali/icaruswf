@@ -18,11 +18,11 @@ target_link_libraries(HepnosDataStore_service PRIVATE Boost::system hepnos Boost
 target_include_directories(HepnosDataStore_service PRIVATE  $ENV{ROOT_INC} $ENV{ART_INC} $ENV{HEPNOS_INC} $ENV{THALLIUM_INC} $ENV{LARDATAOBJ_INC} $ENV{CEREAL_INC} ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-# TCLAP
-find_package(TCLAP REQUIRED)
-add_executable(mpi_wrapper mpi_wrapper.cc)
-target_link_libraries(mpi_wrapper PRIVATE MPI::MPI_C)
-target_include_directories(mpi_wrapper PRIVATE ${TCLAP_INCLUDE_PATH})
+add_executable(mpi_hepnos_processor mpi_hepnos_processor.cc)
+target_link_libraries(mpi_hepnos_processor PRIVATE MPI::MPI_C fmt::fmt)
+
+add_executable(mpi_files_processor mpi_files_processor.cc)
+target_link_libraries(mpi_files_processor PRIVATE MPI::MPI_C fmt::fmt)
 
 add_executable(mpi_loader mpi_loader.cc)
 target_link_libraries(mpi_loader PRIVATE MPI::MPI_C fmt::fmt)

@@ -6,7 +6,7 @@
 #include "services_common_icarus.fcl"
 #include "channelmapping_icarus.fcl"
 
-process_name: HitFinding
+process_name: SignalProcessing
 
 
 ## Add the MC module to the list of producers
@@ -30,45 +30,14 @@ services:
   TFileService:           { }
   IICARUSChannelMap:      @local::icarus_channelmappinggservice
                           @table::icarus_wirecalibration_minimum_services
-
-   HepnosDataStore: { 
-      protocol: "${MERCURY_TRANSPORT_PROTOCOL}"
-   }
 }
 
 ## Use the following to run the full defined stage0 set of modules
 physics.reco: [
                "MCDecodeTPCROI",
                "decon1droi",
-               "roifinder",
-               "gaushitTPCEE",
-               "gaushitTPCEW",
-               "gaushitTPCWE",
-               "gaushitTPCWW"
+               "roifinder"
               ]
-
-outputs: {
-   out: {
-      dataTier: "reconstructed"
-      module_type: "LoadbalancingOutput"
-      fileName: "icarus"
-      dropCommands: [
-         ".*_MCDecodeTPCROI_.*_.*",
-         ".*_decon1droi_.*_.*",
-         "raw::RawDigits_.*_.*_.*"
-      ]
-      streamName: "out"
-   }
-}
-
-# do not set maxEvents because it will disable the loadbalancing feature
-source: {
-   module_type: "LoadbalancingInput"
-   fileNames: ['icarus']
-   processName: DetSim
-}
-
-physics.ep: [ out ]
 
 # Set up for the single module mutliple TPC mode...
 physics.producers.MCDecodeTPCROI.FragmentsLabelVec:   ["daq3:PHYSCRATEDATATPCWW","daq2:PHYSCRATEDATATPCWE","daq1:PHYSCRATEDATATPCEW","daq0:PHYSCRATEDATATPCEE"]
@@ -90,3 +59,8 @@ services.DetPedestalService.DetPedestalRetrievalAlg.UseFile: false
 services.DetectorClocksService.InheritClockConfig: false
 services.DetectorPropertiesService.InheritNumberTimeSamples: false 
 
+services.TimeTracker.printSummary: false
+services.TimeTracker.dbOutput.filename: "timing.db"
+services.MemoryTracker: @erase
+
+services.scheduler.num_threads: 4

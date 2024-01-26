@@ -1,11 +1,12 @@
 #include "HepnosDataStore.h"
 #include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
+#include "cetlib/getenv.h"
 #include <chrono>
 #include <functional>
 
 namespace icaruswf {
 
-  HepnosDataStore::HepnosDataStore(Parameters const& ps)
+  HepnosDataStore::HepnosDataStore(Parameters const&)
   {
 
     hepnos_exec_thread_ = std::thread([this] {
@@ -33,10 +34,11 @@ namespace icaruswf {
     });
 
     hepnos_exec_thread_.detach();
-
+    std::string protocol = cet::getenv("MERCURY_TRANSPORT_PROTOCOL"); 
+    std::string connection_file = cet::getenv("CONNECTION_FILE"); 
     std::function<void(void)> f = [&]() {
       dataStore_ =
-        hepnos::DataStore::connect(ps().protocol(), ps().connection_file());
+        hepnos::DataStore::connect(protocol, connection_file);
       return;
     };
     this->set_work_function(f);
